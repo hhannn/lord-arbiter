@@ -8,7 +8,7 @@ import { IconCircleCheckFilled, IconMoonFilled} from "@tabler/icons-react"
 
 import { Badge } from "@/components/ui/badge";
 
-export type Bots = {
+export type Bot = {
     id: number;
     asset: string;
     start_size: number;
@@ -21,7 +21,7 @@ export type Bots = {
     status: "Running" | "Idle" | "Stopping";
 };
 
-export const columns: ColumnDef<Bots>[] = [
+export const columns: ColumnDef<Bot>[] = [
     {
         accessorKey: "id",
         header: "ID",
@@ -43,7 +43,7 @@ export const columns: ColumnDef<Bots>[] = [
         accessorKey: "leverage",
         header: "Leverage",
         cell: ({ row }) => {
-            const leverage = String(row.getValue("multiplier"));
+            const leverage = String(row.getValue("leverage"));
 
             return `${leverage}x`;
         },

@@ -32,7 +32,9 @@ export const useBotStore = create<BotState>((set) => ({
         set({ loading: true, error: null });
         try {
             const res = await fetch(`/api/bots`);
+
             if (!res.ok) throw new Error("Failed to fetch bots");
+            
             const json = await res.json();
             set({ data: json, loading: false });
             // console.log(json)

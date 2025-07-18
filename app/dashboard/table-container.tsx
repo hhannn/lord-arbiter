@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useBotStore } from "@/store/useBotStore";
 import { DataTable } from "./data-table";
-import { columns, Bots } from "./columns";
+import { columns, Bot } from "./columns";
 import { Skeleton } from "@/components/ui/skeleton";
 
 export function BotTableContainer() {
