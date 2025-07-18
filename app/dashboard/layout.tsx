@@ -11,6 +11,8 @@ import Link from "next/link";
 import Image from "next/image";
 import { ThemeProvider } from "@/components/theme-provider";
 
+import { SpeedInsights } from "@vercel/speed-insights/next"
+
 export const metadata = {
     title: "Lord Arbiter",
     description: "Sign in to your MyApp account",
