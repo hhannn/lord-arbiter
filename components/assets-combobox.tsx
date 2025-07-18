@@ -1,0 +1,105 @@
+"use client";
+
+import * as React from "react";
+import { useState, useEffect } from "react";
+
+import { CheckIcon, ChevronsUpDownIcon } from "lucide-react";
+
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import {
+    Command,
+    CommandEmpty,
+    CommandGroup,
+    CommandInput,
+    CommandItem,
+    CommandList,
+} from "@/components/ui/command";
+import {
+    Popover,
+    PopoverContent,
+    PopoverTrigger,
+} from "@/components/ui/popover";
+
+interface AssetsComboboxProps {
+    onSelect?: (value: string) => void;
+}
+
+export function AssetsCombobox({ onSelect }: AssetsComboboxProps) {
+    const [symbols, setSymbols] = useState<string[]>([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        async function fetchSymbols() {
+            try {
+                const res = await fetch(
+                    "https://api.bybit.com/v5/market/instruments-info?category=linear"
+                );
+                const data = await res.json();
+                const perpetualSymbols = data.result.list.map(
+                    (item: any) => item.symbol
+                );
+                setSymbols(perpetualSymbols.flat(1));
+            } catch (error) {
+                console.error("Failed to fetch symbols:", error);
+            } finally {
+                setLoading(false);
+            }
+        }
+        fetchSymbols();
+    }, []);
+
+    const [open, setOpen] = React.useState(false);
+    const [value, setValue] = React.useState("");
+
+    return (
+        <Popover open={open} onOpenChange={setOpen}>
+            <PopoverTrigger className="w-full">
+                <Button
+                    variant="outline"
+                    role="combobox"
+                    aria-expanded={open}
+                    className="justify-between w-full"
+                >
+                    {value || "Select asset"}
+                    <ChevronsUpDownIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-full p-0">
+                <Command>
+                    <CommandInput placeholder="Search asset..." />
+                    <CommandList>
+                        <CommandEmpty>No framework found.</CommandEmpty>
+                        <CommandGroup>
+                            {symbols.map((symbol) => (
+                                <CommandItem
+                                    key={symbol}
+                                    value={symbol}
+                                    onSelect={(currentValue) => {
+                                        const selectedValue =
+                                            currentValue === value
+                                                ? ""
+                                                : currentValue;
+                                        setValue(selectedValue);
+                                        setOpen(false);
+                                        onSelect?.(selectedValue);
+                                    }}
+                                >
+                                    <CheckIcon
+                                        className={cn(
+                                            "mr-2 h-4 w-4",
+                                            value === symbol
+                                                ? "opacity-100"
+                                                : "opacity-0"
+                                        )}
+                                    />
+                                    {symbol}
+                                </CommandItem>
+                            ))}
+                        </CommandGroup>
+                    </CommandList>
+                </Command>
+            </PopoverContent>
+        </Popover>
+    );
+}
