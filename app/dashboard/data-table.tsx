@@ -84,7 +84,9 @@ export function DataTable<TData, TValue>({
 
     const isMounted = useIsMounted();
 
-    const API_BASE_URL =
+    const API_FRONTEND_URL =
+        process.env.NEXT_PUBLIC_FRONTEND_URL || "http://localhost:3000";
+    const API_BACKEND_URL =
         process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8000";
 
     async function handleCreateBot() {
@@ -109,7 +111,7 @@ export function DataTable<TData, TValue>({
         }
 
         try {
-            const res = await fetch(`${API_BASE_URL}/api/bots`, {
+            const res = await fetch(`${API_FRONTEND_URL}/api/bots`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
@@ -140,7 +142,7 @@ export function DataTable<TData, TValue>({
 
     async function startBot(botId: number) {
         toast(`Starting bot ${botId}.`);
-        const res = await fetch(`${API_BASE_URL}/api/bots/start/${botId}`, {
+        const res = await fetch(`${API_BACKEND_URL}/api/bots/start/${botId}`, {
             method: "POST",
         });
 
@@ -173,7 +175,7 @@ export function DataTable<TData, TValue>({
 
     async function stopBot(botId: number) {
         try {
-            const res = await fetch(`${API_BASE_URL}/api/bots/stop/${botId}`, {
+            const res = await fetch(`${API_BACKEND_URL}/api/bots/stop/${botId}`, {
                 method: "POST",
             });
 
@@ -200,7 +202,7 @@ export function DataTable<TData, TValue>({
                     .map(async (bot) => {
                         try {
                             const res = await fetch(
-                                `${API_BASE_URL}/api/bot/position`,
+                                `${API_BACKEND_URL}/api/bot/position`,
                                 {
                                     method: "POST",
                                     headers: {

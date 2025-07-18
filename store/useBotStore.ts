@@ -22,7 +22,7 @@ interface BotState {
 }
 
 const API_BASE_URL =
-    process.env.NEXT_PUBLIC_FRONTEND_URL || "http://localhost:8000";
+    process.env.NEXT_PUBLIC_FRONTEND_URL || "http://localhost:3000";
 
 export const useBotStore = create<BotState>((set) => ({
     data: [],
@@ -31,7 +31,7 @@ export const useBotStore = create<BotState>((set) => ({
     fetchBots: async () => {
         set({ loading: true, error: null });
         try {
-            const res = await fetch(`${API_BASE_URL}/api/bots`);
+            const res = await fetch(`/api/bots`);
             if (!res.ok) throw new Error("Failed to fetch bots");
             const json = await res.json();
             set({ data: json, loading: false });
