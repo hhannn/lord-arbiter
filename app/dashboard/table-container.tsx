@@ -3,7 +3,8 @@
 import { useState, useEffect } from "react";
 import { useBotStore } from "@/store/useBotStore";
 import { DataTable } from "./data-table";
-import { columns, Bot } from "./columns";
+import { columns } from "./columns";
+import { Bot } from "@/types/bot";
 import { Skeleton } from "@/components/ui/skeleton";
 
 export function BotTableContainer() {
@@ -30,5 +31,5 @@ export function BotTableContainer() {
         );
     }
 
-    return <DataTable data={data} columns={columns} />;
+    return <DataTable<Bot, unknown> data={data} columns={columns} />;
 }

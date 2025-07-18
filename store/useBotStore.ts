@@ -1,18 +1,6 @@
 // store/useBotStore.ts
 import { create } from "zustand";
-
-export interface Bot {
-    id: string;
-    asset: string;
-    start_size: number;
-    leverage: number;
-    multiplier: number;
-    take_profit: number;
-    rebuy: number;
-    current_position: number;
-    unrealized_pnl: number;
-    status: "Running" | "Stopped" | "Idle" | "Stopping";
-}
+import { Bot } from "@/types/bot";
 
 interface BotState {
     data: Bot[];

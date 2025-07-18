@@ -7,19 +7,7 @@ import { Moon } from "lucide-react";
 import { IconCircleCheckFilled, IconMoonFilled} from "@tabler/icons-react"
 
 import { Badge } from "@/components/ui/badge";
-
-export type Bot = {
-    id: number;
-    asset: string;
-    start_size: number;
-    leverage: number;
-    multiplier: number;
-    take_profit: number;
-    rebuy: number;
-    current_position: number;
-    unrealized_pnl: number;
-    status: "Running" | "Idle" | "Stopping";
-};
+import { Bot } from "@/types/bot";
 
 export const columns: ColumnDef<Bot>[] = [
     {
