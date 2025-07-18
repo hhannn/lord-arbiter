@@ -85,9 +85,9 @@ export function DataTable<TData, TValue>({
     const isMounted = useIsMounted();
 
     const API_FRONTEND_URL =
-        process.env.NEXT_PUBLIC_FRONTEND_URL || "http://localhost:3000";
+        process.env.NEXT_PUBLIC_FRONTEND_URL;
     const API_BACKEND_URL =
-        process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8000";
+        process.env.NEXT_PUBLIC_BACKEND_URL;
 
     async function handleCreateBot() {
         const newErrors = {
