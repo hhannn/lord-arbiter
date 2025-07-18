@@ -25,8 +25,10 @@ export default function Home() {
     const [apiSecret, setApiSecret] = React.useState("");
     const router = useRouter();
 
+    const API_URL = process.env.NEXT_PUBLIC_API_URL;
+
     const handleLogin = async () => {
-        const res = await fetch("http://localhost:8000/api/user/login", {
+        const res = await fetch(`${API_URL}/api/user/login`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ username, password }),
@@ -48,7 +50,7 @@ export default function Home() {
     };
 
     const handleRegister = async () => {
-        const res = await fetch("http://localhost:8000/api/user/register", {
+        const res = await fetch(`${API_URL}/api/user/register`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({

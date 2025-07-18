@@ -1,6 +1,6 @@
 // useUserData.tsx
 import { create } from "zustand";
-import throttle from "lodash.throttle";
+import { throttle } from "lodash";
 
 interface UserDataStore {
     data: any;
@@ -18,13 +18,16 @@ interface UserDataStore {
 }
 
 export const useUserData = create<UserDataStore>((set, get) => {
+    const API_BASE_URL =
+        process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8000";
+
     const doFetch = async () => {
         const { apiKey, apiSecret } = get();
         if (!apiKey || !apiSecret) return;
 
         set({ loading: true });
         try {
-            const res = await fetch("http://localhost:8000/api/user/data", {
+            const res = await fetch(`${API_BASE_URL}/api/user/data`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ apiKey, apiSecret }),
@@ -38,7 +41,11 @@ export const useUserData = create<UserDataStore>((set, get) => {
         }
     };
 
-    const throttledFetch = throttle(doFetch, 10000); // ⏱ max once every 10s
+    // ✅ Only define once and reuse
+    const throttledFetch = throttle(doFetch, 10000, {
+        leading: true,
+        trailing: false,
+    });
 
     return {
         data: null,

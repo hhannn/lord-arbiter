@@ -84,6 +84,9 @@ export function DataTable<TData, TValue>({
 
     const isMounted = useIsMounted();
 
+    const API_BASE_URL =
+        process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8000";
+
     async function handleCreateBot() {
         const newErrors = {
             asset: !asset.trim(),
@@ -106,7 +109,7 @@ export function DataTable<TData, TValue>({
         }
 
         try {
-            const res = await fetch("/api/bots", {
+            const res = await fetch(`${API_BASE_URL}/api/bots`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
@@ -134,9 +137,6 @@ export function DataTable<TData, TValue>({
             console.error("❌ Error creating bot:", error);
         }
     }
-
-    const API_BASE_URL =
-        process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8000";
 
     async function startBot(botId: number) {
         toast(`Starting bot ${botId}.`);
