@@ -18,16 +18,21 @@ export const useBotStore = create<BotState>((set) => ({
     error: null,
     fetchBots: async () => {
         set({ loading: true, error: null });
+
         try {
-            const res = await fetch(`/api/bots`);
+            const user_id = localStorage.getItem("user_id");
+
+            if (!user_id) {
+                throw new Error("Missing user_id");
+            }
+
+            const res = await fetch(`/api/bots?user_id=${user_id}`);
 
             if (!res.ok) throw new Error("Failed to fetch bots");
-            
+
             const json = await res.json();
             set({ data: json, loading: false });
-            // console.log(json)
         } catch (e) {
-            // console.error("❌ Failed to fetch bots", e);
             set({ loading: false, error: (e as Error).message });
         }
     },

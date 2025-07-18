@@ -104,18 +104,18 @@ export function DataTable<TData, TValue>({
         const hasError = Object.values(newErrors).some(Boolean);
         if (hasError) return;
 
-        const user_id = localStorage.getItem("user_id"); // 👈 Get it from storage
-        if (!user_id) {
+        const uid = localStorage.getItem("uid"); // 👈 Get it from storage
+        if (!uid) {
             toast.error("Missing user ID. Please log in again.");
             return;
         }
 
         try {
-            const res = await fetch(`${API_FRONTEND_URL}/api/bots`, {
+            const res = await fetch(`/api/bots?user_id=${uid}`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
-                    user_id: Number(user_id), // 👈 Include this
+                    user_id: Number(uid), // 👈 Include this
                     asset,
                     start_size: parseFloat(start_size),
                     leverage: parseFloat(leverage),

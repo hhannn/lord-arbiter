@@ -8,9 +8,19 @@ const pool = new Pool({
     },
 });
 
-export async function GET() {
+export async function GET(req: Request) {
+    const { searchParams } = new URL(req.url);
+    const user_id = searchParams.get("user_id");
+
+    if (!user_id) {
+        return NextResponse.json({ error: "Missing user_id" }, { status: 400 });
+    }
+
     try {
-        const result = await pool.query("SELECT * FROM bots");
+        const result = await pool.query(
+            "SELECT * FROM bots WHERE user_id = $1",
+            [user_id]
+        );
         return NextResponse.json(result.rows);
     } catch (error) {
         console.error("❌ Error querying bots:", error);

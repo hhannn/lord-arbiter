@@ -20,6 +20,8 @@ interface UserDataStore {
 export const useUserData = create<UserDataStore>((set, get) => {
     const API_BACKEND_URL =
         process.env.NEXT_PUBLIC_BACKEND_URL;
+    const API_FRONTEND_URL =
+        process.env.NEXT_PUBLIC_FRONTEND_URL;
 
     const doFetch = async () => {
         const { apiKey, apiSecret } = get();
