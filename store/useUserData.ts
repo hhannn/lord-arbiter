@@ -18,7 +18,7 @@ interface UserDataStore {
 }
 
 export const useUserData = create<UserDataStore>((set, get) => {
-    const API_BASE_URL =
+    const API_BACKEND_URL =
         process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8000";
 
     const doFetch = async () => {
@@ -27,7 +27,7 @@ export const useUserData = create<UserDataStore>((set, get) => {
 
         set({ loading: true });
         try {
-            const res = await fetch(`${API_BASE_URL}/api/user/data`, {
+            const res = await fetch(`${API_BACKEND_URL}/api/user/data`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ apiKey, apiSecret }),
