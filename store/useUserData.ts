@@ -18,22 +18,20 @@ interface UserDataStore {
 }
 
 export const useUserData = create<UserDataStore>((set, get) => {
-    const API_BACKEND_URL =
-        process.env.NEXT_PUBLIC_BACKEND_URL;
-    const API_FRONTEND_URL =
-        process.env.NEXT_PUBLIC_FRONTEND_URL;
+    const API_BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
+    const API_FRONTEND_URL = process.env.NEXT_PUBLIC_FRONTEND_URL;
 
     const doFetch = async () => {
-        const { apiKey, apiSecret } = get();
-        if (!apiKey || !apiSecret) return;
-
         set({ loading: true });
         try {
             const res = await fetch(`${API_BACKEND_URL}/api/user/data`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ apiKey, apiSecret }),
+                method: "GET",
+                credentials: "include", // ✅ Send cookie
             });
+
+            if (!res.ok) {
+                throw new Error("Failed to fetch");
+            }
 
             const json = await res.json();
             set({ data: json, loading: false });

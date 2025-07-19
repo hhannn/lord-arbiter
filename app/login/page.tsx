@@ -30,6 +30,7 @@ export default function Home() {
     const handleLogin = async () => {
         const res = await fetch(`${API_BACKEND_URL}/api/user/login`, {
             method: "POST",
+            credentials: "include",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ username, password }),
         });
