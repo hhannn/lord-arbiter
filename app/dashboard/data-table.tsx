@@ -72,6 +72,7 @@ export function DataTable<TData, TValue>({
     const [take_profit, setTakeProfit] = useState("");
     const [rebuy, setRebuy] = useState("");
     const { data: bots, fetchBots, loading } = useBotStore();
+    const [dialogOpen, setDialogOpen] = useState(false);
 
     const [errors, setErrors] = useState({
         asset: false,
@@ -102,15 +103,9 @@ export function DataTable<TData, TValue>({
         const hasError = Object.values(newErrors).some(Boolean);
         if (hasError) return;
 
-        const uid = localStorage.getItem("uid"); // 👈 Get it from storage
-        if (!uid) {
-            toast.error("Missing user ID. Please log in again.");
-            return;
-        }
-
         try {
             const res = await fetch(
-                `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/bots/create`,
+                `${API_BACKEND_URL}/api/bots/create`,
                 {
                     method: "POST",
                     credentials: "include",
@@ -133,14 +128,18 @@ export function DataTable<TData, TValue>({
             if (!res.ok) {
                 console.error("❌ Failed to create bot", newBot);
                 toast.error("Failed to create bot", {
-                    description: newBot
-                })
+                    description:
+                        typeof newBot === "object" && newBot?.detail
+                            ? newBot.detail
+                            : "Unexpected error occurred",
+                });
             } else {
                 console.log("✅ Bot created:", newBot);
                 const currentTime = new Date();
                 toast.success(`Bot has been created for ${asset}`, {
-                    description: currentTime.toLocaleDateString
-                })
+                    description: currentTime.toLocaleDateString,
+                });
+                setDialogOpen(false);
             }
         } catch (error) {
             console.error("❌ Error creating bot:", error);
@@ -267,10 +266,10 @@ export function DataTable<TData, TValue>({
                     >
                         Stop all bots
                     </Button>
-                    <Dialog>
+                    <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
                         {isMounted && (
                             <DialogTrigger asChild>
-                                <Button className="ml-auto" size="sm">
+                                <Button className="ml-auto" size="sm" onClick={() => setDialogOpen(true)}>
                                     <CirclePlus />
                                     Create new bot
                                 </Button>
