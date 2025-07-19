@@ -137,7 +137,7 @@ export function DataTable<TData, TValue>({
                 console.log("✅ Bot created:", newBot);
                 const currentTime = new Date();
                 toast.success(`Bot has been created for ${asset}`, {
-                    description: currentTime.toLocaleDateString,
+                    description: String(currentTime.toLocaleDateString),
                 });
                 setDialogOpen(false);
             }
