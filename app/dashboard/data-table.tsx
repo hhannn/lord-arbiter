@@ -84,10 +84,8 @@ export function DataTable<TData, TValue>({
 
     const isMounted = useIsMounted();
 
-    const API_FRONTEND_URL =
-        process.env.NEXT_PUBLIC_FRONTEND_URL;
-    const API_BACKEND_URL =
-        process.env.NEXT_PUBLIC_BACKEND_URL;
+    const API_FRONTEND_URL = process.env.NEXT_PUBLIC_FRONTEND_URL;
+    const API_BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
 
     async function handleCreateBot() {
         const newErrors = {
@@ -111,29 +109,38 @@ export function DataTable<TData, TValue>({
         }
 
         try {
-            const res = await fetch(`/api/bots?user_id=${uid}`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    user_id: Number(uid), // 👈 Include this
-                    asset,
-                    start_size: parseFloat(start_size),
-                    leverage: parseFloat(leverage),
-                    multiplier: parseFloat(multiplier),
-                    take_profit: parseFloat(take_profit),
-                    rebuy: parseFloat(rebuy),
-                    status: "Idle",
-                }),
-            });
+            const res = await fetch(
+                `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/bots/create`,
+                {
+                    method: "POST",
+                    credentials: "include",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({
+                        asset,
+                        start_size: parseFloat(start_size),
+                        leverage: parseFloat(leverage),
+                        multiplier: parseFloat(multiplier),
+                        take_profit: parseFloat(take_profit),
+                        rebuy: parseFloat(rebuy),
+                    }),
+                }
+            );
 
-            if (res.ok) {
-                const data = await res.json();
-                console.log("✅ Bot created:", data);
-                fetchBots();
-                toast("Bot has been created.");
+            const newBot = await res.json();
+
+            if (!res.ok) {
+                console.error("❌ Failed to create bot", newBot);
+                toast.error("Failed to create bot", {
+                    description: newBot
+                })
             } else {
-                const error = await res.json();
-                console.error("❌ Failed to create bot:", error);
+                console.log("✅ Bot created:", newBot);
+                const currentTime = new Date();
+                toast.success(`Bot has been created for ${asset}`, {
+                    description: currentTime.toLocaleDateString
+                })
             }
         } catch (error) {
             console.error("❌ Error creating bot:", error);
@@ -175,9 +182,12 @@ export function DataTable<TData, TValue>({
 
     async function stopBot(botId: number) {
         try {
-            const res = await fetch(`${API_BACKEND_URL}/api/bots/stop/${botId}`, {
-                method: "POST",
-            });
+            const res = await fetch(
+                `${API_BACKEND_URL}/api/bots/stop/${botId}`,
+                {
+                    method: "POST",
+                }
+            );
 
             if (res.ok) {
                 toast.info(`🛑 Stopping ${botId}...`);
@@ -209,7 +219,8 @@ export function DataTable<TData, TValue>({
                                         "Content-Type": "application/json",
                                     },
                                     body: JSON.stringify({
-                                        user_id: localStorage.getItem("user_id"), // Make sure your bot object includes this
+                                        user_id:
+                                            localStorage.getItem("user_id"), // Make sure your bot object includes this
                                         asset: bot.asset,
                                     }),
                                 }
