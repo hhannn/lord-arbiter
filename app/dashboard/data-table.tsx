@@ -11,10 +11,7 @@ import {
     useReactTable,
 } from "@tanstack/react-table";
 
-import { CirclePlus, StopCircle } from "lucide-react";
-import { Rocket } from "lucide-react";
-import { CircleOff } from "lucide-react";
-import { LoaderCircle } from "lucide-react";
+import { CirclePlus, MoreHorizontal, Pencil, X, LoaderCircle, Rocket  } from "lucide-react";
 import { IconPlayerStopFilled } from "@tabler/icons-react";
 
 import {
@@ -26,9 +23,14 @@ import {
     TableRow,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
-import { Toaster } from "@/components/ui/sonner";
-
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuGroup,
+    DropdownMenuItem,
+    DropdownMenuSeparator,
+    DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 import {
     Dialog,
     DialogContent,
@@ -40,7 +42,6 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
-
 import { AssetsCombobox } from "@/components/assets-combobox";
 import { toast } from "sonner";
 
@@ -104,24 +105,21 @@ export function DataTable<TData, TValue>({
         if (hasError) return;
 
         try {
-            const res = await fetch(
-                `${API_BACKEND_URL}/api/bots/create`,
-                {
-                    method: "POST",
-                    credentials: "include",
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                    body: JSON.stringify({
-                        asset,
-                        start_size: parseFloat(start_size),
-                        leverage: parseFloat(leverage),
-                        multiplier: parseFloat(multiplier),
-                        take_profit: parseFloat(take_profit),
-                        rebuy: parseFloat(rebuy),
-                    }),
-                }
-            );
+            const res = await fetch(`${API_BACKEND_URL}/api/bots/create`, {
+                method: "POST",
+                credentials: "include",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    asset,
+                    start_size: parseFloat(start_size),
+                    leverage: parseFloat(leverage),
+                    multiplier: parseFloat(multiplier),
+                    take_profit: parseFloat(take_profit),
+                    rebuy: parseFloat(rebuy),
+                }),
+            });
 
             const newBot = await res.json();
 
@@ -154,6 +152,33 @@ export function DataTable<TData, TValue>({
 
         if (res.ok) {
             toast.success(`🚀 Started bot ${botId}`);
+            fetchBots(); // Refresh table status
+        } else {
+            toast.error("❌ Failed to start bot");
+        }
+    }
+
+    async function editBot(botId: number) {
+        const res = await fetch(`${API_BACKEND_URL}/api/bots/start/${botId}`, {
+            method: "POST",
+        });
+
+        if (res.ok) {
+            toast.success(`Edited bot ${botId}`);
+            fetchBots(); // Refresh table status
+        } else {
+            toast.error("❌ Failed to start bot");
+        }
+    }
+
+    async function deleteBot(botId: number) {
+        toast(`Starting bot ${botId}.`);
+        const res = await fetch(`${API_BACKEND_URL}/api/bots/start/${botId}`, {
+            method: "POST",
+        });
+
+        if (res.ok) {
+            toast.success(`Bot ${botId} has been deleted.`);
             fetchBots(); // Refresh table status
         } else {
             toast.error("❌ Failed to start bot");
@@ -269,7 +294,11 @@ export function DataTable<TData, TValue>({
                     <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
                         {isMounted && (
                             <DialogTrigger asChild>
-                                <Button className="ml-auto" size="sm" onClick={() => setDialogOpen(true)}>
+                                <Button
+                                    className="ml-auto"
+                                    size="sm"
+                                    onClick={() => setDialogOpen(true)}
+                                >
                                     <CirclePlus />
                                     Create new bot
                                 </Button>
@@ -379,10 +408,10 @@ export function DataTable<TData, TValue>({
                                         {header.isPlaceholder
                                             ? null
                                             : flexRender(
-                                                  header.column.columnDef
-                                                      .header,
-                                                  header.getContext()
-                                              )}
+                                                header.column.columnDef
+                                                    .header,
+                                                header.getContext()
+                                            )}
                                     </TableHead>
                                 );
                             })}
@@ -409,22 +438,47 @@ export function DataTable<TData, TValue>({
                                         const { id, status } = row.original as {
                                             id: number;
                                             status: string;
+                                            asset: string;
+                                            start_size: number;
+                                            leverage: number;
+                                            multiplier: number;
+                                            take_profit: number;
+                                            rebuy: number;
                                         };
 
                                         switch (status) {
                                             case "idle":
                                                 return (
-                                                    <Button
-                                                        className="my-2 size-8"
-                                                        size="icon"
-                                                        variant="secondary"
-                                                        onClick={() =>
-                                                            startBot(id)
-                                                        }
-                                                        title="Start bot"
-                                                    >
-                                                        <Rocket />
-                                                    </Button>
+                                                    <DropdownMenu>
+                                                        <DropdownMenuTrigger>
+                                                            <Button
+                                                                className="my-2 size-8"
+                                                                size="icon"
+                                                                variant="secondary"
+                                                                title="More action"
+                                                            >
+                                                                <MoreHorizontal />
+                                                            </Button>
+                                                        </DropdownMenuTrigger>
+                                                        <DropdownMenuContent>
+                                                            <DropdownMenuGroup>
+                                                                <DropdownMenuItem onClick={() => startBot(id)}>
+                                                                    <Rocket/>
+                                                                    Run
+                                                                </DropdownMenuItem>
+                                                                <DropdownMenuItem className="ps-8">
+                                                                    Edit
+                                                                </DropdownMenuItem>
+                                                            </DropdownMenuGroup>
+                                                            <DropdownMenuSeparator />
+                                                            <DropdownMenuGroup>
+                                                                <DropdownMenuItem className="text-red-400">
+                                                                    <X className="text-red-400"/>
+                                                                    Delete bot
+                                                                </DropdownMenuItem>
+                                                            </DropdownMenuGroup>
+                                                        </DropdownMenuContent>
+                                                    </DropdownMenu>
                                                 );
                                             case "running":
                                                 return (
