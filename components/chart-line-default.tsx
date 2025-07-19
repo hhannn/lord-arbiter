@@ -1,7 +1,6 @@
 "use client";
 import { useState, useEffect, useMemo } from "react";
 import { useUserData } from "@/store/useUserData";
-import { useAuthRedirect } from "@/hooks/useAuthRedirect";
 
 import { TrendingUp } from "lucide-react";
 import { CartesianGrid, Line, LineChart, XAxis } from "recharts";

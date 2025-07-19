@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
-import { useAuthRedirect } from "@/hooks/useAuthRedirect";
 import { useUserData } from "@/store/useUserData";
 
 import { TrendingUp } from "lucide-react";

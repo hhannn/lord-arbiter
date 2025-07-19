@@ -6,8 +6,10 @@ import { DataTable } from "./data-table";
 import { columns } from "./columns";
 import { Bot } from "@/types/bot";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useAuthRedirect } from "@/hooks/useAuthRedirect";
 
 export function BotTableContainer() {
+    useAuthRedirect();
     const { data, fetchBots, loading } = useBotStore();
 
     const [initialLoading, setInitialLoading] = useState(true);

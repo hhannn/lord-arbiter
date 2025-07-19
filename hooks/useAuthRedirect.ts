@@ -7,11 +7,19 @@ import { useRouter } from "next/navigation";
 export function useAuthRedirect() {
     const router = useRouter();
 
-    useEffect(() => {
-        const userId = localStorage.getItem("user_id");
+    const API_BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
+    const API_FRONTEND_URL = process.env.NEXT_PUBLIC_FRONTEND_URL;
 
-        if (!userId) {
-            router.replace("/login"); // 👈 redirect to login
-        }
+    useEffect(() => {
+        const checkAuth = async () => {
+            const res = await fetch(`${API_BACKEND_URL}/api/user/data`, {
+                credentials: "include",
+            });
+            if (res.status === 401) {
+                router.push("/login");
+            }
+        };
+
+        checkAuth();
     }, []);
 }
