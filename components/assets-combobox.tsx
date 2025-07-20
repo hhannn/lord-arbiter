@@ -33,13 +33,15 @@ export function AssetsCombobox({ onSelect }: AssetsComboboxProps) {
         async function fetchSymbols() {
             try {
                 const res = await fetch(
-                    "https://api.bybit.com/v5/market/instruments-info?category=linear"
+                    "https://api.bybit.com/v5/market/instruments-info?category=linear&limit=1000"
                 );
                 const data = await res.json();
                 const perpetualSymbols = data.result.list.map(
                     (item: any) => item.symbol
-                );
-                setSymbols(perpetualSymbols.flat(1));
+                ).filter((symbol: string | null | undefined) => typeof symbol === 'string' && symbol) as string[];
+
+                const filteredSymbols = perpetualSymbols.filter((symbol: string) => symbol.endsWith('USDT'));
+                setSymbols(filteredSymbols);
             } catch (error) {
                 console.error("Failed to fetch symbols:", error);
             } finally {
@@ -71,31 +73,33 @@ export function AssetsCombobox({ onSelect }: AssetsComboboxProps) {
                     <CommandList>
                         <CommandEmpty>No framework found.</CommandEmpty>
                         <CommandGroup>
-                            {symbols.map((symbol) => (
-                                <CommandItem
-                                    key={symbol}
-                                    value={symbol}
-                                    onSelect={(currentValue) => {
-                                        const selectedValue =
-                                            currentValue === value
-                                                ? ""
-                                                : currentValue;
-                                        setValue(selectedValue);
-                                        setOpen(false);
-                                        onSelect?.(selectedValue);
-                                    }}
-                                >
-                                    <CheckIcon
-                                        className={cn(
-                                            "mr-2 h-4 w-4",
-                                            value === symbol
-                                                ? "opacity-100"
-                                                : "opacity-0"
-                                        )}
-                                    />
-                                    {symbol}
-                                </CommandItem>
-                            ))}
+                            {   
+                                symbols.map((symbol) => (
+                                    <CommandItem
+                                        key={symbol}
+                                        value={symbol}
+                                        onSelect={(currentValue) => {
+                                            const selectedValue =
+                                                currentValue === value
+                                                    ? ""
+                                                    : currentValue;
+                                            setValue(selectedValue);
+                                            setOpen(false);
+                                            onSelect?.(selectedValue);
+                                        }}
+                                    >
+                                        <CheckIcon
+                                            className={cn(
+                                                "mr-2 h-4 w-4",
+                                                value === symbol
+                                                    ? "opacity-100"
+                                                    : "opacity-0"
+                                            )}
+                                        />
+                                        {symbol}
+                                    </CommandItem>
+                                ))
+                            }
                         </CommandGroup>
                     </CommandList>
                 </Command>

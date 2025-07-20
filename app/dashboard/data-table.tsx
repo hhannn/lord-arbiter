@@ -11,7 +11,7 @@ import {
     useReactTable,
 } from "@tanstack/react-table";
 
-import { CirclePlus, MoreHorizontal, Pencil, X, LoaderCircle, Rocket  } from "lucide-react";
+import { CirclePlus, MoreHorizontal, Pencil, X, LoaderCircle, Rocket } from "lucide-react";
 import { IconPlayerStopFilled } from "@tabler/icons-react";
 
 import {
@@ -44,6 +44,7 @@ import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { AssetsCombobox } from "@/components/assets-combobox";
 import { toast } from "sonner";
+import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 interface DataTableProps<TData, TValue> {
     columns: ColumnDef<TData, TValue>[];
@@ -64,6 +65,11 @@ export function DataTable<TData, TValue>({
         data,
         columns,
         getCoreRowModel: getCoreRowModel(),
+        initialState: {
+            columnVisibility: {
+                start_type: false, // Set 'start_type' column to be hidden by default
+            },
+        },
     });
 
     const [asset, setAsset] = useState("");
@@ -72,6 +78,7 @@ export function DataTable<TData, TValue>({
     const [multiplier, setMultiplier] = useState("");
     const [take_profit, setTakeProfit] = useState("");
     const [rebuy, setRebuy] = useState("");
+    const [start_type, setStartType] = useState("percent_equity");
     const { data: bots, fetchBots, loading } = useBotStore();
     const [dialogOpen, setDialogOpen] = useState(false);
 
@@ -97,6 +104,7 @@ export function DataTable<TData, TValue>({
             multiplier: !multiplier.trim(),
             take_profit: !take_profit.trim(),
             rebuy: !rebuy.trim(),
+            start_type: !start_type.trim(),
         };
 
         setErrors(newErrors);
@@ -118,6 +126,7 @@ export function DataTable<TData, TValue>({
                     multiplier: parseFloat(multiplier),
                     take_profit: parseFloat(take_profit),
                     rebuy: parseFloat(rebuy),
+                    start_type
                 }),
             });
 
@@ -159,7 +168,7 @@ export function DataTable<TData, TValue>({
     }
 
     async function editBot(botId: number) {
-        const res = await fetch(`${API_BACKEND_URL}/api/bots/start/${botId}`, {
+        const res = await fetch(`${API_BACKEND_URL}/api/bots/edit/${botId}`, {
             method: "POST",
         });
 
@@ -173,7 +182,7 @@ export function DataTable<TData, TValue>({
 
     async function deleteBot(botId: number) {
         toast(`Starting bot ${botId}.`);
-        const res = await fetch(`${API_BACKEND_URL}/api/bots/start/${botId}`, {
+        const res = await fetch(`${API_BACKEND_URL}/api/bots/delete/${botId}`, {
             method: "POST",
         });
 
@@ -181,7 +190,7 @@ export function DataTable<TData, TValue>({
             toast.success(`Bot ${botId} has been deleted.`);
             fetchBots(); // Refresh table status
         } else {
-            toast.error("❌ Failed to start bot");
+            toast.error("❌ Failed to delete bot");
         }
     }
 
@@ -281,8 +290,8 @@ export function DataTable<TData, TValue>({
     }, [bots]);
 
     return (
-        <div className="rounded-md border p-4 flex flex-col gap-4 bg-neutral-900">
-            <div className="flex items-start justify-between gap-2">
+        <div className="rounded-md border flex flex-col gap-4 bg-card overflow-hidden">
+            <div className="flex items-start justify-between gap-2 px-6 py-4">
                 <span className="text-2xl font-medium">Running Bot</span>
                 <div className="flex items-center gap-2">
                     <Button
@@ -291,7 +300,7 @@ export function DataTable<TData, TValue>({
                     >
                         Stop all bots
                     </Button>
-                    <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+                    <Dialog open={dialogOpen} onOpenChange={setDialogOpen} >
                         {isMounted && (
                             <DialogTrigger asChild>
                                 <Button
@@ -310,85 +319,109 @@ export function DataTable<TData, TValue>({
                                     Create new bot
                                 </DialogTitle>
                                 <DialogDescription className="flex flex-col gap-4">
-                                    <div className="flex gap-4 items-center">
-                                        <span className="flex-1/2 font-medium text-white">
-                                            Assets
-                                        </span>
-                                        <AssetsCombobox onSelect={setAsset} />
-                                    </div>
-                                    <Separator className="my-4" />
-                                    <div className="flex gap-4 items-center">
-                                        <span className="flex-1/2 font-medium text-white">
-                                            Start size
-                                        </span>
-                                        <Input
-                                            className={
-                                                errors.start_size
-                                                    ? "border-red-500"
-                                                    : ""
-                                            }
-                                            type="number"
-                                            step="any"
-                                            value={start_size}
-                                            onChange={(e) =>
-                                                setStartSize(e.target.value)
-                                            }
-                                        />
-                                    </div>
-                                    <div className="flex gap-4 items-center">
-                                        <span className="flex-1/2 font-medium text-white">
-                                            Leverage
-                                        </span>
-                                        <Input
-                                            type="number"
-                                            step="any"
-                                            value={leverage}
-                                            onChange={(e) =>
-                                                setLeverage(e.target.value)
-                                            }
-                                        />
-                                    </div>
-                                    <div className="flex gap-4 items-center">
-                                        <span className="flex-1/2 font-medium text-white">
-                                            Multiplier
-                                        </span>
-                                        <Input
-                                            type="number"
-                                            step="any"
-                                            value={multiplier}
-                                            onChange={(e) =>
-                                                setMultiplier(e.target.value)
-                                            }
-                                        />
-                                    </div>
-                                    <div className="flex gap-4 items-center">
-                                        <span className="flex-1/2 font-medium text-white">
-                                            Take Profit
-                                        </span>
-                                        <Input
-                                            type="number"
-                                            step="any"
-                                            value={take_profit}
-                                            onChange={(e) =>
-                                                setTakeProfit(e.target.value)
-                                            }
-                                        />
-                                    </div>
-                                    <div className="flex gap-4 items-center">
-                                        <span className="flex-1/2 font-medium text-white">
-                                            Rebuy
-                                        </span>
-                                        <Input
-                                            type="number"
-                                            step="any"
-                                            value={rebuy}
-                                            onChange={(e) =>
-                                                setRebuy(e.target.value)
-                                            }
-                                        />
-                                    </div>
+                                    Test
                                 </DialogDescription>
                             </DialogHeader>
+                            <div className="flex gap-4 items-center">
+                                <span className="w-[200px] font-medium text-white">
+                                    Assets
+                                </span>
+                                <AssetsCombobox onSelect={setAsset} />
+                            </div>
+                            <Separator className="my-4" />
+                            <div className="flex gap-4 items-center">
+                                <span className="w-[200px] font-medium text-white">
+                                    Start size
+                                </span>
+                                <div className="flex gap-2 w-full">
+                                    <Input
+                                        className={
+                                            errors.start_size
+                                                ? "border-red-500"
+                                                : ""
+                                        }
+                                        type="number"
+                                        step="any"
+                                        value={start_size}
+                                        onChange={(e) =>
+                                            setStartSize(e.target.value)
+                                        }
+                                    />
+                                    <Select onValueChange={(value) => setStartType(value)} value={start_type}>
+                                        <SelectTrigger className="w-[200px]">
+                                            <SelectValue
+                                                placeholder={"% of equity"}
+                                            ></SelectValue>
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectGroup>
+                                                <SelectItem value="percent_equity" defaultChecked={true}>% of equity</SelectItem>
+                                                <SelectItem value="USDT">USDT</SelectItem>
+                                            </SelectGroup>
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+                            </div>
+                            <div className="flex gap-4 items-center">
+                                <span className="w-[200px] font-medium text-white">
+                                    Leverage
+                                </span>
+                                <div className="w-full">
+                                    <Input
+                                        type="number"
+                                        step="any"
+                                        value={leverage}
+                                        onChange={(e) =>
+                                            setLeverage(e.target.value)
+                                        }
+                                    />
+                                </div>
+                            </div>
+                            <div className="flex gap-4 items-center">
+                                <span className="w-[200px] font-medium text-white">
+                                    Multiplier
+                                </span>
+                                <div className="w-full">
+                                    <Input
+                                        type="number"
+                                        step="any"
+                                        value={multiplier}
+                                        onChange={(e) =>
+                                            setMultiplier(e.target.value)
+                                        }
+                                    />
+                                </div>
+                            </div>
+                            <div className="flex gap-4 items-center">
+                                <span className="w-[200px] font-medium text-white">
+                                    Take Profit
+                                </span>
+                                <div className="w-full">
+                                    <Input
+                                        type="number"
+                                        step="any"
+                                        value={take_profit}
+                                        onChange={(e) =>
+                                            setTakeProfit(e.target.value)
+                                        }
+                                    />
+                                </div>
+                            </div>
+                            <div className="flex gap-4 items-center">
+                                <span className="w-[200px] font-medium text-white">
+                                    Rebuy
+                                </span>
+                                <div className="w-full">
+                                    <Input
+                                        type="number"
+                                        step="any"
+                                        value={rebuy}
+                                        onChange={(e) =>
+                                            setRebuy(e.target.value)
+                                        }
+                                    />
+                                </div>
+                            </div>
                             <DialogFooter>
                                 <Button onClick={handleCreateBot}>
                                     Create bot
@@ -399,17 +432,25 @@ export function DataTable<TData, TValue>({
                 </div>
             </div>
             <Table>
-                <TableHeader>
+                <TableHeader className="">
                     {table.getHeaderGroups().map((headerGroup) => (
                         <TableRow key={headerGroup.id}>
-                            {headerGroup.headers.map((header) => {
+                            {headerGroup.headers.map((header, index) => { // <-- Add index here
+                                const isFirstHeader = index === 0;
+                                const isLastHeader = index === headerGroup.headers.length - 1;
+
                                 return (
-                                    <TableHead key={header.id}>
+                                    <TableHead
+                                        key={header.id}
+                                        className={
+                                            isFirstHeader ? "pl-6": // Add left padding to the first header
+                                            isLastHeader ? "pr-6" : ""   // Add right padding to the last header
+                                        }
+                                    >
                                         {header.isPlaceholder
                                             ? null
                                             : flexRender(
-                                                header.column.columnDef
-                                                    .header,
+                                                header.column.columnDef.header,
                                                 header.getContext()
                                             )}
                                     </TableHead>
@@ -418,22 +459,30 @@ export function DataTable<TData, TValue>({
                         </TableRow>
                     ))}
                 </TableHeader>
-                <TableBody>
+                <TableBody className="bg-background">
                     {table.getRowModel().rows?.length ? (
                         table.getRowModel().rows.map((row) => (
                             <TableRow
                                 key={row.id}
                                 data-state={row.getIsSelected() && "selected"}
                             >
-                                {row.getVisibleCells().map((cell) => (
-                                    <TableCell key={cell.id}>
-                                        {flexRender(
-                                            cell.column.columnDef.cell,
-                                            cell.getContext()
-                                        )}
-                                    </TableCell>
-                                ))}
-                                <TableCell>
+                                {row.getVisibleCells().map((cell, index) => { // <-- Add index here
+                                    const isFirstDataCell = index === 0;
+
+                                    return (
+                                        <TableCell
+                                            key={cell.id}
+                                            className={isFirstDataCell ? "pl-6" : ""}
+                                        >
+                                            {flexRender(
+                                                cell.column.columnDef.cell,
+                                                cell.getContext()
+                                            )}
+                                        </TableCell>
+                                    );
+                                })}
+                                {/* This is your dedicated action column, which is the rightmost */}
+                                <TableCell className="py-2 pr-6"> {/* <-- Apply right padding here */}
                                     {(() => {
                                         const { id, status } = row.original as {
                                             id: number;
@@ -444,6 +493,7 @@ export function DataTable<TData, TValue>({
                                             multiplier: number;
                                             take_profit: number;
                                             rebuy: number;
+                                            start_type: string;
                                         };
 
                                         switch (status) {
@@ -463,7 +513,7 @@ export function DataTable<TData, TValue>({
                                                         <DropdownMenuContent>
                                                             <DropdownMenuGroup>
                                                                 <DropdownMenuItem onClick={() => startBot(id)}>
-                                                                    <Rocket/>
+                                                                    <Rocket />
                                                                     Run
                                                                 </DropdownMenuItem>
                                                                 <DropdownMenuItem className="ps-8">
@@ -472,8 +522,8 @@ export function DataTable<TData, TValue>({
                                                             </DropdownMenuGroup>
                                                             <DropdownMenuSeparator />
                                                             <DropdownMenuGroup>
-                                                                <DropdownMenuItem className="text-red-400">
-                                                                    <X className="text-red-400"/>
+                                                                <DropdownMenuItem className="text-red-400" onClick={() => deleteBot(id)}>
+                                                                    <X className="text-red-400" />
                                                                     Delete bot
                                                                 </DropdownMenuItem>
                                                             </DropdownMenuGroup>
@@ -531,7 +581,7 @@ export function DataTable<TData, TValue>({
                         <TableRow>
                             <TableCell
                                 colSpan={columns.length}
-                                className="h-24 text-center"
+                                className="h-24 text-center py-2 pl-6 pr-6" // <-- Apply padding here too
                             >
                                 No results.
                             </TableCell>

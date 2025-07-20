@@ -27,6 +27,7 @@ export const useBotStore = create<BotState>((set) => ({
             }
 
             const res = await fetch(`/api/bots?user_id=${user_id}`);
+            console.log("Raw API response for bots:", res);
 
             if (!res.ok) throw new Error("Failed to fetch bots");
 

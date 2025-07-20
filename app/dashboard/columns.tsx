@@ -2,12 +2,11 @@
 
 import { ColumnDef } from "@tanstack/react-table";
 
-import { CircleCheck } from "lucide-react";
-import { Moon } from "lucide-react";
-import { IconCircleCheckFilled, IconMoonFilled} from "@tabler/icons-react"
+import { IconCircleCheckFilled, IconMoonFilled } from "@tabler/icons-react"
 
 import { Badge } from "@/components/ui/badge";
 import { Bot } from "@/types/bot";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 export const columns: ColumnDef<Bot>[] = [
     {
@@ -17,15 +16,44 @@ export const columns: ColumnDef<Bot>[] = [
     {
         accessorKey: "asset",
         header: "Assets",
+        cell: ({ row }) => {
+            const asset = String(row.getValue("asset"));
+            const iconUrl = `https://app.hyperliquid.xyz/coins/${asset.replace("USDT", "")}.svg`
+
+            return (
+                <div className="flex items-center font-medium">
+                    <Avatar className="items-center">
+                        <AvatarImage
+                            src={iconUrl}
+                            alt={`${asset} icon`}
+                            className="w-5 h-5 rounded-none"
+                        />
+                        <AvatarFallback className="w-5 h-5">{asset.substring(0, 2)}</AvatarFallback>
+                    </Avatar>
+                    {asset}
+                </div>
+            );
+        }
     },
     {
         accessorKey: "start_size",
         header: "Start size",
         cell: ({ row }) => {
             const size = String(row.getValue("start_size"));
+            const start_type = String(row.getValue("start_type"));
+            if (start_type === "percent_equity") {
+                return `${size}% of equity`;
+            } else if (start_type === "USDT") {
+                return `${size} USDT`;
+            }
 
-            return `${size} USDT`;
+            return `${size} ${start_type}`;
         },
+    },
+    {
+        accessorKey: "start_type", // This is the key that was missing
+        header: "Start Type (Hidden)", // You can give it a header, but it won't be visible
+        enableHiding: true, // Allows it to be hidden
     },
     {
         accessorKey: "leverage",
@@ -97,7 +125,7 @@ export const columns: ColumnDef<Bot>[] = [
                     className="flex items-center capitalize"
                 >
                     {status === "running" ? (
-                        <IconCircleCheckFilled className="text-green-500"/>
+                        <IconCircleCheckFilled className="text-green-500" />
                     ) : (
                         <IconMoonFilled />
                     )}
