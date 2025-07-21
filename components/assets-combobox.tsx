@@ -23,11 +23,15 @@ import {
 
 interface AssetsComboboxProps {
     onSelect?: (value: string) => void;
+    initialValue?: string;
 }
 
-export function AssetsCombobox({ onSelect }: AssetsComboboxProps) {
+export function AssetsCombobox({ onSelect, initialValue }: AssetsComboboxProps) {
     const [symbols, setSymbols] = useState<string[]>([]);
     const [loading, setLoading] = useState(true);
+
+    const [value, setValue] = useState(initialValue || "");
+    const [open, setOpen] = useState(false);
 
     useEffect(() => {
         async function fetchSymbols() {
@@ -51,9 +55,6 @@ export function AssetsCombobox({ onSelect }: AssetsComboboxProps) {
         fetchSymbols();
     }, []);
 
-    const [open, setOpen] = React.useState(false);
-    const [value, setValue] = React.useState("");
-
     return (
         <Popover open={open} onOpenChange={setOpen}>
             <PopoverTrigger className="w-full">
@@ -63,17 +64,23 @@ export function AssetsCombobox({ onSelect }: AssetsComboboxProps) {
                     aria-expanded={open}
                     className="justify-between w-full"
                 >
-                    {value || "Select asset"}
+                    {value
+                        ? symbols.find((symbol) => symbol === value)
+                        : "Select asset"}
                     <ChevronsUpDownIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                 </Button>
             </PopoverTrigger>
             <PopoverContent className="w-full p-0">
-                <Command>
+                <Command value="">
                     <CommandInput placeholder="Search asset..." />
                     <CommandList>
-                        <CommandEmpty>No framework found.</CommandEmpty>
+                        {loading ? (
+                            <CommandEmpty>Loading assets...</CommandEmpty>
+                        ) : (
+                            <CommandEmpty>No asset found.</CommandEmpty>
+                        )}
                         <CommandGroup>
-                            {   
+                            {
                                 symbols.map((symbol) => (
                                     <CommandItem
                                         key={symbol}
