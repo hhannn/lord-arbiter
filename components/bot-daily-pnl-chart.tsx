@@ -27,7 +27,7 @@ import { cn } from "@/lib/utils";
 // Define the expected type for each item in the dailyPnl array
 interface DailyPnlItem {
     date: string; // YYYY-MM-DD format
-    pnl: number;  // The calculated PnL for that day
+    pnl: any;  // The calculated PnL for that day
 }
 
 interface ChartBarNegativeProps {

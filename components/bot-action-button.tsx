@@ -238,7 +238,7 @@ export function BotActionButtons({
         if (pnlValues.length === 0) {
             return "0.00";
         }
-        const totalBotPnl = pnlValues.reduce((a, b) => a + b, 0);
+        const totalBotPnl = pnlValues.reduce((a: any, b: any) => a + b, 0);
         return totalBotPnl.toFixed(2);
     };
 
@@ -247,7 +247,7 @@ export function BotActionButtons({
         if (pnlValues.length === 0) {
             return "0.00";
         }
-        const totalBotPnl = pnlValues.reduce((a, b) => a + b, 0);
+        const totalBotPnl = pnlValues.reduce((a: any, b: any) => a + b, 0);
         const averagePnL = totalBotPnl / pnlValues.length;
         return averagePnL.toFixed(2);
     };
