@@ -42,8 +42,7 @@ import { IconPlayerStopFilled } from "@tabler/icons-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils"; // Assuming you have a cn utility for Tailwind class merging
 import { useUserData } from "@/store/useUserData";
-import { BotDailyChar, BotDailyChart } from "./bot-daily-pnl-chart";
-import { Drawer, DrawerContent, DrawerDescription, DrawerTitle } from "./ui/drawer";
+import { BotDailyChart } from "./bot-daily-pnl-chart";
 import { Sheet, SheetContent, SheetDescription, SheetTitle } from "./ui/sheet";
 import { Card, CardDescription, CardTitle } from "./ui/card";
 
