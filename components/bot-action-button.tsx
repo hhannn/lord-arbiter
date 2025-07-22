@@ -262,7 +262,7 @@ export function BotActionButtons({
         const botCreatedAtTimestamp = created_at ? new Date(created_at).getTime() : 0;
 
         closedPnL.forEach((item: any) => {
-            const pnl = parseFloat(item.closedPnl);
+            const pnl = Number(parseFloat(item.closedPnl).toFixed(2));
             const itemTimestamp = Number(item.createdTime);
 
             // Filter by asset and created time of the specific bot
