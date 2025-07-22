@@ -3,17 +3,17 @@
 import { useEffect, useState } from "react";
 
 import { useBotStore } from "@/store/useBotStore";
-import { Bot } from "@/types/bot"; // Ensure Bot type is imported and correct
+import { Bot } from "@/types/bot";
 
 import {
     ColumnDef,
     flexRender,
     getCoreRowModel,
     useReactTable,
+    VisibilityState,
 } from "@tanstack/react-table";
 
-import { CirclePlus, MoreHorizontal, Pencil, X, LoaderCircle, Rocket } from "lucide-react";
-import { IconPlayerStopFilled } from "@tabler/icons-react";
+import { CirclePlus } from "lucide-react";
 
 import {
     Table,
@@ -24,14 +24,6 @@ import {
     TableRow,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuGroup,
-    DropdownMenuItem,
-    DropdownMenuSeparator,
-    DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
 import {
     Dialog,
     DialogContent,
@@ -46,20 +38,10 @@ import { Separator } from "@/components/ui/separator";
 import { AssetsCombobox } from "@/components/assets-combobox";
 import { toast } from "sonner";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { cn } from "@/lib/utils"; // Assuming you have this utility for conditional classNames
+import { cn } from "@/lib/utils";
 
-// Import AlertDialog components
-import {
-    AlertDialog,
-    AlertDialogAction,
-    AlertDialogCancel,
-    AlertDialogContent,
-    AlertDialogDescription,
-    AlertDialogFooter,
-    AlertDialogHeader,
-    AlertDialogTitle,
-    AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
+import { DataTableViewOptions } from "@/components/column-visibility";
+import { BotActionButtons } from "@/components/bot-action-button";
 
 
 interface DataTableProps<TData, TValue> {
@@ -77,14 +59,19 @@ export function DataTable<TData, TValue>({
     columns,
     data,
 }: DataTableProps<TData, TValue>) {
+    const [columnVisibility, setColumnVisibility] =
+        useState<VisibilityState>({
+            start_type: false,
+            side: false
+        });
+
     const table = useReactTable({
         data,
         columns,
         getCoreRowModel: getCoreRowModel(),
-        initialState: {
-            columnVisibility: {
-                start_type: false, // Set 'start_type' column to be hidden by default
-            },
+        onColumnVisibilityChange: setColumnVisibility,
+        state: {
+            columnVisibility,
         },
     });
 
@@ -95,8 +82,8 @@ export function DataTable<TData, TValue>({
     const [createMultiplier, setCreateMultiplier] = useState("");
     const [createTakeProfit, setCreateTakeProfit] = useState("");
     const [createRebuy, setCreateRebuy] = useState("");
-    const [createStartType, setCreateStartType] = useState("percent_equity");
-    const [createDialogOpen, setCreateDialogOpen] = useState(false); // Renamed for clarity
+    const [createStartType, setCreateStartType] = useState<"USDT" | "percent_equity">("percent_equity");
+    const [createDialogOpen, setCreateDialogOpen] = useState(false);
 
     // State for Edit Bot Dialog
     const [editDialogOpen, setEditDialogOpen] = useState(false);
@@ -107,7 +94,7 @@ export function DataTable<TData, TValue>({
     const [editMultiplier, setEditMultiplier] = useState("");
     const [editTakeProfit, setEditTakeProfit] = useState("");
     const [editRebuy, setEditRebuy] = useState("");
-    const [editStartType, setEditStartType] = useState("percent_equity");
+    const [editStartType, setEditStartType] = useState<"USDT" | "percent_equity">("percent_equity");
 
     // State for Delete Confirmation Dialog
     const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -116,7 +103,7 @@ export function DataTable<TData, TValue>({
     const { data: bots, fetchBots, loading } = useBotStore();
     const isMounted = useIsMounted();
 
-    const API_BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
+    const API_BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL ?? '';
 
     // Error states for both create and edit forms
     const [createErrors, setCreateErrors] = useState({
@@ -252,21 +239,13 @@ export function DataTable<TData, TValue>({
         }
     }
 
-    // New: Function to handle opening the delete confirmation dialog
-    const handleDeleteClick = (botId: number) => {
-        setDeletingBotId(botId);
-        setDeleteDialogOpen(true);
-    };
-
     // Refactored: Actual delete logic, called after confirmation
-    async function confirmDeleteBot() {
-        if (deletingBotId === null) return;
-
-        toast(`Deleting bot ${deletingBotId}...`);
+    async function confirmDeleteBot(botId: number) {
+        toast(`Deleting bot ${botId}...`);
         try {
-            const res = await fetch(`${API_BACKEND_URL}/api/bots/delete/${deletingBotId}`, {
+            const res = await fetch(`${API_BACKEND_URL}/api/bots/delete/${botId}`, {
                 method: "DELETE", // Use DELETE method for deletion
-                credentials:"include"
+                credentials: "include"
             });
 
             if (!res.ok) {
@@ -276,7 +255,7 @@ export function DataTable<TData, TValue>({
                     description: errorData?.detail || "Unexpected error occurred",
                 });
             } else {
-                toast.success(`Bot ${deletingBotId} has been deleted.`);
+                toast.success(`Bot ${botId} has been deleted.`);
                 fetchBots(); // Refresh table status
             }
         } catch (e) {
@@ -452,6 +431,11 @@ export function DataTable<TData, TValue>({
                                 id: bot.id,
                                 current_position: Number(data.size || 0),
                                 unrealized_pnl: Number(data.unrealizedPnL || 0),
+                                liq_price: Number(data.liqPrice || 0),
+                                current_price: Number(data.markPrice || 0),
+                                take_profit_price: Number(data.takeProfit || 0),
+                                side: String(data.side || 0),
+                                position_value: Number(data.positionValue || 0),
                             };
                         } catch (e) {
                             console.error(
@@ -479,6 +463,7 @@ export function DataTable<TData, TValue>({
         <div className="rounded-md border flex flex-col gap-4 bg-card overflow-hidden">
             <div className="flex items-start justify-between gap-2 px-6 py-4">
                 <span className="text-2xl font-medium">Running Bot</span>
+                <DataTableViewOptions table={table} />
                 <div className="flex items-center gap-2">
                     <Button
                         className="bg-red-800 text-white hover:bg-red-700"
@@ -537,7 +522,9 @@ export function DataTable<TData, TValue>({
                                             setCreateStartSize(e.target.value)
                                         }
                                     />
-                                    <Select onValueChange={setCreateStartType} value={createStartType}>
+                                    <Select
+                                        onValueChange={(value) => setCreateStartType(value as "USDT" | "percent_equity")}
+                                        value={createStartType}>
                                         <SelectTrigger className={cn("w-[200px]", createErrors.start_type && "border-red-500")}>
                                             <SelectValue
                                                 placeholder={"% of equity"}
@@ -638,8 +625,8 @@ export function DataTable<TData, TValue>({
                                         key={header.id}
                                         className={cn(
                                             "py-2",
-                                            isFirstHeader && "pl-6",
-                                            isLastHeader && "pr-6"
+                                            isFirstHeader && "px-2",
+                                            isLastHeader && "px-2"
                                         )}
                                     >
                                         {header.isPlaceholder
@@ -681,103 +668,15 @@ export function DataTable<TData, TValue>({
                                 })}
                                 {/* Action column */}
                                 <TableCell className="py-2 pr-6">
-                                    {(() => {
-                                        const { id, status } = row.original as Bot; // Use Bot type directly
-
-                                        switch (status.toLowerCase()) { // Convert status to lowercase for consistent comparison
-                                            case "idle":
-                                            case "stopped": // Allow edit/delete for stopped bots too
-                                                return (
-                                                    <DropdownMenu>
-                                                        <DropdownMenuTrigger asChild>
-                                                            <Button
-                                                                className="my-2 size-8"
-                                                                size="icon"
-                                                                variant="secondary"
-                                                                title="More action"
-                                                            >
-                                                                <MoreHorizontal />
-                                                            </Button>
-                                                        </DropdownMenuTrigger>
-                                                        <DropdownMenuContent>
-                                                            <DropdownMenuGroup>
-                                                                <DropdownMenuItem onClick={() => startBot(id)}>
-                                                                    <Rocket className="mr-2 h-4 w-4" />
-                                                                    Run
-                                                                </DropdownMenuItem>
-                                                                <DropdownMenuItem onClick={() => handleEditClick(row.original as Bot)}>
-                                                                    <Pencil className="mr-2 h-4 w-4" />
-                                                                    Edit
-                                                                </DropdownMenuItem>
-                                                            </DropdownMenuGroup>
-                                                            <DropdownMenuSeparator />
-                                                            <DropdownMenuGroup>
-                                                                {/* Corrected: AlertDialog wraps the DropdownMenuItem */}
-                                                                <AlertDialog>
-                                                                    <AlertDialogTrigger asChild>
-                                                                        <DropdownMenuItem
-                                                                            className="text-red-400"
-                                                                            onSelect={(e) => {
-                                                                                // Prevent dropdown from closing immediately
-                                                                                e.preventDefault();
-                                                                                handleDeleteClick(id);
-                                                                            }}
-                                                                        >
-                                                                            <X className="mr-2 h-4 w-4 text-red-400" />
-                                                                            Delete bot
-                                                                        </DropdownMenuItem>
-                                                                    </AlertDialogTrigger>
-                                                                    <AlertDialogContent>
-                                                                        <AlertDialogHeader>
-                                                                            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-                                                                            <AlertDialogDescription>
-                                                                                This action cannot be undone. This will permanently delete bot ID{" "}
-                                                                                <span className="font-bold text-red-500">{deletingBotId}</span>{" "}
-                                                                                and remove its data from our servers. If the bot is running, it will be stopped first.
-                                                                            </AlertDialogDescription>
-                                                                        </AlertDialogHeader>
-                                                                        <AlertDialogFooter>
-                                                                            <AlertDialogCancel onClick={() => setDeleteDialogOpen(false)}>Cancel</AlertDialogCancel>
-                                                                            <AlertDialogAction onClick={confirmDeleteBot} className="bg-red-500 hover:bg-red-600 text-white">
-                                                                                Delete
-                                                                            </AlertDialogAction>
-                                                                        </AlertDialogFooter>
-                                                                    </AlertDialogContent>
-                                                                </AlertDialog>
-                                                            </DropdownMenuGroup>
-                                                        </DropdownMenuContent>
-                                                    </DropdownMenu>
-                                                );
-                                            case "running":
-                                                return (
-                                                    <Button
-                                                        className="my-2 size-8"
-                                                        size="icon"
-                                                        variant="secondary"
-                                                        onClick={() =>
-                                                            stopBot(id)
-                                                        }
-                                                        title="Stop bot"
-                                                    >
-                                                        <IconPlayerStopFilled />
-                                                    </Button>
-                                                );
-                                            case "stopping":
-                                                return (
-                                                    <Button
-                                                        className="my-2 size-8"
-                                                        size="icon"
-                                                        disabled
-                                                        variant="outline"
-                                                        title="Stopping bot"
-                                                    >
-                                                        <LoaderCircle className="animate-spin" />
-                                                    </Button>
-                                                );
-                                            default:
-                                                return null;
-                                        }
-                                    })()}
+                                    <BotActionButtons
+                                        bot={row.original as Bot}
+                                        startBot={startBot}
+                                        stopBot={stopBot}
+                                        onDeleteBot={confirmDeleteBot}
+                                        onUpdateBot={handleUpdateBot}
+                                        pollingBotId={pollingBotId}
+                                        API_BACKEND_URL={API_BACKEND_URL}
+                                    />
                                 </TableCell>
                             </TableRow>
                         ))
@@ -824,7 +723,7 @@ export function DataTable<TData, TValue>({
                                 value={editStartSize}
                                 onChange={(e) => setEditStartSize(e.target.value)}
                             />
-                            <Select onValueChange={setEditStartType} value={editStartType}>
+                            <Select onValueChange={(value) => setEditStartType(value as "USDT" | "percent_equity")} value={editStartType}>
                                 <SelectTrigger className={cn("w-[200px]", editErrors.start_type && "border-red-500")}>
                                     <SelectValue placeholder={"% of equity"}></SelectValue>
                                 </SelectTrigger>

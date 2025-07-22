@@ -50,6 +50,32 @@ export function ChartLineDefault({ className }: ChartLineDefaultProps) {
         }
     }, [apiKey, apiSecret]);
 
+    // Helper function to get the start of the day in UTC+7 (Western Indonesia Time)
+    const getStartOfDayUTCPlus7 = (timestampMs: number): number => {
+        // 1. Create a Date object from the original UTC timestamp
+        const date = new Date(timestampMs);
+
+        // 2. Add the UTC+7 offset to the timestamp to effectively shift it to UTC+7 time
+        // 7 hours = 7 * 60 minutes/hour * 60 seconds/minute * 1000 milliseconds/second
+        const offsetMs = 7 * 60 * 60 * 1000;
+        const dateAdjustedForUTCPlus7 = new Date(timestampMs + offsetMs);
+
+        // 3. Get the year, month, and day components from this adjusted date,
+        // using UTC methods to ensure they are consistent regardless of local browser timezone.
+        const year = dateAdjustedForUTCPlus7.getUTCFullYear();
+        const month = dateAdjustedForUTCPlus7.getUTCMonth();
+        const day = dateAdjustedForUTCPlus7.getUTCDate();
+
+        // 4. Construct a new Date object representing midnight of that day in UTC.
+        // This timestamp, when converted back to a Date object, will represent
+        // 00:00:00 UTC of the day *as determined by UTC+7*.
+        const utcMidnightOfUTCPlus7Day = Date.UTC(year, month, day, 0, 0, 0, 0);
+
+        // 5. Subtract the UTC+7 offset from this UTC midnight to get the actual
+        // UTC timestamp that corresponds to 00:00:00 UTC+7.
+        return utcMidnightOfUTCPlus7Day - offsetMs;
+    };
+
     const chartData = useMemo(() => {
         const closedPnL = data?.closedPnL?.result?.list ?? [];
         const dailyMap: Record<string, number> = {};
@@ -62,9 +88,11 @@ export function ChartLineDefault({ className }: ChartLineDefaultProps) {
 
         closedPnL.forEach((item: any) => {
             const pnl = parseFloat(item.closedPnl);
-            const date = new Date(Number(item.createdTime))
-                .toISOString()
-                .slice(0, 10);
+            const itemTimestamp = Number(item.createdTime);
+
+            const startOfDayTimestamp = getStartOfDayUTCPlus7(itemTimestamp);
+
+            const date = new Date(startOfDayTimestamp).toISOString().slice(0, 10);
             if (!dailyMap[date]) dailyMap[date] = 0;
             dailyMap[date] += pnl;
         });

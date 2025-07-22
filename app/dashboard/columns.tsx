@@ -3,22 +3,46 @@
 import { ColumnDef } from "@tanstack/react-table";
 
 import { IconCircleCheckFilled, IconMoonFilled } from "@tabler/icons-react"
+import { ArrowDownRight, ArrowUpDown, ArrowUpRight } from "lucide-react"
 
 import { Badge } from "@/components/ui/badge";
 import { Bot } from "@/types/bot";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
 
 export const columns: ColumnDef<Bot>[] = [
     {
         accessorKey: "id",
-        header: "ID",
+        enableHiding: false,
+        header: ({ column }) => {
+            return (
+                <Button
+                    variant="ghost"
+                    onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+                >
+                    ID
+                    <ArrowUpDown className="h-4 w-4" />
+                </Button>
+            )
+        },
     },
     {
         accessorKey: "asset",
-        header: "Assets",
+        header: ({ column }) => {
+            return (
+                <Button
+                    variant="ghost"
+                    onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+                >
+                    Asset
+                    <ArrowUpDown className="h-4 w-4" />
+                </Button>
+            )
+        },
         cell: ({ row }) => {
             const asset = String(row.getValue("asset"));
             const iconUrl = `https://app.hyperliquid.xyz/coins/${asset.replace("USDT", "")}.svg`
+            const side = String(row.getValue("side"));
 
             return (
                 <div className="flex items-center font-medium">
@@ -31,9 +55,20 @@ export const columns: ColumnDef<Bot>[] = [
                         <AvatarFallback className="w-5 h-5">{asset.substring(0, 2)}</AvatarFallback>
                     </Avatar>
                     {asset}
+                    <Badge variant="outline" className="ml-2 pl-1.5">
+                        {
+                            side === "Buy" ? <><ArrowUpRight className="text-green-500" /> Long</> :
+                                <><ArrowDownRight className="text-destructive" /> Short</>
+                        }
+                    </Badge>
                 </div>
             );
         }
+    },
+    {
+        accessorKey: "side", // This is the key that was missing
+        header: "Side (Hidden)", // You can give it a header, but it won't be visible
+        enableHiding: false, // Allows it to be hidden
     },
     {
         accessorKey: "start_size",
@@ -53,7 +88,7 @@ export const columns: ColumnDef<Bot>[] = [
     {
         accessorKey: "start_type", // This is the key that was missing
         header: "Start Type (Hidden)", // You can give it a header, but it won't be visible
-        enableHiding: true, // Allows it to be hidden
+        enableHiding: false, // Allows it to be hidden
     },
     {
         accessorKey: "leverage",
@@ -106,11 +141,35 @@ export const columns: ColumnDef<Bot>[] = [
         },
     },
     {
+        accessorKey: "current_price",
+        header: "Current price",
+        cell: ({ row }) => {
+            let price =
+                row.getValue("current_price") !== undefined
+                    ? String(row.getValue("current_price"))
+                    : "-";
+
+            return `${parseFloat(String(price))}`;
+        },
+    },
+    {
+        accessorKey: "liq_price",
+        header: "Liq. price",
+        cell: ({ row }) => {
+            let price =
+                isNaN(row.getValue("liq_price")) ? "Loading..." :
+                    row.getValue("liq_price") !== undefined || row.getValue("liq_price") === "0" ? String(row.getValue("liq_price"))
+                        : "-";
+
+            return `${parseFloat(String(price))}`;
+        },
+    },
+    {
         accessorKey: "unrealized_pnl",
         header: "Unrealized PnL",
         cell: ({ row }) => {
             const value = row.getValue("unrealized_pnl");
-            return `${parseFloat(String(value || 0)).toFixed(4)} USDT`;
+            return `${parseFloat(String(value || 0)).toFixed(2)} USDT`;
         },
     },
     {

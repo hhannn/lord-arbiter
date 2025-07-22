@@ -79,7 +79,7 @@ export default function DashboardContent({
     }
 
     return (
-        <div className="flex flex-col min-h-screen w-full px-4 py-6 mt-[57px]">
+        <div className="flex flex-col min-h-screen w-full px-4 py-6 pt-[80px]">
             <div className="flex">
                 <div className="flex flex-col items-center sm:items-start">
                     <h1 className="text-3xl font-bold mb-2">
