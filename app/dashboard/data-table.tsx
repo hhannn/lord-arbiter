@@ -85,17 +85,6 @@ export function DataTable<TData, TValue>({
     const [createStartType, setCreateStartType] = useState<"USDT" | "percent_equity">("percent_equity");
     const [createDialogOpen, setCreateDialogOpen] = useState(false);
 
-    // State for Edit Bot Dialog
-    const [editDialogOpen, setEditDialogOpen] = useState(false);
-    const [editingBotId, setEditingBotId] = useState<number | null>(null);
-    const [editAsset, setEditAsset] = useState("");
-    const [editStartSize, setEditStartSize] = useState("");
-    const [editLeverage, setEditLeverage] = useState("");
-    const [editMultiplier, setEditMultiplier] = useState("");
-    const [editTakeProfit, setEditTakeProfit] = useState("");
-    const [editRebuy, setEditRebuy] = useState("");
-    const [editStartType, setEditStartType] = useState<"USDT" | "percent_equity">("percent_equity");
-
     // State for Delete Confirmation Dialog
     const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
     const [deletingBotId, setDeletingBotId] = useState<number | null>(null);
@@ -137,22 +126,6 @@ export function DataTable<TData, TValue>({
         setCreateRebuy("");
         setCreateStartType("percent_equity");
         setCreateErrors({
-            asset: false, start_size: false, leverage: false,
-            multiplier: false, take_profit: false, rebuy: false, start_type: false
-        });
-    };
-
-    // Function to reset edit form fields
-    const resetEditForm = () => {
-        setEditingBotId(null);
-        setEditAsset("");
-        setEditStartSize("");
-        setEditLeverage("");
-        setEditMultiplier("");
-        setEditTakeProfit("");
-        setEditRebuy("");
-        setEditStartType("percent_equity");
-        setEditErrors({
             asset: false, start_size: false, leverage: false,
             multiplier: false, take_profit: false, rebuy: false, start_type: false
         });
@@ -311,88 +284,41 @@ export function DataTable<TData, TValue>({
         }
     }
 
-    // Function to handle opening the edit dialog and populating fields
-    const handleEditClick = (bot: Bot) => {
-        if (bot.status && bot.status.toLowerCase() === "running") {
-            toast.error("Cannot edit a running bot.", {
-                description: "Please stop the bot first before attempting to edit its parameters."
-            });
-            return;
-        }
-        setEditingBotId(bot.id);
-        setEditAsset(bot.asset);
-        setEditStartSize(String(bot.start_size));
-        setEditLeverage(String(bot.leverage));
-        setEditMultiplier(String(bot.multiplier));
-        setEditTakeProfit(String(bot.take_profit));
-        setEditRebuy(String(bot.rebuy));
-        setEditStartType(bot.start_type);
-        setEditDialogOpen(true);
-    };
-
-    // Function to handle updating a bot
-    async function handleUpdateBot() {
-        if (editingBotId === null) return; // Should not happen if dialog is opened correctly
-
-        const newErrors = {
-            asset: !editAsset.trim(),
-            start_size: !editStartSize.trim() || isNaN(parseFloat(editStartSize)) || parseFloat(editStartSize) <= 0,
-            leverage: !editLeverage.trim() || isNaN(parseFloat(editLeverage)) || parseFloat(editLeverage) <= 0,
-            multiplier: !editMultiplier.trim() || isNaN(parseFloat(editMultiplier)) || parseFloat(editMultiplier) <= 0,
-            take_profit: !editTakeProfit.trim() || isNaN(parseFloat(editTakeProfit)) || parseFloat(editTakeProfit) <= 0,
-            rebuy: !editRebuy.trim() || isNaN(parseFloat(editRebuy)) || parseFloat(editRebuy) < 0,
-            start_type: !editStartType.trim(),
-        };
-
-        setEditErrors(newErrors);
-
-        const hasError = Object.values(newErrors).some(Boolean);
-        if (hasError) {
-            toast.error("Please fill in all required fields correctly for editing.");
-            return;
-        }
-
+    async function handleUpdateBot(botId: number, updatedData: Partial<Bot>) {
+        toast(`Updating bot ${botId}...`);
         try {
-            const res = await fetch(`${API_BACKEND_URL}/api/bots/edit/${editingBotId}`, {
-                method: "PUT", // Use PUT for full replacement or PATCH for partial update
+            const res = await fetch(`${API_BACKEND_URL}/api/bots/edit/${botId}`, {
+                method: "PUT", // Or PATCH, depending on your API
                 credentials: "include",
                 headers: {
                     "Content-Type": "application/json",
                 },
-                body: JSON.stringify({
-                    asset: editAsset,
-                    start_size: parseFloat(editStartSize),
-                    leverage: parseFloat(editLeverage),
-                    multiplier: parseFloat(editMultiplier),
-                    take_profit: parseFloat(editTakeProfit),
-                    rebuy: parseFloat(editRebuy),
-                    start_type: editStartType,
-                }),
+                body: JSON.stringify(updatedData),
             });
 
-            const updatedBot = await res.json();
+            const responseData = await res.json();
 
             if (!res.ok) {
-                console.error("❌ Failed to update bot", updatedBot);
+                console.error("❌ Failed to update bot", responseData);
                 toast.error("Failed to update bot", {
                     description:
-                        typeof updatedBot === "object" && updatedBot?.detail
-                            ? updatedBot.detail
+                        typeof responseData === "object" && responseData?.detail
+                            ? responseData.detail
                             : "Unexpected error occurred",
                 });
+                throw new Error(responseData?.detail || "Failed to update bot"); // Propagate error for catch block in BotActionButtons
             } else {
-                console.log("✅ Bot updated:", updatedBot);
-                toast.success(`Bot ${editingBotId} has been updated.`);
-                setEditDialogOpen(false);
-                resetEditForm(); // Reset form after success
-                fetchBots(); // Refresh table data
+                console.log("✅ Bot updated:", responseData);
+                toast.success(`Bot ${botId} has been updated.`);
+                fetchBots(); // Refresh the table data after successful update
             }
         } catch (error) {
             console.error("❌ Error updating bot:", error);
             toast.error("An error occurred while updating the bot.");
+            // Re-throw the error so BotActionButtons can catch it if needed (e.g., to prevent dialog close)
+            throw error;
         }
     }
-
 
     // Get position
     useEffect(() => {
@@ -694,7 +620,7 @@ export function DataTable<TData, TValue>({
             </Table>
 
             {/* Edit Bot Dialog */}
-            <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
+            {/* <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
                 <DialogContent>
                     <DialogHeader className="flex flex-col">
                         <DialogTitle className="text-2xl">
@@ -793,12 +719,12 @@ export function DataTable<TData, TValue>({
                         </div>
                     </div>
                     <DialogFooter>
-                        <Button onClick={handleUpdateBot}>
+                        <Button onClick={handleUpdateBot(id)}>
                             Update Bot
                         </Button>
                     </DialogFooter>
                 </DialogContent>
-            </Dialog>
+            </Dialog> */}
         </div>
     );
 }

@@ -58,7 +58,8 @@ export const columns: ColumnDef<Bot>[] = [
                     <Badge variant="outline" className="ml-2 pl-1.5">
                         {
                             side === "Buy" ? <><ArrowUpRight className="text-green-500" /> Long</> :
-                                <><ArrowDownRight className="text-destructive" /> Short</>
+                            side === "Sell" ? <><ArrowDownRight className="text-destructive" /> Short</> :
+                            "-"
                         }
                     </Badge>
                 </div>

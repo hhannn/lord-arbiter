@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Bot } from "@/types/bot"; // Assuming your Bot interface is in types/bot.ts
 
 import {
@@ -19,6 +19,7 @@ import {
     DialogFooter,
     DialogHeader,
     DialogTitle,
+    DialogTrigger, // Keep DialogTrigger for the edit dialog
 } from "@/components/ui/dialog";
 import {
     AlertDialog,
@@ -37,23 +38,45 @@ import { AssetsCombobox } from "@/components/assets-combobox";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "./ui/badge";
 
-import { MoreHorizontal, Pencil, X, LoaderCircle, Rocket, ArrowUpRight, ArrowDownRight } from "lucide-react";
+import { MoreHorizontal, Pencil, X, LoaderCircle, Rocket, ArrowUpRight, ArrowDownRight, FileText } from "lucide-react"; // Added FileText back
 import { IconPlayerStopFilled } from "@tabler/icons-react";
 import { toast } from "sonner";
-import { cn } from "@/lib/utils"; // Assuming you have a cn utility for Tailwind class merging
-import { useUserData } from "@/store/useUserData";
-import { BotDailyChart } from "./bot-daily-pnl-chart";
+import { cn } from "@/lib/utils";
+import { useUserData } from "@/store/useUserData"; // Assuming this is your user data store
+import { BotDailyChart } from "./bot-daily-pnl-chart"; // Correct import and alias
 import { Sheet, SheetContent, SheetDescription, SheetTitle } from "./ui/sheet";
-import { Card, CardDescription, CardTitle } from "./ui/card";
+import { Card, CardDescription, CardTitle } from "./ui/card"; // Assuming these are used for the chart card
 
 interface BotActionButtonsProps {
     bot: Bot;
     startBot: (id: number) => Promise<void>;
     stopBot: (id: number) => Promise<void>;
-    onDeleteBot: (id: number) => Promise<void>; // Renamed to avoid conflict with internal state
-    onUpdateBot: (id: number, updatedData: Partial<Bot>) => Promise<void>; // Renamed for clarity
-    pollingBotId: number | null; // Passed from parent to show loading state
+    onDeleteBot: (id: number) => Promise<void>;
+    onUpdateBot: (id: number, updatedData: Partial<Bot>) => Promise<void>;
+    pollingBotId: number | null;
     API_BACKEND_URL: string;
+}
+
+// Helper function to get the start of the day in UTC+7 (Western Indonesia Time)
+const getStartOfDayUTCPlus7 = (timestampMs: number): number => {
+    const date = new Date(timestampMs);
+    const offsetMs = 7 * 60 * 60 * 1000; // 7 hours in milliseconds
+
+    const dateAdjustedForUTCPlus7 = new Date(timestampMs + offsetMs);
+
+    const year = dateAdjustedForUTCPlus7.getUTCFullYear();
+    const month = dateAdjustedForUTCPlus7.getUTCMonth();
+    const day = dateAdjustedForUTCPlus7.getUTCDate();
+
+    const utcMidnightOfUTCPlus7Day = Date.UTC(year, month, day, 0, 0, 0, 0);
+
+    return utcMidnightOfUTCPlus7Day - offsetMs;
+};
+
+// Define the expected type for each item in the dailyPnl array for consistency
+interface DailyPnlItem {
+    date: string; // YYYY-MM-DD format
+    pnl: number;  // The calculated PnL for that day
 }
 
 export function BotActionButtons({
@@ -65,11 +88,13 @@ export function BotActionButtons({
     pollingBotId,
     API_BACKEND_URL,
 }: BotActionButtonsProps) {
-    const { id, status, asset, start_size, leverage, multiplier, take_profit,
+    const {
+        id, status, asset, start_size, leverage, multiplier, take_profit,
         rebuy, start_type, current_position, liq_price, unrealized_pnl, created_at,
-        take_profit_price, side, current_price, position_value } = bot;
+        take_profit_price, side, current_price, position_value
+    } = bot;
 
-    // State for Edit Bot Dialog
+    // --- State for Edit Bot Dialog (LOCAL TO THIS COMPONENT) ---
     const [editDialogOpen, setEditDialogOpen] = useState(false);
     const [editAsset, setEditAsset] = useState(asset);
     const [editStartSize, setEditStartSize] = useState(String(start_size));
@@ -77,33 +102,37 @@ export function BotActionButtons({
     const [editMultiplier, setEditMultiplier] = useState(String(multiplier));
     const [editTakeProfit, setEditTakeProfit] = useState(String(take_profit));
     const [editRebuy, setEditRebuy] = useState(String(rebuy));
-    const [editStartType, setEditStartType] = useState(start_type);
+    const [editStartType, setEditStartType] = useState<"USDT" | "percent_equity">(start_type); // Explicitly typed
 
-    // State for Delete Confirmation Dialog
-    const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-
-    const [detailDialogOpen, setDetailDialogOpen] = useState(false);
-
-    const { data, fetchData, loading } = useUserData();
-
-    // Error states for edit form
+    // Error states for edit form (LOCAL TO THIS COMPONENT)
     const [editErrors, setEditErrors] = useState({
         asset: false, start_size: false, leverage: false,
         multiplier: false, take_profit: false, rebuy: false, start_type: false,
     });
 
+    // State for Delete Confirmation Dialog (LOCAL TO THIS COMPONENT)
+    const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+
+    // State for Detail Dialog (LOCAL TO THIS COMPONENT)
+    const [detailDialogOpen, setDetailDialogOpen] = useState(false);
+
+    // Get user data from useUserData store for PnL calculations
+    const { data: userData, fetchData, loading: userDataLoading } = useUserData();
+
+    // Fetch user data on mount (if not already fetched by parent or other means)
+    // This ensures 'userData' is available for PnL calculations
     useEffect(() => {
         const store = useUserData.getState();
-
         if (store.apiKey && store.apiSecret) {
             store.fetchData();
         } else {
-            console.warn("API Key or Secret not available. Cannot fetch initial data.");
-            toast.error("Please configure your API keys to fetch data.");
+            console.warn("API Key or Secret not available. Cannot fetch initial user data.");
+            // toast.error("Please configure your API keys to fetch user data."); // Optional: show toast
         }
     }, []);
 
-    // Reset edit form fields when dialog opens/closes for a new bot
+    // Reset edit form fields when dialog opens/closes or 'bot' prop changes
+    // This ensures the form is populated with the correct bot's data
     useEffect(() => {
         if (editDialogOpen) {
             setEditAsset(asset);
@@ -145,12 +174,17 @@ export function BotActionButtons({
         setEditErrors(newErrors);
 
         const hasError = Object.values(newErrors).some(Boolean);
+        console.log("Calculated newErrors object (JSON.stringify):", JSON.stringify(newErrors));
+        console.log("Value of hasError:", hasError);
+
         if (hasError) {
             toast.error("Please fill in all required fields correctly for editing.");
             return;
         }
 
         try {
+            // Call the onUpdateBot prop, which is defined in the parent (DataTable.tsx)
+            // and is responsible for making the API call and refreshing the data.
             await onUpdateBot(id, {
                 asset: editAsset,
                 start_size: parseFloat(editStartSize),
@@ -160,11 +194,12 @@ export function BotActionButtons({
                 rebuy: parseFloat(editRebuy),
                 start_type: editStartType,
             });
-            setEditDialogOpen(false);
-            // Parent fetchBots will be called by onUpdateBot
+            setEditDialogOpen(false); // Close the dialog on successful update
         } catch (error) {
-            // Error handling is already in onUpdateBot, just close dialog
-            console.error("Error during bot update:", error);
+            // The error handling for the actual API call is in the parent's onUpdateBot function.
+            // You might want to add a generic error toast here if the promise from onUpdateBot rejects.
+            console.error("Error during bot update (in BotActionButtons):", error);
+            toast.error("Failed to update bot. Please try again.");
         }
     }
 
@@ -176,45 +211,16 @@ export function BotActionButtons({
         try {
             await onDeleteBot(id);
         } catch (error) {
-            // Error handling is already in onDeleteBot
             console.error("Error during bot deletion:", error);
         } finally {
             setDeleteDialogOpen(false);
         }
     }
 
-    // Helper function to get the start of the day in UTC+7 (Western Indonesia Time)
-    const getStartOfDayUTCPlus7 = (timestampMs: number): number => {
-        // 1. Create a Date object from the original UTC timestamp
-        const date = new Date(timestampMs);
-
-        // 2. Add the UTC+7 offset to the timestamp to effectively shift it to UTC+7 time
-        // 7 hours = 7 * 60 minutes/hour * 60 seconds/minute * 1000 milliseconds/second
-        const offsetMs = 7 * 60 * 60 * 1000;
-        const dateAdjustedForUTCPlus7 = new Date(timestampMs + offsetMs);
-
-        // 3. Get the year, month, and day components from this adjusted date,
-        // using UTC methods to ensure they are consistent regardless of local browser timezone.
-        const year = dateAdjustedForUTCPlus7.getUTCFullYear();
-        const month = dateAdjustedForUTCPlus7.getUTCMonth();
-        const day = dateAdjustedForUTCPlus7.getUTCDate();
-
-        // 4. Construct a new Date object representing midnight of that day in UTC.
-        // This timestamp, when converted back to a Date object, will represent
-        // 00:00:00 UTC of the day *as determined by UTC+7*.
-        const utcMidnightOfUTCPlus7Day = Date.UTC(year, month, day, 0, 0, 0, 0);
-
-        // 5. Subtract the UTC+7 offset from this UTC midnight to get the actual
-        // UTC timestamp that corresponds to 00:00:00 UTC+7.
-        return utcMidnightOfUTCPlus7Day - offsetMs;
-    };
-
-
-    // The botPnL function (remains mostly the same, as it returns raw PnL values)
-    const botPnL = () => {
-        const closedPnL = data?.closedPnL?.result?.list ?? [];
+    // Calculate bot PnL values using useMemo to optimize
+    const botPnLValues = useMemo(() => {
+        const closedPnL = userData?.closedPnL?.result?.list ?? [];
         if (!closedPnL || closedPnL.length === 0) {
-            console.warn("⚠️ No closed PnL data found in 'data'.", data);
             return [];
         }
 
@@ -225,78 +231,71 @@ export function BotActionButtons({
             return timeFilter && assetFilter;
         });
 
-        const botPnLValues = filteredPnL.map((item: { closedPnl: string; }) => {
+        return filteredPnL.map((item: { closedPnl: string; }) => {
             return parseFloat(item.closedPnl);
         });
+    }, [userData, asset, created_at]); // Re-calculate if userData, asset, or created_at changes
 
-        return botPnLValues;
-    };
-
-    // The botClosedPnL and botAveragePnL functions (remain as previously refined)
-    const botClosedPnL = () => {
-        const pnlValues = botPnL();
-        if (pnlValues.length === 0) {
+    const botClosedPnL = useMemo(() => {
+        if (botPnLValues.length === 0) {
             return "0.00";
         }
-        const totalBotPnl = pnlValues.reduce((a: any, b: any) => a + b, 0);
+        const totalBotPnl = botPnLValues.reduce((a: any, b: any) => a + b, 0);
         return totalBotPnl.toFixed(2);
-    };
+    }, [botPnLValues]);
 
-    const botAveragePnL = () => {
-        const pnlValues = botPnL();
-        if (pnlValues.length === 0) {
+    const botAveragePnL = useMemo(() => {
+        if (botPnLValues.length === 0) {
             return "0.00";
         }
-        const totalBotPnl = pnlValues.reduce((a: any, b: any) => a + b, 0);
-        const averagePnL = totalBotPnl / pnlValues.length;
+        const totalBotPnl = botPnLValues.reduce((a: any, b: any) => a + b, 0);
+        const averagePnL = totalBotPnl / botPnLValues.length;
         return averagePnL.toFixed(2);
-    };
+    }, [botPnLValues]);
 
+    // Calculate daily PnL for the chart using useMemo
+    const dailyPnlChartData = useMemo<DailyPnlItem[]>(() => {
+        const closedPnL = userData?.closedPnL?.result?.list ?? [];
+        const dailyMap: Record<string, number> = {};
 
-    // New function for daily PnL, now using UTC+7 for grouping
-    const dailyBotPnL = () => {
-        const closedPnL = data?.closedPnL?.result?.list ?? [];
-        if (!closedPnL || closedPnL.length === 0) {
-            return []; // Return an empty array if no data
-        }
+        // Convert bot's created_at to a timestamp for filtering
+        const botCreatedAtTimestamp = created_at ? new Date(created_at).getTime() : 0;
 
-        const dailyPnlMap: { [date: string]: number } = {};
+        closedPnL.forEach((item: any) => {
+            const pnl = parseFloat(item.closedPnl);
+            const itemTimestamp = Number(item.createdTime);
 
-        closedPnL.forEach((item: { symbol: string; createdTime: any; closedPnl: string; }) => {
+            // Filter by asset and created time of the specific bot
             const assetFilter = item.symbol === asset;
-            const botCreatedAtTimestamp = created_at ? new Date(created_at).getTime() : 0;
-            const timeFilter = Number(item.createdTime) > botCreatedAtTimestamp;
+            const timeFilter = itemTimestamp >= botCreatedAtTimestamp; // Filter from bot's creation time
 
             if (assetFilter && timeFilter) {
-                const itemTimestamp = Number(item.createdTime);
-                // Use the new UTC+7 adjusted start of day
                 const startOfDayTimestamp = getStartOfDayUTCPlus7(itemTimestamp);
-                // Format as YYYY-MM-DD for the key
                 const dateKey = new Date(startOfDayTimestamp).toISOString().split('T')[0];
 
-                const pnlValue = parseFloat(item.closedPnl);
+                if (!dailyMap[dateKey]) {
+                    dailyMap[dateKey] = 0;
+                }
 
-                if (!isNaN(pnlValue)) {
-                    dailyPnlMap[dateKey] = (dailyPnlMap[dateKey] || 0) + pnlValue;
+                if (!isNaN(pnl)) {
+                    dailyMap[dateKey] += pnl;
                 }
             }
         });
 
-        // Convert map to an array of objects, sorted by date
-        const dailyPnlArray = Object.keys(dailyPnlMap)
-            .sort() // Sorts dates chronologically
+        const dailyPnlArray = Object.keys(dailyMap)
+            .sort()
             .map(date => ({
                 date: date,
-                pnl: dailyPnlMap[date].toFixed(2)
+                pnl: dailyMap[date], // Keep pnl as a number here for the chart component
             }));
 
-
-        return (dailyPnlArray)
-    };
+        return dailyPnlArray;
+    }, [userData, asset, created_at]);
 
     const handleDetailDialog = () => {
         setDetailDialogOpen(true);
-        console.log(dailyBotPnL());
+        // console.log(dailyPnlChartData); // Now logs the memoized array
     }
 
     switch (status.toLowerCase()) {
@@ -321,9 +320,18 @@ export function BotActionButtons({
                                     <Rocket className="mr-2 h-4 w-4" />
                                     Run
                                 </DropdownMenuItem>
+                                {/* Use DialogTrigger for the Edit Dialog */}
                                 <DropdownMenuItem onClick={handleEditClick}>
                                     <Pencil className="mr-2 h-4 w-4" />
                                     Edit
+                                </DropdownMenuItem>
+                                {/* Added View Logs back */}
+                                {/* <DropdownMenuItem onClick={() => onViewLogs(id)}>
+                                    <FileText className="mr-2 h-4 w-4" />
+                                    View Logs
+                                </DropdownMenuItem> */}
+                                <DropdownMenuItem onSelect={handleDetailDialog}>
+                                    Bot details
                                 </DropdownMenuItem>
                             </DropdownMenuGroup>
                             <DropdownMenuSeparator />
@@ -333,7 +341,7 @@ export function BotActionButtons({
                                         <DropdownMenuItem
                                             className="text-red-400"
                                             onSelect={(e) => {
-                                                e.preventDefault(); // Prevent dropdown from closing
+                                                e.preventDefault();
                                                 handleDeleteClick();
                                             }}
                                         >
@@ -362,7 +370,7 @@ export function BotActionButtons({
                         </DropdownMenuContent>
                     </DropdownMenu>
 
-                    {/* Edit Bot Dialog (moved here) */}
+                    {/* Edit Bot Dialog (NOW FULLY CONTAINED HERE) */}
                     <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
                         <DialogContent>
                             <DialogHeader className="flex flex-col">
@@ -392,7 +400,10 @@ export function BotActionButtons({
                                         value={editStartSize}
                                         onChange={(e) => setEditStartSize(e.target.value)}
                                     />
-                                    <Select onValueChange={(value) => setEditStartType(value as "USDT" | "percent_equity")} value={editStartType}>
+                                    <Select
+                                        onValueChange={(value) => setEditStartType(value as "USDT" | "percent_equity")}
+                                        value={editStartType}
+                                    >
                                         <SelectTrigger className={cn("w-[200px]", editErrors.start_type && "border-red-500")}>
                                             <SelectValue placeholder={"% of equity"}></SelectValue>
                                         </SelectTrigger>
@@ -474,16 +485,7 @@ export function BotActionButtons({
             return (
                 <>
                     <DropdownMenu>
-                        <DropdownMenuTrigger>
-                            {/* <Button
-                            className="my-2 size-8"
-                            size="icon"
-                            variant="secondary"
-                            onClick={() => stopBot(id)}
-                            title="Stop bot"
-                        >
-                            <IconPlayerStopFilled />
-                        </Button> */}
+                        <DropdownMenuTrigger> {/* Added asChild here */}
                             <Button
                                 className="my-2 size-8"
                                 size="icon"
@@ -497,7 +499,7 @@ export function BotActionButtons({
                             <DropdownMenuItem onClick={handleDetailDialog}>
                                 Bot details
                             </DropdownMenuItem>
-                            <Separator />
+                            <DropdownMenuSeparator />
                             <DropdownMenuItem
                                 className="text-destructive"
                                 onClick={() => stopBot(id)}
@@ -505,6 +507,37 @@ export function BotActionButtons({
                                 <IconPlayerStopFilled className="text-destructive mr-2" />
                                 Stop bot
                             </DropdownMenuItem>
+                            <DropdownMenuSeparator />
+                            <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+                                <AlertDialogTrigger asChild>
+                                    <DropdownMenuItem
+                                        className="text-red-400"
+                                        onSelect={(e) => {
+                                            e.preventDefault();
+                                            handleDeleteClick();
+                                        }}
+                                    >
+                                        <X className="mr-2 h-4 w-4 text-red-400" />
+                                        Delete bot
+                                    </DropdownMenuItem>
+                                </AlertDialogTrigger>
+                                <AlertDialogContent>
+                                    <AlertDialogHeader>
+                                        <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                                        <AlertDialogDescription>
+                                            This action cannot be undone. This will permanently delete bot ID{" "}
+                                            <span className="font-bold text-red-500">{id}</span>{" "}
+                                            and remove its data from our servers. If the bot is running, it will be stopped first.
+                                        </AlertDialogDescription>
+                                    </AlertDialogHeader>
+                                    <AlertDialogFooter>
+                                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                        <AlertDialogAction onClick={confirmDeleteBot} className="bg-red-600 hover:bg-red-700 text-white">
+                                            Delete
+                                        </AlertDialogAction>
+                                    </AlertDialogFooter>
+                                </AlertDialogContent>
+                            </AlertDialog>
                         </DropdownMenuContent>
                     </DropdownMenu>
 
@@ -572,16 +605,17 @@ export function BotActionButtons({
                                 <Separator className="col-span-full" />
                                 <div className="flex flex-col gap-2">
                                     <span className="text-sm text-muted-foreground font-medium">Total bot PnL</span>
-                                    <span>{`${botClosedPnL()} USDT`}</span>
+                                    <span>{`${botClosedPnL} USDT`}</span> {/* Use botClosedPnL directly */}
                                 </div>
                                 <div className="flex flex-col gap-2">
                                     <span className="text-sm text-muted-foreground font-medium">Average PnL</span>
-                                    <span>{`${botAveragePnL()} USDT`}</span>
+                                    <span>{`${botAveragePnL} USDT`}</span> {/* Use botAveragePnL directly */}
                                 </div>
                                 <Card className="col-span-full px-4 gap-2">
                                     <CardTitle>Daily bot PnL</CardTitle>
                                     <CardDescription>Last 7 days</CardDescription>
-                                    <BotDailyChart className="max-h-[100px]" dailyPnl={dailyBotPnL()}></BotDailyChart>
+                                    {/* Pass the memoized dailyPnlChartData and userDataLoading */}
+                                    <BotDailyChart className="max-h-[100px]" dailyPnl={dailyPnlChartData} isLoading={userDataLoading} />
                                 </Card>
                             </div>
                         </SheetContent>
