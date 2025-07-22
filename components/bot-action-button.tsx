@@ -551,7 +551,7 @@ export function BotActionButtons({
                                 </div>
                                 <div className="flex flex-col gap-2">
                                     <span className="text-sm text-muted-foreground font-medium">Position value</span>
-                                    <span>{`${position_value.toFixed(2)} USDT`}</span>
+                                    <span>{`${position_value?.toFixed(2)} USDT`}</span>
                                 </div>
                                 <div className="flex flex-col gap-2">
                                     <span className="text-sm text-muted-foreground font-medium">Unrealized PnL</span>
