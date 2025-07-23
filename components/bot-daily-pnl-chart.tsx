@@ -137,7 +137,6 @@ export function BotDailyChart({ className, dailyPnl = [], isLoading = false }: C
                     tickLine={false}
                     tickMargin={10}
                     axisLine={false}
-                    tickFormatter={(value) => value.slice(0, 3)}
                 />
                 <ChartTooltip content={<CustomTooltipContent hideLabel />} />
                 <ChartLegend content={<ChartLegendContent />} />

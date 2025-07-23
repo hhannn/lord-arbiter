@@ -38,17 +38,22 @@ export function ChartLineDefault({ className }: ChartLineDefaultProps) {
 
     // When keys are available, fetch user data and mark loading as false
     useEffect(() => {
-        if (apiKey && apiSecret) {
-            fetchData();
-            setInitialLoading(false);
+        const store = useUserData.getState();
+
+        // Restore user credentials from localStorage
+        store.restoreFromStorage();
+
+        // Only run fetch once after restore
+        if (store.apiKey && store.apiSecret) {
+            store.fetchData();
 
             const interval = setInterval(() => {
-                fetchData();
-            }, 15000);
+                store.fetchData();
+            }, 60000); // 15s is safer for Bybit API
 
             return () => clearInterval(interval);
         }
-    }, [apiKey, apiSecret]);
+    }, []);
 
     // Helper function to get the start of the day in UTC+7 (Western Indonesia Time)
     const getStartOfDayUTCPlus7 = (timestampMs: number): number => {
