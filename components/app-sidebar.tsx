@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useUserData } from "@/store/useUserData";
 
-import { Home, Bot, ChevronsUpDown } from "lucide-react";
+import { Home, Bot, ChevronsUpDown, ChevronUp } from "lucide-react";
 import {
     Sidebar,
     SidebarContent,
@@ -107,7 +107,7 @@ export function AppSidebar({ collapsible = "icon" }: AppSidebarProps) {
                         </div>
                     )}
                 </div>
-                <ChevronsUpDown className="size-4" />
+                <ChevronUp className="size-4" />
             </SidebarFooter>
         </Sidebar>
     );

@@ -19,3 +19,10 @@ export interface Bot {
     side: string;
     position_value: number;
 }
+
+export interface trxEntries {
+    symbol: string;
+    side: string;
+    change: string;
+    cash_balance: string;
+}

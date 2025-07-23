@@ -38,7 +38,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                             alt="Background Gradient"
                             className="-z-10 -translate-x-full pointer-events-none absolute top-[57px] left-1/3 hidden scale-100 dark:block"
                         />
-                        <div className="w-full h-[57px] bg-neutral-950 py-2 px-4 gap-4 border-b border-neutral-800 fixed top-0 z-10 flex items-center">
+                        <div className="w-full h-[57px] bg-background py-2 px-4 gap-4 border-b border-border fixed top-0 z-10 flex items-center">
                             <AppNavbar />
                         </div>
                         {children}

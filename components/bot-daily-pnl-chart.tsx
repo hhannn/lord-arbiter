@@ -5,7 +5,7 @@ import { useState, useEffect, useMemo } from "react";
 // import { useUserData } from "@/store/useUserData"; 
 
 import { TrendingUp } from "lucide-react";
-import { Bar, BarChart, CartesianGrid, Cell, LabelList } from "recharts";
+import { Bar, BarChart, CartesianGrid, Cell, LabelList, XAxis } from "recharts";
 
 import {
     Card,
@@ -18,6 +18,8 @@ import {
 import {
     ChartConfig,
     ChartContainer,
+    ChartLegend,
+    ChartLegendContent,
     ChartTooltip,
     ChartTooltipContent,
 } from "@/components/ui/chart";
@@ -50,6 +52,38 @@ export function BotDailyChart({ className, dailyPnl = [], isLoading = false }: C
             label: "PnL",
             color: "var(--chart-1)", // Default color, will be overridden by Cell fill
         },
+        roi: {
+            label: "ROI",
+            color: "var(--chart-2)", // Default color, will be overridden by Cell fill
+        },
+    };
+
+    const CustomTooltipContent = ({ active, payload, label }: any) => {
+        if (active && payload && payload.length) {
+            return (
+                <div className="grid grid-cols-2 bg-background border rounded-lg p-3 shadow-lg">
+                    <p className="text-muted-foreground">{`Date`}</p>
+                    <p className="text-end font-medium">{label}</p>
+                    {payload.map((entry: any, index: number) => (
+                        <>
+                            <p className="text-muted-foreground">
+                                {entry.dataKey === 'roi'
+                                    ? "ROI"
+                                    : "PnL"
+                                }
+                            </p>
+                            <p key={index} className="text-end font-medium">
+                                {entry.dataKey === 'roi'
+                                    ? `${(entry.value).toFixed(2)}%`
+                                    : `${entry.value?.toFixed(2) || '0.00'} USDT`
+                                }
+                            </p>
+                        </>
+                    ))}
+                </div>
+            );
+        }
+        return null;
     };
 
     // Use the isLoading prop to show skeleton loading
@@ -97,69 +131,28 @@ export function BotDailyChart({ className, dailyPnl = [], isLoading = false }: C
             className="h-full w-full max-h-[100px]"
         >
             <BarChart accessibilityLayer data={dailyPnl}>
-                <CartesianGrid vertical={false} horizontal={false} />
-                <ChartTooltip
-                    cursor={false}
-                    content={
-                        <ChartTooltipContent
-                            hideLabel
-                            hideIndicator
-                            formatter={(value: any, name: string | number, props: any) => {
-                                // Formatter remains the same, as it operates on the 'pnl' value
-                                return `${value} USDT`;
-                            }}
-                        />
-                    }
+                <CartesianGrid vertical={false} />
+                <XAxis
+                    dataKey="date"
+                    tickLine={false}
+                    tickMargin={10}
+                    axisLine={false}
+                    tickFormatter={(value) => value.slice(0, 3)}
                 />
-                <Bar dataKey="pnl">
-                    <LabelList
-                        position="top"
-                        dataKey="pnl"
-                        content={({ x, y, width, index }) => {
-                            const safeIndex =
-                                typeof index === "number" ? index : 0;
-                            const itemPnl = dailyPnl[safeIndex]?.pnl;
-                            const dateStr = dailyPnl[safeIndex]?.date ?? "";
-                            // Use the date string directly as it's already YYYY-MM-DD
-                            const date = new Date(dateStr + "T00:00:00Z"); // Append T00:00:00Z for consistent UTC interpretation
-                            const day = dateStr
-                                ? `${date.getDate()}-${date.getMonth()}`
-                                : "";
-
-                            const textY = typeof y === "number" ? (itemPnl >= 0 ? y - 2 : y + 14) : y;
-                            const textColor = "#999";
-
-                            return (
-                                <text
-                                    x={
-                                        typeof x === "number" &&
-                                            typeof width === "number"
-                                            ? x + width / 2
-                                            : 0
-                                    }
-                                    y={textY}
-                                    fill={textColor}
-                                    textAnchor="middle"
-                                    fontSize={12}
-                                    fontWeight="bold"
-                                >
-                                    {day}
-                                </text>
-                            );
-                        }}
-                        fillOpacity={1}
-                    />
-                    {dailyPnl.map((item) => (
-                        <Cell
-                            key={item.date}
-                            fill={
-                                item.pnl > 0
-                                    ? "var(--chart-1)"
-                                    : "var(--chart-3)"
-                            }
-                        />
-                    ))}
-                </Bar>
+                <ChartTooltip content={<CustomTooltipContent hideLabel />} />
+                <ChartLegend content={<ChartLegendContent />} />
+                <Bar
+                    dataKey="pnl"
+                    stackId="a"
+                    fill="var(--chart-1)"
+                    radius={[0, 0, 4, 4]}
+                />
+                <Bar
+                    dataKey="roi"
+                    stackId="a"
+                    fill="var(--chart-2)"
+                    radius={[4, 4, 0, 0]}
+                />
             </BarChart>
         </ChartContainer>
     );

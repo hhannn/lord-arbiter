@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
-import { Bot } from "@/types/bot"; // Assuming your Bot interface is in types/bot.ts
+import { Bot, trxEntries } from "@/types/bot"; // Assuming your Bot interface is in types/bot.ts
 
 import {
     DropdownMenu,
@@ -77,6 +77,7 @@ const getStartOfDayUTCPlus7 = (timestampMs: number): number => {
 interface DailyPnlItem {
     date: string; // YYYY-MM-DD format
     pnl: number;  // The calculated PnL for that day
+    roi?: number;
 }
 
 export function BotActionButtons({
@@ -120,7 +121,6 @@ export function BotActionButtons({
     const { data: userData, fetchData, loading: userDataLoading } = useUserData();
 
     // Fetch user data on mount (if not already fetched by parent or other means)
-    // This ensures 'userData' is available for PnL calculations
     useEffect(() => {
         const store = useUserData.getState();
         if (store.apiKey && store.apiSecret) {
@@ -257,20 +257,23 @@ export function BotActionButtons({
     const dailyPnlChartData = useMemo<DailyPnlItem[]>(() => {
         const closedPnL = userData?.closedPnL?.result?.list ?? [];
         const dailyMap: Record<string, number> = {};
+        const dailyROIMap: Record<string, { totalValue: number; count: number }> = {};
 
         // Convert bot's created_at to a timestamp for filtering
         const botCreatedAtTimestamp = created_at ? new Date(created_at).getTime() : 0;
 
+        // Process closed PnL data
         closedPnL.forEach((item: any) => {
             const pnl = Number(parseFloat(item.closedPnl).toFixed(2));
-            const itemTimestamp = Number(item.createdTime);
+            const value = Number(parseFloat(item.cumEntryValue).toFixed(2));
+            const itemTimestamp = getStartOfDayUTCPlus7(Number(item.createdTime));
 
             // Filter by asset and created time of the specific bot
             const assetFilter = item.symbol === asset;
-            const timeFilter = itemTimestamp >= botCreatedAtTimestamp; // Filter from bot's creation time
+            const timeFilter = itemTimestamp >= getStartOfDayUTCPlus7(botCreatedAtTimestamp);
 
             if (assetFilter && timeFilter) {
-                const startOfDayTimestamp = getStartOfDayUTCPlus7(itemTimestamp);
+                const startOfDayTimestamp = itemTimestamp;
                 const dateKey = new Date(startOfDayTimestamp).toISOString().split('T')[0];
 
                 if (!dailyMap[dateKey]) {
@@ -280,15 +283,54 @@ export function BotActionButtons({
                 if (!isNaN(pnl)) {
                     dailyMap[dateKey] += pnl;
                 }
+
+                if (!dailyROIMap[dateKey]) {
+                    dailyROIMap[dateKey] = {
+                        totalValue: 0,
+                        count: 0
+                    };
+                }
+
+                if (!isNaN(value)) {
+                    dailyROIMap[dateKey].totalValue += value;
+                    dailyROIMap[dateKey].count += 1;
+                }
             }
         });
 
-        const dailyPnlArray = Object.keys(dailyMap)
+        // Get all unique dates from both PnL and transaction logs
+        const allDates = new Set([...Object.keys(dailyMap), ...Object.keys(dailyROIMap)]);
+
+        const dailyPnlArray = Array.from(allDates)
             .sort()
-            .map(date => ({
-                date: date,
-                pnl: dailyMap[date], // Keep pnl as a number here for the chart component
-            }));
+            .map(date => {
+                const pnl = dailyMap[date] || 0;
+
+                // Calculate ROI for this date
+                let roi = 0;
+                if (dailyROIMap[date]) {
+                    const { totalValue, count } = dailyROIMap[date];
+                    console.log(totalValue)
+
+                    if (count > 0 && totalValue > 0) {
+                        // ROI formula: change / (cashBalance - change) * 100
+                        // Using total change for the day and average cash balance before change
+                        roi = (pnl / totalValue) * 100;
+                    }
+                }
+
+                // Calculate ROI for this date
+                const [year, month, day] = date.split('-');
+                const formattedDate = `${day}-${month}`;
+
+                return {
+                    date: formattedDate,
+                    pnl: pnl,
+                    roi: roi
+                };
+            });
+
+        console.log('Daily PnL Array with ROI:', dailyPnlArray);
 
         return dailyPnlArray;
     }, [userData, asset, created_at]);
