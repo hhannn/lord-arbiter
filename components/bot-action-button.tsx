@@ -197,7 +197,6 @@ export function BotActionButtons({
             setEditDialogOpen(false); // Close the dialog on successful update
         } catch (error) {
             // The error handling for the actual API call is in the parent's onUpdateBot function.
-            // You might want to add a generic error toast here if the promise from onUpdateBot rejects.
             console.error("Error during bot update (in BotActionButtons):", error);
             toast.error("Failed to update bot. Please try again.");
         }
@@ -362,16 +361,10 @@ export function BotActionButtons({
                                     <Rocket className="mr-2 h-4 w-4" />
                                     Run
                                 </DropdownMenuItem>
-                                {/* Use DialogTrigger for the Edit Dialog */}
                                 <DropdownMenuItem onClick={handleEditClick}>
                                     <Pencil className="mr-2 h-4 w-4" />
                                     Edit
                                 </DropdownMenuItem>
-                                {/* Added View Logs back */}
-                                {/* <DropdownMenuItem onClick={() => onViewLogs(id)}>
-                                    <FileText className="mr-2 h-4 w-4" />
-                                    View Logs
-                                </DropdownMenuItem> */}
                                 <DropdownMenuItem onSelect={handleDetailDialog}>
                                     Bot details
                                 </DropdownMenuItem>
@@ -412,7 +405,6 @@ export function BotActionButtons({
                         </DropdownMenuContent>
                     </DropdownMenu>
 
-                    {/* Edit Bot Dialog (NOW FULLY CONTAINED HERE) */}
                     <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
                         <DialogContent>
                             <DialogHeader className="flex flex-col">
@@ -584,8 +576,8 @@ export function BotActionButtons({
                     </DropdownMenu>
 
                     <Sheet open={detailDialogOpen} onOpenChange={setDetailDialogOpen}>
-                        <SheetContent className="px-4 py-8 max-h-screen overflow-y-scroll">
-                            <SheetTitle>Bot #{id} detail</SheetTitle>
+                        <SheetContent className="flex flex-col gap-2 px-4 py-4 max-h-screen overflow-y-scroll">
+                            <SheetTitle className="mb-0">Bot #{id} detail</SheetTitle>
                             <SheetDescription className="mb-4">
                                 {asset}
                                 <Badge variant="outline" className="ml-2 pl-1.5">

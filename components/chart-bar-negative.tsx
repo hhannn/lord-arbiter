@@ -22,45 +22,21 @@ import {
 } from "@/components/ui/chart";
 import { Skeleton } from "./ui/skeleton";
 import { cn } from "@/lib/utils";
+import { Tabs, TabsList, TabsTrigger } from "./ui/tabs";
 
 interface ChartBarNegativeProps {
     className?: string;
+    data: [];
+    initialLoading: boolean;
 }
 
 export const description = "A bar chart with negative values";
 
-export function ChartBarNegative({ className }: ChartBarNegativeProps) {
-    const { data, apiKey, apiSecret, fetchData } = useUserData();
-    const [initialLoading, setInitialLoading] = useState(true);
-
-    // Restore auth data from localStorage once
-    useEffect(() => {
-        useUserData.getState().restoreFromStorage();
-    }, []);
-
-    // When keys are available, fetch user data and mark loading as false
-    useEffect(() => {
-        const store = useUserData.getState();
-
-        // Restore user credentials from localStorage
-        store.restoreFromStorage();
-
-        // Only run fetch once after restore
-        if (store.apiKey && store.apiSecret) {
-            store.fetchData();
-
-            const interval = setInterval(() => {
-                store.fetchData();
-            }, 60000); // 15s is safer for Bybit API
-
-            return () => clearInterval(interval);
-        }
-    }, []);
+export function ChartBarNegative({ className, data, initialLoading }: ChartBarNegativeProps) {
 
     // Helper function to get the start of the day in UTC+7 (Western Indonesia Time)
     const getStartOfDayUTCPlus7 = (timestampMs: number): number => {
         // 1. Create a Date object from the original UTC timestamp
-        const date = new Date(timestampMs);
 
         const offsetMs = 7 * 60 * 60 * 1000;
         const dateAdjustedForUTCPlus7 = new Date(timestampMs + offsetMs);
@@ -74,8 +50,24 @@ export function ChartBarNegative({ className }: ChartBarNegativeProps) {
         return utcMidnightOfUTCPlus7Day - offsetMs;
     };
 
+    const CustomTooltipContent = ({ active, payload, label }: any) => {
+        if (active && payload && payload.length) {
+            return (
+                <div className="grid grid-cols-2 space-x-4 items-center bg-background border rounded-lg p-3 shadow-lg">
+                    {payload.map((entry: any, index: number) => (
+                        <>
+                            <p className="text-muted-foreground">PnL</p>
+                            <p className="text-sm font-mono text-end">{entry.value}</p>
+                        </>
+                    ))}
+                </div>
+            );
+        }
+        return null;
+    };
+
     const dailyPnl = useMemo(() => {
-        const closedPnL = data?.closedPnL?.result?.list ?? [];
+        const closedPnL = data ?? [];
         const dailyMap: Record<string, number> = {};
 
         closedPnL.forEach((item: any) => {
@@ -83,127 +75,111 @@ export function ChartBarNegative({ className }: ChartBarNegativeProps) {
             const itemTimestamp = Number(item.createdTime);
 
             const startOfDayTimestamp = getStartOfDayUTCPlus7(itemTimestamp);
-
             const date = new Date(startOfDayTimestamp).toISOString().slice(0, 10);
-            // const date =
-            //     new Date(
-            //         new Date(Number(item.createdTime))
-            //             .toLocaleString()
-            //     ).toISOString().slice(0, 10);
+
+            const today = getStartOfDayUTCPlus7(new Date().getTime());
+            const sevenDaysAgo = getStartOfDayUTCPlus7(today - 7 * 24 * 60 * 60 * 1000);
+            const timeFilter = itemTimestamp > Number(new Date(sevenDaysAgo))
+            
 
             if (!dailyMap[date]) {
                 dailyMap[date] = 0;
             }
 
-            dailyMap[date] += pnl;
+            if (timeFilter) {
+                dailyMap[date] += pnl;
+            }
         });
 
         return Object.entries(dailyMap)
             .map(([date, pnl]) => ({
-                date,
+                date: date,
                 pnl: Number(pnl.toFixed(2)),
             }))
             .sort(
                 (a, b) =>
                     new Date(a.date).getTime() - new Date(b.date).getTime()
-            );
-    }, [data]);
+            )
+            .map((item) => {
+                const [year, month, day] = item.date.split('-');
+                const formattedDate = `${day}-${month}`;
 
-    const chartConfig: ChartConfig = {
-        visitors: { label: "Visitors" },
-    };
+                return {
+                    date: formattedDate, pnl: item.pnl
+                };
+            });
+}, [data]);
 
-    if (initialLoading) {
-        return (
-            <div className="space-y-2">
-                <Skeleton className="h-8 w-full" />
-                <Skeleton className="h-8 w-full" />
-                <Skeleton className="h-8 w-full" />
-            </div>
-        );
-    }
+const chartConfig: ChartConfig = {
+    visitors: { label: "Visitors" },
+};
 
+if (initialLoading) {
     return (
-        <Card className={cn("", className)}>
-            <CardHeader>
-                <CardTitle>Daily PnL</CardTitle>
-                <CardDescription>Last 7 days</CardDescription>
-            </CardHeader>
-            <CardContent className="h-full">
-                <ChartContainer
-                    config={chartConfig}
-                    className="h-full w-full max-h-[150px]"
-                >
-                    <BarChart accessibilityLayer data={dailyPnl}>
-                        <CartesianGrid vertical={false} horizontal={false} />
-                        <ChartTooltip
-                            cursor={false}
-                            content={
-                                <ChartTooltipContent hideLabel hideIndicator />
-                            }
-                        />
-                        <Bar dataKey="pnl">
-                            <LabelList
-                                position="top"
-                                dataKey="pnl"
-                                content={({ x, y, width, index }) => {
-                                    const safeIndex =
-                                        typeof index === "number" ? index : 0;
-                                    const dateStr =
-                                        dailyPnl[safeIndex]?.date ?? "";
-                                    const date = new Date(dateStr);
-                                    const day = dateStr
-                                        ? date.toLocaleDateString("en-US", {
-                                            weekday: "short",
-                                        })
-                                        : "";
-
-                                    return (
-                                        <text
-                                            x={
-                                                typeof x === "number" &&
-                                                    typeof width === "number"
-                                                    ? x + width / 2
-                                                    : 0
-                                            }
-                                            y={
-                                                typeof y === "number"
-                                                    ? y - 2
-                                                    : y
-                                            }
-                                            fill="#999"
-                                            textAnchor="middle"
-                                            fontSize={12}
-                                        >
-                                            {day}
-                                        </text>
-                                    );
-                                }}
-                                fillOpacity={1}
-                            />
-                            {dailyPnl.map((item) => (
-                                <Cell
-                                    key={item.date}
-                                    fill={
-                                        item.pnl > 0
-                                            ? "var(--chart-1)"
-                                            : "var(--chart-3)"
-                                    }
-                                />
-                            ))}
-                        </Bar>
-                    </BarChart>
-                </ChartContainer>
-            </CardContent>
-            <CardFooter className="flex-col items-start gap-2 text-sm">
-                <div className="flex gap-2 leading-none font-medium">
-                    Trending up by 5.2% this month{" "}
-                    <TrendingUp className="h-4 w-4" />
-                </div>
-                <div className="text-muted-foreground leading-none">
-                    Showing total PnL for the last 7 days.
-                </div>
-            </CardFooter>
-        </Card>
+        <div className="space-y-2">
+            <Skeleton className="h-8 w-full" />
+            <Skeleton className="h-8 w-full" />
+            <Skeleton className="h-8 w-full" />
+        </div>
     );
+}
+
+return (
+    <Card className={cn("", className)}>
+        <CardHeader>
+            <CardTitle className="flex items-center justify-between gap-2">
+                Daily PnL
+                <Tabs defaultValue="7">
+                    <TabsList>
+                        <TabsTrigger value="7">
+                            7 days
+                        </TabsTrigger>
+                        <TabsTrigger value="30">
+                            30 days
+                        </TabsTrigger>
+                    </TabsList>
+                </Tabs>
+            </CardTitle>
+            <CardDescription>Last 7 days</CardDescription>
+        </CardHeader>
+        <CardContent className="h-full">
+            <ChartContainer
+                config={chartConfig}
+                className="h-full w-full max-h-[150px]"
+            >
+                <BarChart accessibilityLayer data={dailyPnl}>
+                    <CartesianGrid vertical={false} horizontal={false} />
+                    <ChartTooltip
+                        cursor={false}
+                        content={
+                            <CustomTooltipContent hideLabel hideIndicator />
+                        }
+                    />
+                    <Bar dataKey="pnl">
+                        <LabelList position="top" dataKey="date" fillOpacity={1} />
+                        {dailyPnl.map((item) => (
+                            <Cell
+                                key={item.date}
+                                fill={
+                                    item.pnl > 0
+                                        ? "var(--chart-1)"
+                                        : "var(--chart-3)"
+                                }
+                            />
+                        ))}
+                    </Bar>
+                </BarChart>
+            </ChartContainer>
+        </CardContent>
+        <CardFooter className="flex-col items-start gap-2 text-sm">
+            <div className="flex gap-2 leading-none font-medium">
+                Trending up by 5.2% this month{" "}
+                <TrendingUp className="h-4 w-4" />
+            </div>
+            <div className="text-muted-foreground leading-none">
+                Showing total PnL for the last 7 days.
+            </div>
+        </CardFooter>
+    </Card>
+);
 }

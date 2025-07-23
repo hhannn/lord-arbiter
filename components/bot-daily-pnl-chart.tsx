@@ -1,9 +1,5 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
-// Removed useUserData as data will now be passed via props
-// import { useUserData } from "@/store/useUserData"; 
-
 import { TrendingUp } from "lucide-react";
 import { Bar, BarChart, CartesianGrid, Cell, LabelList, XAxis } from "recharts";
 
@@ -34,16 +30,11 @@ interface DailyPnlItem {
 
 interface ChartBarNegativeProps {
     className?: string;
-    // NEW: dailyPnl is now a required prop, containing the pre-calculated data
     dailyPnl?: DailyPnlItem[];
-    // NEW: Optional loading state prop, managed by the parent
     isLoading?: boolean;
 }
 
 export const description = "A bar chart with negative values";
-
-// The getStartOfDayUTCPlus7 helper function is removed from here.
-// It should now reside in the parent component that calculates and passes 'dailyPnl'.
 
 export function BotDailyChart({ className, dailyPnl = [], isLoading = false }: ChartBarNegativeProps) {
 
@@ -63,7 +54,7 @@ export function BotDailyChart({ className, dailyPnl = [], isLoading = false }: C
             return (
                 <div className="grid grid-cols-2 bg-background border rounded-lg p-3 shadow-lg">
                     <p className="text-muted-foreground">{`Date`}</p>
-                    <p className="text-end font-medium">{label}</p>
+                    <p className="text-sm text-end font-mono">{label}</p>
                     {payload.map((entry: any, index: number) => (
                         <>
                             <p className="text-muted-foreground">
@@ -72,7 +63,7 @@ export function BotDailyChart({ className, dailyPnl = [], isLoading = false }: C
                                     : "PnL"
                                 }
                             </p>
-                            <p key={index} className="text-end font-medium">
+                            <p key={index} className="text-sm text-end font-mono">
                                 {entry.dataKey === 'roi'
                                     ? `${(entry.value).toFixed(2)}%`
                                     : `${entry.value?.toFixed(2) || '0.00'} USDT`
@@ -128,7 +119,7 @@ export function BotDailyChart({ className, dailyPnl = [], isLoading = false }: C
     return (
         <ChartContainer
             config={chartConfig}
-            className="h-full w-full max-h-[100px]"
+            className="h-full w-full"
         >
             <BarChart accessibilityLayer data={dailyPnl}>
                 <CartesianGrid vertical={false} />

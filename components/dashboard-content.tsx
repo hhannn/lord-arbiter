@@ -2,7 +2,7 @@
 
 "use client";
 
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useUserData } from "@/store/useUserData";
 
 import { ChartBarNegative } from "@/components/chart-bar-negative";
@@ -15,31 +15,37 @@ import {
     CardDescription,
     CardFooter,
 } from "@/components/ui/card";
-import { toast } from "sonner";
 
-export default function DashboardContent({
-    children,
-}: {
-    children: React.ReactNode;
-}) {
+interface DashboardContentProps {
+    children: React.ReactNode,
+}
+
+
+export default function DashboardContent({ children }: DashboardContentProps) {
     const { data, loading, fetchData, apiKey, apiSecret } = useUserData();
+
+    const [initialLoading, setInitialLoading] = useState(true);
 
     useEffect(() => {
         const store = useUserData.getState();
-
-        // Restore user credentials from localStorage
-        store.restoreFromStorage();
-
-        // Only run fetch once after restore
-        if (store.apiKey && store.apiSecret) {
-            store.fetchData();
-
-            const interval = setInterval(() => {
+        const load = async () => {
+            
+            store.restoreFromStorage();
+            setInitialLoading(false);
+    
+            // Only run fetch once after restore
+            if (store.apiKey && store.apiSecret) {
                 store.fetchData();
-            }, 15000); // 15s is safer for Bybit API
+    
+                const interval = setInterval(() => {
+                    store.fetchData();
+                }, 15000); // 15s is safer for Bybit API
+    
+                return () => clearInterval(interval);
+            }
+        };
+        load();
 
-            return () => clearInterval(interval);
-        }
     }, []);
 
     const dashboardData = useMemo(() => {
@@ -72,6 +78,7 @@ export default function DashboardContent({
                 ? new Date(data.balance.time).toLocaleString()
                 : "",
             dailyPnl: [],
+            closedPnL: closedPnL
         };
     }, [data]);
 
@@ -104,10 +111,10 @@ export default function DashboardContent({
                                 <CardTitle className="flex items-end gap-2">
                                     <span className="text-3xl">
                                         {dashboardData &&
-                                        typeof dashboardData.assets === "number"
+                                            typeof dashboardData.assets === "number"
                                             ? `${dashboardData.assets.toFixed(
-                                                  2
-                                              )}`
+                                                2
+                                            )}`
                                             : "Loading..."}
                                     </span>
                                     <span className="text-sm text-muted-foreground">
@@ -117,19 +124,18 @@ export default function DashboardContent({
                             </CardHeader>
                             <CardFooter className="flex flex-col items-start">
                                 <div
-                                    className={`text-sm ${
-                                        dashboardData &&
+                                    className={`text-sm ${dashboardData &&
                                         dashboardData.unrealizedPnl >= 0
-                                            ? "text-green-800"
-                                            : "text-red-400"
-                                    }`}
+                                        ? "text-green-800"
+                                        : "text-red-400"
+                                        }`}
                                 >
                                     {dashboardData &&
-                                    typeof dashboardData.unrealizedPnl ===
+                                        typeof dashboardData.unrealizedPnl ===
                                         "number"
                                         ? `${dashboardData.unrealizedPnl.toFixed(
-                                              2
-                                          )} USD`
+                                            2
+                                        )} USD`
                                         : "Loading..."}
                                 </div>
                                 <p className="text-sm text-muted-foreground">
@@ -143,10 +149,10 @@ export default function DashboardContent({
                                 <CardTitle className="flex items-end gap-2">
                                     <span className="text-3xl">
                                         {dashboardData &&
-                                        typeof dashboardData.volume === "number"
+                                            typeof dashboardData.volume === "number"
                                             ? `${dashboardData.volume.toFixed(
-                                                  2
-                                              )}`
+                                                2
+                                            )}`
                                             : "Loading..."}
                                     </span>
                                     <span className="text-sm text-muted-foreground">
@@ -159,10 +165,10 @@ export default function DashboardContent({
                             </CardFooter>
                         </Card>
                     </div>
-                    <ChartBarNegative className="flex-1" />
+                    <ChartBarNegative data={dashboardData?.closedPnL} initialLoading={initialLoading} className="flex-1" />
                 </div>
 
-                <ChartLineDefault className="col-span-4" />
+                <ChartLineDefault data={dashboardData?.closedPnL} initialLoading={initialLoading} className="col-span-4" />
 
                 <Card className="col-span-4">
                     <CardHeader>
@@ -185,3 +191,7 @@ export default function DashboardContent({
         </div>
     );
 }
+function fetchBots() {
+    throw new Error("Function not implemented.");
+}
+
