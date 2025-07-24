@@ -37,8 +37,10 @@ interface DashboardData {
     }[];
     totalPnl: number;
     transactionLog: {
-        date: string;
-        pnl: number;
+        symbol: string; 
+        change: string; 
+        transactionTime: string; 
+        cashBalance: string
     }[];
 }
 

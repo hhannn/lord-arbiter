@@ -3,7 +3,7 @@ import { useState, useEffect, useMemo } from "react";
 import { useUserData } from "@/store/useUserData";
 
 import { TrendingUp } from "lucide-react";
-import { CartesianGrid, Line, LineChart, XAxis } from "recharts";
+import { CartesianGrid, Line, LineChart, XAxis, Area, AreaChart } from "recharts";
 import {
     Card,
     CardContent,
@@ -115,11 +115,11 @@ export function ChartLineDefault({ className, data, initialLoading, monthly }: C
             </CardHeader>
             <CardContent className="h-full">
                 <ChartContainer config={chartConfig} className="h-full w-full">
-                    <LineChart
+                    <AreaChart
                         data={chartData}
                         margin={{ left: 12, right: 12 }}
                     >
-                        <CartesianGrid vertical={false} />
+                        <CartesianGrid vertical={false} horizontal={false} />
                         <XAxis
                             dataKey="date"
                             tickLine={false}
@@ -131,14 +131,30 @@ export function ChartLineDefault({ className, data, initialLoading, monthly }: C
                             cursor={false}
                             content={<CustomTooltipContent hideLabel />}
                         />
-                        <Line
+                        <defs>
+                            <linearGradient id="fill" x1="0" y1="0" x2="0" y2="1">
+                                <stop
+                                    offset="5%"
+                                    stopColor="var(--chart-1)"
+                                    stopOpacity={0.8}
+                                />
+                                <stop
+                                    offset="95%"
+                                    stopColor="var(--chart-1)"
+                                    stopOpacity={0.1}
+                                />
+                            </linearGradient>
+                        </defs>
+                        <Area
                             dataKey="cumulativePnl"
                             type="natural"
+                            fill="url(#fill)"
+                            fillOpacity={0.4}
                             stroke="var(--chart-1)"
                             strokeWidth={2}
                             dot={false}
                         />
-                    </LineChart>
+                    </AreaChart>
                 </ChartContainer>
             </CardContent>
             <CardFooter className="flex-col items-start gap-2 text-sm">

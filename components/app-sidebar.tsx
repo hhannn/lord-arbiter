@@ -29,7 +29,7 @@ type AppSidebarProps = {
 };
 
 export function AppSidebar({ collapsible = "icon" }: AppSidebarProps) {
-    const { state } = useSidebar(); // Use 'state' instead of 'collapsed'
+    const { state } = useSidebar();
     const isCollapsed = state === "collapsed";
 
     const { username, uid } = useUserData();
