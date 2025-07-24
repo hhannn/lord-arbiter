@@ -18,11 +18,13 @@ export interface Bot {
     take_profit_price: number;
     side: string;
     position_value: number;
+    transaction_log: TrxEntries[];
 }
 
-export interface trxEntries {
+export interface TrxEntries {
     symbol: string;
     side: string;
     change: string;
     cash_balance: string;
+    transactionTime: string;
 }

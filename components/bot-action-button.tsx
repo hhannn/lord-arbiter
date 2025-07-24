@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
-import { Bot, trxEntries } from "@/types/bot"; // Assuming your Bot interface is in types/bot.ts
+import { Bot } from "@/types/bot"; // Assuming your Bot interface is in types/bot.ts
 
 import {
     DropdownMenu,
@@ -46,6 +46,8 @@ import { useUserData } from "@/store/useUserData"; // Assuming this is your user
 import { BotDailyChart } from "./bot-daily-pnl-chart"; // Correct import and alias
 import { Sheet, SheetContent, SheetDescription, SheetTitle } from "./ui/sheet";
 import { Card, CardDescription, CardTitle } from "./ui/card"; // Assuming these are used for the chart card
+import { useDashboardData } from "@/context/dashboardContext";
+import { Item } from "@radix-ui/react-select";
 
 interface BotActionButtonsProps {
     bot: Bot;
@@ -53,8 +55,6 @@ interface BotActionButtonsProps {
     stopBot: (id: number) => Promise<void>;
     onDeleteBot: (id: number) => Promise<void>;
     onUpdateBot: (id: number, updatedData: Partial<Bot>) => Promise<void>;
-    pollingBotId: number | null;
-    API_BACKEND_URL: string;
 }
 
 // Helper function to get the start of the day in UTC+7 (Western Indonesia Time)
@@ -78,6 +78,7 @@ interface DailyPnlItem {
     date: string; // YYYY-MM-DD format
     pnl: number;  // The calculated PnL for that day
     roi?: number;
+    roe: number;
 }
 
 export function BotActionButtons({
@@ -86,14 +87,14 @@ export function BotActionButtons({
     stopBot,
     onDeleteBot,
     onUpdateBot,
-    pollingBotId,
-    API_BACKEND_URL,
 }: BotActionButtonsProps) {
     const {
         id, status, asset, start_size, leverage, multiplier, take_profit,
         rebuy, start_type, current_position, liq_price, unrealized_pnl, created_at,
-        take_profit_price, side, current_price, position_value
+        take_profit_price, side, current_price, position_value, transaction_log
     } = bot;
+
+    const dashboardData = useDashboardData();
 
     // --- State for Edit Bot Dialog (LOCAL TO THIS COMPONENT) ---
     const [editDialogOpen, setEditDialogOpen] = useState(false);
@@ -125,6 +126,7 @@ export function BotActionButtons({
         const store = useUserData.getState();
         if (store.apiKey && store.apiSecret) {
             store.fetchData();
+            console.log(userData.closedPnL.result)
         } else {
             console.warn("API Key or Secret not available. Cannot fetch initial user data.");
             // toast.error("Please configure your API keys to fetch user data."); // Optional: show toast
@@ -254,85 +256,124 @@ export function BotActionButtons({
 
     // Calculate daily PnL for the chart using useMemo
     const dailyPnlChartData = useMemo<DailyPnlItem[]>(() => {
-        const closedPnL = userData?.closedPnL?.result?.list ?? [];
         const dailyMap: Record<string, number> = {};
         const dailyROIMap: Record<string, { totalValue: number; count: number }> = {};
+        const dailyROEMap: Record<string, { totalChange: number; totalCashBalanceBeforeChange: number; count: number }> = {};
 
         // Convert bot's created_at to a timestamp for filtering
         const botCreatedAtTimestamp = created_at ? new Date(created_at).getTime() : 0;
 
-        // Process closed PnL data
-        closedPnL.forEach((item: any) => {
-            const pnl = Number(parseFloat(item.closedPnl).toFixed(2));
-            const value = Number(parseFloat(item.cumEntryValue).toFixed(2));
-            const itemTimestamp = getStartOfDayUTCPlus7(Number(item.createdTime));
+        userData?.closedPnL.result.list.forEach((item: any) => {
 
-            // Filter by asset and created time of the specific bot
+            const itemTimestamp = Number(item.updatedTime);
+            const timeFilter = itemTimestamp >= botCreatedAtTimestamp
             const assetFilter = item.symbol === asset;
-            const timeFilter = itemTimestamp >= getStartOfDayUTCPlus7(botCreatedAtTimestamp);
 
-            if (assetFilter && timeFilter) {
-                const startOfDayTimestamp = itemTimestamp;
+            if (timeFilter && assetFilter) {
+                const startOfDayTimestamp = getStartOfDayUTCPlus7(itemTimestamp);
                 const dateKey = new Date(startOfDayTimestamp).toISOString().split('T')[0];
-
-                if (!dailyMap[dateKey]) {
-                    dailyMap[dateKey] = 0;
-                }
-
-                if (!isNaN(pnl)) {
-                    dailyMap[dateKey] += pnl;
-                }
 
                 if (!dailyROIMap[dateKey]) {
                     dailyROIMap[dateKey] = {
                         totalValue: 0,
                         count: 0
+                    }
+                }
+
+                dailyROIMap[dateKey].totalValue += parseFloat(item.cumEntryValue);
+                dailyROIMap[dateKey].count += 1;
+
+            }
+        })
+
+        // Process transaction logs for ROE calculation
+        dashboardData.transactionLog?.forEach((item: any) => {
+            const itemTimestamp = Number(item.transactionTime);
+            const timeFilter = itemTimestamp >= botCreatedAtTimestamp;
+            const assetFilter = item.symbol === asset;
+
+            if (timeFilter && assetFilter) {
+                const startOfDayTimestamp = getStartOfDayUTCPlus7(itemTimestamp);
+                const dateKey = new Date(startOfDayTimestamp).toISOString().split('T')[0];
+
+                const change = parseFloat(item.change);
+                const cashBalance = parseFloat(item.cashBalance);
+
+                // Calculate cash balance before this change
+                const cashBalanceBeforeChange = cashBalance - change;
+
+                if (!dailyMap[dateKey]) {
+                    dailyMap[dateKey] = 0;
+                }
+
+                if (!isNaN(change)) {
+                    dailyMap[dateKey] += change;
+                }
+
+                if (!dailyROEMap[dateKey]) {
+                    dailyROEMap[dateKey] = {
+                        totalChange: 0,
+                        totalCashBalanceBeforeChange: 0,
+                        count: 0
                     };
                 }
 
-                if (!isNaN(value)) {
-                    dailyROIMap[dateKey].totalValue += value;
-                    dailyROIMap[dateKey].count += 1;
-                }
+                dailyROEMap[dateKey].totalChange += change;
+                dailyROEMap[dateKey].totalCashBalanceBeforeChange += cashBalanceBeforeChange;
+                dailyROEMap[dateKey].count += 1;
             }
         });
 
-        // Get all unique dates from both PnL and transaction logs
-        const allDates = new Set([...Object.keys(dailyMap), ...Object.keys(dailyROIMap)]);
+        // Get all unique dates from PnL, ROI, and ROE maps
+        const allDates = new Set([
+            ...Object.keys(dailyMap),
+            ...Object.keys(dailyROIMap),
+            ...Object.keys(dailyROEMap)
+        ]);
 
         const dailyPnlArray = Array.from(allDates)
             .sort()
             .map(date => {
                 const pnl = dailyMap[date] || 0;
 
-                // Calculate ROI for this date
+                // Calculate ROI for this date (PnL / Investment Value * 100)
                 let roi = 0;
                 if (dailyROIMap[date]) {
                     const { totalValue, count } = dailyROIMap[date];
-                    console.log(totalValue)
 
                     if (count > 0 && totalValue > 0) {
-                        // ROI formula: change / (cashBalance - change) * 100
-                        // Using total change for the day and average cash balance before change
                         roi = (pnl / totalValue) * 100;
                     }
                 }
 
-                // Calculate ROI for this date
+                // Calculate ROE for this date (Change / Cash Balance Before Change * 100)
+                let roe = 0;
+                if (dailyROEMap[date]) {
+                    const { totalChange, totalCashBalanceBeforeChange, count } = dailyROEMap[date];
+
+                    if (count > 0 && totalCashBalanceBeforeChange > 0) {
+                        // Calculate average cash balance before change for the day
+                        const avgCashBalanceBeforeChange = totalCashBalanceBeforeChange / count;
+
+                        // ROE formula: change / (cashBalance - change) * 100
+                        roe = (totalChange / avgCashBalanceBeforeChange) * 100;
+                    }
+                }
+
+                // Convert date from YYYY-MM-DD to DD-MM format
                 const [year, month, day] = date.split('-');
                 const formattedDate = `${day}-${month}`;
 
                 return {
                     date: formattedDate,
                     pnl: pnl,
-                    roi: roi
+                    roi: parseFloat(roi.toFixed(4)), // This is actual ROI from PnL data
+                    roe: parseFloat(roe.toFixed(2))  // This is ROE from transaction logs
                 };
             });
 
-        console.log('Daily PnL Array with ROI:', dailyPnlArray);
-
         return dailyPnlArray;
-    }, [userData, asset, created_at]);
+    }, [userData, asset, created_at, dashboardData.transactionLog]); // Added transaction_log to dependencies
 
     const handleDetailDialog = () => {
         setDetailDialogOpen(true);
@@ -649,7 +690,7 @@ export function BotActionButtons({
                                     <CardTitle>Daily bot PnL</CardTitle>
                                     <CardDescription>Last 7 days</CardDescription>
                                     {/* Pass the memoized dailyPnlChartData and userDataLoading */}
-                                    <BotDailyChart className="max-h-[100px]" dailyPnl={dailyPnlChartData} isLoading={userDataLoading} />
+                                    <BotDailyChart className="max-h-[100px]" dailyPnl={dailyPnlChartData} />
                                 </Card>
                             </div>
                         </SheetContent>

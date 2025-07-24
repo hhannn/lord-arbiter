@@ -10,8 +10,7 @@ import { useAuthRedirect } from "@/hooks/useAuthRedirect";
 
 export function BotTableContainer() {
     useAuthRedirect();
-    const { data, fetchBots, loading } = useBotStore();
-
+    const { data, fetchBots } = useBotStore();
     const [initialLoading, setInitialLoading] = useState(true);
 
     useEffect(() => {
@@ -33,5 +32,5 @@ export function BotTableContainer() {
         );
     }
 
-    return <DataTable<Bot, unknown> data={data} columns={columns} />;
+    return <DataTable<Bot, unknown> data={data} columns={columns}/>;
 }

@@ -23,47 +23,27 @@ import { cn } from "@/lib/utils";
 
 interface ChartLineDefaultProps {
     className?: string;
-    data: [];
+    data: {
+        date: string;
+        pnl: number;
+    }[];
     initialLoading: boolean;
+    monthly: boolean;
 }
 
 export const description = "A line chart";
 
-export function ChartLineDefault({ className, data, initialLoading }: ChartLineDefaultProps) {
+export function ChartLineDefault({ className, data, initialLoading, monthly }: ChartLineDefaultProps) {
 
-    // Helper function to get the start of the day in UTC+7 (Western Indonesia Time)
-    const getStartOfDayUTCPlus7 = (timestampMs: number): number => {
-        const date = new Date(timestampMs);
-
-        const offsetMs = 7 * 60 * 60 * 1000;
-        const dateAdjustedForUTCPlus7 = new Date(timestampMs + offsetMs);
-
-        const year = dateAdjustedForUTCPlus7.getUTCFullYear();
-        const month = dateAdjustedForUTCPlus7.getUTCMonth();
-        const day = dateAdjustedForUTCPlus7.getUTCDate();
-
-        const utcMidnightOfUTCPlus7Day = Date.UTC(year, month, day, 0, 0, 0, 0);
-
-        return utcMidnightOfUTCPlus7Day - offsetMs;
-    };
+    data = monthly ? data.slice(-30) : data.slice(-7);
 
     const chartData = useMemo(() => {
-        const closedPnL = data ?? [];
         const dailyMap: Record<string, number> = {};
 
-        if (closedPnL.length === 0) {
-            console.warn("No closed PnL data available");
-            console.log("Closed PnL data:", closedPnL);
-            return [];
-        }
+        data.forEach((item: any) => {
+            const pnl = parseFloat(item.pnl);
+            const date = item.date;
 
-        closedPnL.forEach((item: any) => {
-            const pnl = parseFloat(item.closedPnl);
-            const itemTimestamp = Number(item.createdTime);
-
-            const startOfDayTimestamp = getStartOfDayUTCPlus7(itemTimestamp);
-
-            const date = new Date(startOfDayTimestamp).toISOString().slice(0, 10);
             if (!dailyMap[date]) dailyMap[date] = 0;
             dailyMap[date] += pnl;
         });
@@ -89,7 +69,28 @@ export function ChartLineDefault({ className, data, initialLoading }: ChartLineD
     }, [data]);
 
     const chartConfig: ChartConfig = {
-        cumulativePnl: { label: "Cumulative PnL" },
+        cumulativePnl: { label: "Cum. PnL" },
+    };
+
+    const CustomTooltipContent = ({ active, payload, label }: any) => {
+        if (active && payload && payload.length) {
+            const dataPoint = payload[0].payload;
+
+            return (
+                <div className="flex flex-col gap-2 bg-background border rounded-lg p-3 shadow-lg">
+                    {payload.map((entry: any, index: number) => (
+                        <>
+                            <p className="text-xs font-medium text-muted-foreground">{dataPoint.date}</p>
+                            <div className="flex gap-4 items-center">
+                                <p className="text-muted-foreground">Cum. PnL</p>
+                                <p className="text-sm font-mono text-end">{`${entry.value.toFixed(2)} USDT`}</p>
+                            </div>
+                        </>
+                    ))}
+                </div>
+            );
+        }
+        return null;
     };
 
     if (initialLoading) {
@@ -106,7 +107,11 @@ export function ChartLineDefault({ className, data, initialLoading }: ChartLineD
         <Card className={cn("", className)}>
             <CardHeader>
                 <CardTitle>Cumulative PnL</CardTitle>
-                <CardDescription>Last 7 days</CardDescription>
+                <CardDescription>
+                    {
+                        monthly ? "This month" : "Last 7 days"
+                    }
+                </CardDescription>
             </CardHeader>
             <CardContent className="h-full">
                 <ChartContainer config={chartConfig} className="h-full w-full">
@@ -124,7 +129,7 @@ export function ChartLineDefault({ className, data, initialLoading }: ChartLineD
                         />
                         <ChartTooltip
                             cursor={false}
-                            content={<ChartTooltipContent hideLabel />}
+                            content={<CustomTooltipContent hideLabel />}
                         />
                         <Line
                             dataKey="cumulativePnl"
@@ -142,7 +147,7 @@ export function ChartLineDefault({ className, data, initialLoading }: ChartLineD
                     <TrendingUp className="h-4 w-4" />
                 </div>
                 <div className="text-muted-foreground leading-none">
-                    Showing total visitors for the last 6 months
+                    {!monthly ? "Showing cumulative PnL for the last 7 days." : "Showing cumulative PnL for the last 30 days."}
                 </div>
             </CardFooter>
         </Card>

@@ -43,7 +43,6 @@ import { cn } from "@/lib/utils";
 import { DataTableViewOptions } from "@/components/column-visibility";
 import { BotActionButtons } from "@/components/bot-action-button";
 
-
 interface DataTableProps<TData, TValue> {
     columns: ColumnDef<TData, TValue>[];
     data: TData[];
@@ -104,17 +103,6 @@ export function DataTable<TData, TValue>({
         rebuy: false,
         start_type: false,
     });
-
-    const [editErrors, setEditErrors] = useState({
-        asset: false,
-        start_size: false,
-        leverage: false,
-        multiplier: false,
-        take_profit: false,
-        rebuy: false,
-        start_type: false,
-    });
-
 
     // Function to reset create form fields
     const resetCreateForm = () => {
@@ -600,8 +588,6 @@ export function DataTable<TData, TValue>({
                                         stopBot={stopBot}
                                         onDeleteBot={confirmDeleteBot}
                                         onUpdateBot={handleUpdateBot}
-                                        pollingBotId={pollingBotId}
-                                        API_BACKEND_URL={API_BACKEND_URL}
                                     />
                                 </TableCell>
                             </TableRow>

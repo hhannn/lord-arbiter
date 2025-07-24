@@ -2,7 +2,13 @@
 
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import React, {
+    ReactElement,
+    ReactNode,
+    useEffect,
+    useMemo,
+    useState,
+} from "react";
 import { useUserData } from "@/store/useUserData";
 
 import { ChartBarNegative } from "@/components/chart-bar-negative";
@@ -15,183 +21,240 @@ import {
     CardDescription,
     CardFooter,
 } from "@/components/ui/card";
+import { Tabs, TabsList, TabsTrigger } from "./ui/tabs";
 
-interface DashboardContentProps {
-    children: React.ReactNode,
+import { DashboardContext } from "@/context/dashboardContext";
+import { Skeleton } from "./ui/skeleton";
+
+// ----- Types -----
+interface DashboardData {
+    equity: number;
+    unrealizedPnl: number;
+    time: string;
+    dailyPnl: {
+        date: string;
+        pnl: number;
+    }[];
+    totalPnl: number;
+    transactionLog: {
+        date: string;
+        pnl: number;
+    }[];
 }
 
+interface DashboardContentProps {
+    children: ReactNode;
+}
 
+// ----- Component -----
 export default function DashboardContent({ children }: DashboardContentProps) {
-    const { data, loading, fetchData, apiKey, apiSecret } = useUserData();
+    const { data } = useUserData();
 
     const [initialLoading, setInitialLoading] = useState(true);
+    const [monthly, setMonthly] = useState(false);
 
     useEffect(() => {
         const store = useUserData.getState();
         const load = async () => {
-            
             store.restoreFromStorage();
             setInitialLoading(false);
-    
-            // Only run fetch once after restore
+
             if (store.apiKey && store.apiSecret) {
                 store.fetchData();
-    
+
                 const interval = setInterval(() => {
                     store.fetchData();
-                }, 15000); // 15s is safer for Bybit API
-    
+                }, 15000);
+
                 return () => clearInterval(interval);
             }
         };
         load();
-
     }, []);
 
-    const dashboardData = useMemo(() => {
+    type Transaction = {
+        symbol: string;
+        side: string;
+        change: string;
+        transactionTime: string;
+        cashBalance: string;
+    };
+
+    function calculateTotalPnl(transactions: Transaction[], range: "weekly" | "monthly") {
+        const offsetMs = 7 * 60 * 60 * 1000;
+        const now = Date.now() + offsetMs;
+        const days = range === "weekly" ? 7 : 30;
+        const fromTime = now - days * 24 * 60 * 60 * 1000;
+
+        return transactions.reduce((sum, trx) => {
+            const timestamp = Number(trx.transactionTime) + offsetMs;
+            if (timestamp >= fromTime && timestamp <= now) {
+                return sum + parseFloat(trx.change);
+            }
+            return sum;
+        }, 0);
+    }
+
+    const dashboardData: DashboardData | null = useMemo(() => {
         const walletBalance = data?.balance?.result?.list?.[0];
-        if (!walletBalance) {
-            console.warn("⚠️ Unexpected response format", data);
-            return;
-        }
+        if (!walletBalance) return null;
 
-        const closedPnL = data?.closedPnL?.result?.list ?? [];
-        if (!closedPnL) {
-            console.warn("⚠️ No account info found", data);
-            return;
-        }
+        const calculateDailyPnl = (transactions: Transaction[]) => {
+            const offset = 7 * 60 * 60 * 1000;
+            const map: Record<string, number> = {};
 
-        const totalClosedPnL = closedPnL.reduce(
-            (sum: number, item: { closedPnl: string }) => {
-                return sum + parseFloat(item.closedPnl);
-            },
-            0
-        );
+            transactions.forEach((trx) => {
+                const date = new Date(Number(trx.transactionTime) + offset)
+                    .toISOString()
+                    .slice(0, 10);
+                map[date] = (map[date] || 0) + parseFloat(trx.change);
+            });
 
-        // console.log("Total closed PnL:", totalClosedPnL);
+            return Object.entries(map)
+                .sort(([a], [b]) => a.localeCompare(b))
+                .map(([date, pnl]) => ({ date, pnl }));
+        };
+
+        const dailyPnl = calculateDailyPnl(data.transactionLogs || []);
+        const totalPnl = calculateTotalPnl(data.transactionLogs || [], monthly ? "monthly" : "weekly");
+
         return {
-            assets: parseFloat(walletBalance.totalEquity) || 0,
+            equity: parseFloat(walletBalance.totalEquity) || 0,
             unrealizedPnl: parseFloat(walletBalance.totalPerpUPL) || 0,
-            volume: totalClosedPnL,
-            cumulativePnl: 0,
             time: data?.balance?.time
                 ? new Date(data.balance.time).toLocaleString()
                 : "",
-            dailyPnl: [],
-            closedPnL: closedPnL
+            dailyPnl,
+            totalPnl,
+            transactionLog: data.transactionLogs || [],
         };
-    }, [data]);
+    }, [data, monthly]);
 
-    if (!apiKey || !apiSecret) {
+    if (!dashboardData) {
+        return (
+            <div className="space-y-2 px-8">
+                <Skeleton className="h-full w-full" />
+                <Skeleton className="h-full w-full" />
+                <Skeleton className="h-full w-full" />
+                <Skeleton className="h-full w-full" />
+                <Skeleton className="h-full w-full" />
+            </div>
+        )// prevent context from being null
     }
 
     return (
-        <div className="flex flex-col min-h-screen w-full px-4 py-6 pt-[80px]">
-            <div className="flex">
-                <div className="flex flex-col items-center sm:items-start">
-                    <h1 className="text-3xl font-bold mb-2">
-                        Welcome to Lord Arbiter
-                    </h1>
-                    <p className="text-neutral-600">
-                        Weeping may endure for a night, but joy comes in the
-                        morning.
-                    </p>
-                </div>
-                <div className="text-sm text-neutral-500 ms-auto">
-                    {dashboardData ? dashboardData.time : "Loading..."}
-                </div>
-            </div>
-
-            <div className="grid grid-cols-12 gap-4 mt-6">
-                <div className="col-span-4 flex flex-col gap-4">
-                    <div className="flex items-stretch gap-4">
-                        <Card className="flex-1">
-                            <CardHeader>
-                                <CardTitle>Equity</CardTitle>
-                                <CardTitle className="flex items-end gap-2">
-                                    <span className="text-3xl">
-                                        {dashboardData &&
-                                            typeof dashboardData.assets === "number"
-                                            ? `${dashboardData.assets.toFixed(
-                                                2
-                                            )}`
-                                            : "Loading..."}
-                                    </span>
-                                    <span className="text-sm text-muted-foreground">
-                                        USD
-                                    </span>
-                                </CardTitle>
-                            </CardHeader>
-                            <CardFooter className="flex flex-col items-start">
-                                <div
-                                    className={`text-sm ${dashboardData &&
-                                        dashboardData.unrealizedPnl >= 0
-                                        ? "text-green-800"
-                                        : "text-red-400"
-                                        }`}
-                                >
-                                    {dashboardData &&
-                                        typeof dashboardData.unrealizedPnl ===
-                                        "number"
-                                        ? `${dashboardData.unrealizedPnl.toFixed(
-                                            2
-                                        )} USD`
-                                        : "Loading..."}
-                                </div>
-                                <p className="text-sm text-muted-foreground">
-                                    Total unrealized PnL
-                                </p>
-                            </CardFooter>
-                        </Card>
-                        <Card className="flex-1">
-                            <CardHeader>
-                                <CardTitle>Total PnL</CardTitle>
-                                <CardTitle className="flex items-end gap-2">
-                                    <span className="text-3xl">
-                                        {dashboardData &&
-                                            typeof dashboardData.volume === "number"
-                                            ? `${dashboardData.volume.toFixed(
-                                                2
-                                            )}`
-                                            : "Loading..."}
-                                    </span>
-                                    <span className="text-sm text-muted-foreground">
-                                        USD
-                                    </span>
-                                </CardTitle>
-                            </CardHeader>
-                            <CardFooter className="text-sm text-muted-foreground">
-                                Total closed PnL this week.
-                            </CardFooter>
-                        </Card>
+        <DashboardContext.Provider value={dashboardData}>
+            <div className="flex flex-col min-h-screen w-full px-4 py-6 pt-[80px]">
+                <div className="flex">
+                    <div className="flex flex-col items-center sm:items-start">
+                        <h1 className="text-3xl font-bold mb-2">Welcome to Lord Arbiter</h1>
+                        <p className="text-neutral-600">
+                            Weeping may endure for a night, but joy comes in the morning.
+                        </p>
                     </div>
-                    <ChartBarNegative data={dashboardData?.closedPnL} initialLoading={initialLoading} className="flex-1" />
+                    <div className="text-sm text-neutral-500 ms-auto">
+                        {data ? dashboardData?.time : "Loading..."}
+                        <Tabs defaultValue="7">
+                            <TabsList>
+                                <TabsTrigger value="7" onClick={() => setMonthly(false)}>
+                                    7 days
+                                </TabsTrigger>
+                                <TabsTrigger value="30" onClick={() => setMonthly(true)}>
+                                    30 days
+                                </TabsTrigger>
+                            </TabsList>
+                        </Tabs>
+                    </div>
                 </div>
 
-                <ChartLineDefault data={dashboardData?.closedPnL} initialLoading={initialLoading} className="col-span-4" />
+                <div className="grid grid-cols-12 gap-4 mt-6">
+                    <div className="col-span-4 flex flex-col gap-4">
+                        <div className="flex items-stretch gap-4">
+                            <Card className="flex-1">
+                                <CardHeader>
+                                    <CardTitle>Equity</CardTitle>
+                                    <CardTitle className="flex items-end gap-2">
+                                        <span className="text-3xl">
+                                            {data && dashboardData
+                                                ? dashboardData.equity.toFixed(2)
+                                                : "Loading..."}
+                                        </span>
+                                        <span className="text-sm text-muted-foreground">USD</span>
+                                    </CardTitle>
+                                </CardHeader>
+                                <CardFooter className="flex flex-col items-start">
+                                    <div
+                                        className={`text-sm ${dashboardData && dashboardData.unrealizedPnl >= 0
+                                            ? "text-green-500"
+                                            : "text-red-400"
+                                            }`}
+                                    >
+                                        {data && dashboardData
+                                            ? `${dashboardData.unrealizedPnl.toFixed(2)} USDT`
+                                            : "Loading..."}
+                                    </div>
+                                    <p className="text-sm text-muted-foreground">
+                                        Total unrealized PnL
+                                    </p>
+                                </CardFooter>
+                            </Card>
 
-                <Card className="col-span-4">
-                    <CardHeader>
-                        <CardTitle className="text-xl">Activity Log</CardTitle>
-                        <CardDescription>
-                            Recent activities on your account
-                        </CardDescription>
-                        <CardContent className="text-sm ps-0">
-                            <ul className="space-y-2">
-                                <li className="flex gap-2">Logged in</li>
-                                <li className="flex gap-2">Updated profile</li>
-                                <li className="flex gap-2">Changed password</li>
-                            </ul>
-                        </CardContent>
-                    </CardHeader>
-                </Card>
+                            <Card className="flex-1">
+                                <CardHeader>
+                                    <CardTitle>Total PnL</CardTitle>
+                                    <CardTitle className="flex items-end gap-2">
+                                        <span className="text-3xl">
+                                            {data && dashboardData
+                                                ? dashboardData.totalPnl.toFixed(2)
+                                                : "Loading..."}
+                                        </span>
+                                        <span className="text-sm text-muted-foreground">USDT</span>
+                                    </CardTitle>
+                                </CardHeader>
+                                <CardFooter className="text-sm text-muted-foreground">
+                                    {monthly
+                                        ? "Total closed PnL this month."
+                                        : "Total closed PnL this week."}
+                                </CardFooter>
+                            </Card>
+                        </div>
 
-                <div className="col-span-12">{children}</div>
+                        <ChartBarNegative
+                            data={dashboardData?.dailyPnl || []}
+                            initialLoading={initialLoading}
+                            className="flex-1"
+                            monthly={monthly}
+                        />
+                    </div>
+
+                    <ChartLineDefault
+                        data={dashboardData?.dailyPnl || []}
+                        initialLoading={initialLoading}
+                        className="col-span-4"
+                        monthly={monthly}
+                    />
+
+                    <Card className="col-span-4">
+                        <CardHeader>
+                            <CardTitle className="text-xl">Activity Log</CardTitle>
+                            <CardDescription>
+                                Recent activities on your account
+                            </CardDescription>
+                            <CardContent className="text-sm ps-0">
+                                <ul className="space-y-2">
+                                    <li className="flex gap-2">Logged in</li>
+                                    <li className="flex gap-2">Updated profile</li>
+                                    <li className="flex gap-2">Changed password</li>
+                                </ul>
+                            </CardContent>
+                        </CardHeader>
+                    </Card>
+
+                    <div className="col-span-12">
+                        {children}
+                    </div>
+                </div>
             </div>
-        </div>
+        </DashboardContext.Provider>
     );
 }
-function fetchBots() {
-    throw new Error("Function not implemented.");
-}
-
