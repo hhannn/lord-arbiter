@@ -101,7 +101,7 @@ export function ChartBarNegative({ className, data, initialLoading, monthly }: C
             <CardContent className="h-full">
                 <ChartContainer
                     config={chartConfig}
-                    className="h-full w-full max-h-[150px]"
+                    className="h-full w-full max-h-[100px] md:max-h-[150px]"
                 >
                     <BarChart accessibilityLayer data={chartData}>
                         <CartesianGrid vertical={false} horizontal={false} />

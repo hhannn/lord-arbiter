@@ -136,20 +136,20 @@ export function BotDailyChart({ className, dailyPnl = [] }: ChartBarNegativeProp
                 <Bar
                     dataKey="pnl"
                     stackId="a"
-                    fill="var(--chart-1)"
-                    radius={[0, 0, 4, 4]}
+                    fill="var(--color-blue-400)"
+                    // radius={[0, 0, 4, 4]}
                 />
                 <Bar
                     dataKey="roi"
                     stackId="a"
-                    fill="var(--chart-2)"
+                    fill="var(--color-blue-600)"
                     radius={[0, 0, 0, 0]}
                 />
                 <Bar
                     dataKey="roe"
                     stackId="a"
-                    fill="var(--chart-3)"
-                    radius={[4, 4, 0, 0]}
+                    fill="var(--color-blue-800)"
+                    // radius={[4, 4, 0, 0]}
                 />
             </BarChart>
         </ChartContainer>

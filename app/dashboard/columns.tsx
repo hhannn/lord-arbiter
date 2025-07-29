@@ -58,8 +58,8 @@ export const columns: ColumnDef<Bot>[] = [
                     <Badge variant="outline" className="ml-2 pl-1.5">
                         {
                             side === "Buy" ? <><ArrowUpRight className="text-green-500" /> Long</> :
-                            side === "Sell" ? <><ArrowDownRight className="text-destructive" /> Short</> :
-                            "-"
+                                side === "Sell" ? <><ArrowDownRight className="text-destructive" /> Short</> :
+                                    "-"
                         }
                     </Badge>
                 </div>
@@ -170,7 +170,13 @@ export const columns: ColumnDef<Bot>[] = [
         header: "Unrealized PnL",
         cell: ({ row }) => {
             const value = row.getValue("unrealized_pnl");
-            return `${parseFloat(String(value || 0)).toFixed(2)} USDT`;
+            return (
+                <>
+                    <span className={Number(value) < 0 ? 'text-destructive' : 'text-green-600 dark:text-green-400'}>
+                        {parseFloat(String(value || 0)).toFixed(2)} USDT
+                    </span>
+                </>
+            );
         },
     },
     {

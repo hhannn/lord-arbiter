@@ -36,6 +36,7 @@ export const description = "A line chart";
 export function ChartLineDefault({ className, data, initialLoading, monthly }: ChartLineDefaultProps) {
 
     data = monthly ? data.slice(-30) : data.slice(-7);
+    const lastData = data.slice(-7, -14);
 
     const chartData = useMemo(() => {
         const dailyMap: Record<string, number> = {};
@@ -114,37 +115,22 @@ export function ChartLineDefault({ className, data, initialLoading, monthly }: C
                 </CardDescription>
             </CardHeader>
             <CardContent className="h-full">
-                <ChartContainer config={chartConfig} className="h-full w-full">
+                <ChartContainer config={chartConfig} className="h-full w-full max-h-[100px] md:max-h-[150px]">
                     <AreaChart
                         data={chartData}
-                        margin={{ left: 12, right: 12 }}
                     >
                         <CartesianGrid vertical={false} horizontal={false} />
-                        <XAxis
+                        {/* <XAxis
                             dataKey="date"
                             tickLine={false}
                             axisLine={false}
                             tickMargin={8}
                             tickFormatter={(value) => value.slice(5)}
-                        />
+                        /> */}
                         <ChartTooltip
                             cursor={false}
                             content={<CustomTooltipContent hideLabel />}
                         />
-                        <defs>
-                            <linearGradient id="fill" x1="0" y1="0" x2="0" y2="1">
-                                <stop
-                                    offset="5%"
-                                    stopColor="var(--chart-1)"
-                                    stopOpacity={0.8}
-                                />
-                                <stop
-                                    offset="95%"
-                                    stopColor="var(--chart-1)"
-                                    stopOpacity={0.1}
-                                />
-                            </linearGradient>
-                        </defs>
                         <Area
                             dataKey="cumulativePnl"
                             type="natural"
