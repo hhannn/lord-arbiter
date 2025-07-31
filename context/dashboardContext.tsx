@@ -8,6 +8,11 @@ interface DashboardData {
     dailyPnl: { date: string; pnl: number }[];
     totalPnl: number;
     transactionLog: { symbol: string; change: string; transactionTime: string; cashBalance: string }[];
+    averageTradeDuration: {
+        hour: number;
+        minute: number;
+    };
+    totalClosedOrders: string;
 }
 
 export const DashboardContext = createContext<DashboardData | null>(null);

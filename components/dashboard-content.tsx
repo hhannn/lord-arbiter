@@ -42,7 +42,10 @@ interface DashboardData {
         transactionTime: string;
         cashBalance: string
     }[];
-    averageTradeDuration: string;
+    averageTradeDuration: {
+        hour: number;
+        minute: number;
+    };
     totalClosedOrders: string;
 }
 
@@ -135,7 +138,11 @@ export default function DashboardContent({ children }: DashboardContentProps) {
         const diffMinutes = Math.floor(diffMs / 1000 / 60);
         const hours = Math.floor(diffMinutes / 60);
         const minutes = diffMinutes % 60;
-        const averageTradeDuration = `${hours}h ${minutes}m`
+        const averageTradeDuration = {
+            hour: Number(hours),
+            minute: Number(minutes)
+        }
+        // `${hours}h ${minutes}m` //
 
         return {
             equity: parseFloat(walletBalance.totalEquity) || 0,
@@ -151,7 +158,7 @@ export default function DashboardContent({ children }: DashboardContentProps) {
         };
     }, [data, monthly]);
 
-    if (!dashboardData) {
+    if (!dashboardData || initialLoading) {
         return (
             <div className="space-y-2 px-8">
                 <Skeleton className="h-full w-full" />
@@ -190,15 +197,13 @@ export default function DashboardContent({ children }: DashboardContentProps) {
 
                 <div className="flex flex-col md:grid grid-cols-12 gap-4 mt-6">
                     <div className="col-span-8 flex flex-col gap-4">
-                        <div className="grow-0 flex items-stretch gap-4">
-                            <Card className="flex-1">
+                        <div className="flex-1/3 flex flex-col md:flex-row items-stretch gap-4">
+                            <Card className="flex-1 justify-between">
                                 <CardHeader>
-                                    <CardTitle>Equity</CardTitle>
+                                    <CardTitle className="text-sm text-muted-foreground">Equity</CardTitle>
                                     <CardTitle className="flex items-end gap-2">
                                         <span className="text-2xl md:text-3xl">
-                                            {data && dashboardData
-                                                ? dashboardData.equity.toFixed(2)
-                                                : "Loading..."}
+                                            {dashboardData.equity.toFixed(2)}
                                         </span>
                                         <span className="text-sm text-muted-foreground">USDT</span>
                                     </CardTitle>
@@ -210,9 +215,7 @@ export default function DashboardContent({ children }: DashboardContentProps) {
                                             : "text-red-400"
                                             }`}
                                     >
-                                        {data && dashboardData
-                                            ? `${dashboardData.unrealizedPnl.toFixed(2)} USDT`
-                                            : "Loading..."}
+                                        {dashboardData.unrealizedPnl.toFixed(2)} USDT
                                     </div>
                                     <p className="text-sm text-muted-foreground">
                                         Total unrealized PnL
@@ -222,7 +225,7 @@ export default function DashboardContent({ children }: DashboardContentProps) {
 
                             <Card className="flex-1 justify-between">
                                 <CardHeader>
-                                    <CardTitle>Total PnL</CardTitle>
+                                    <CardTitle className="text-sm text-muted-foreground">Total PnL</CardTitle>
                                     <CardTitle className="flex items-end gap-2">
                                         <span className="text-2xl md:text-3xl">
                                             {data && dashboardData
@@ -240,8 +243,11 @@ export default function DashboardContent({ children }: DashboardContentProps) {
                             </Card>
                             <Card className="flex-1">
                                 <CardHeader className="gap-2">
-                                    <CardTitle>Avg. trade duration</CardTitle>
-                                    <span className="font-medium text-xl md:text-3xl">{dashboardData?.averageTradeDuration}</span>
+                                    <CardTitle className="text-sm text-muted-foreground">Avg. trade duration</CardTitle>
+                                    <CardTitle className="font-medium text-xl md:text-3xl">
+                                        {dashboardData?.averageTradeDuration.hour}<span className="ms-0 text-base text-muted-foreground">h </span>
+                                        {dashboardData?.averageTradeDuration.minute}<span className="text-base text-muted-foreground">m</span>
+                                    </CardTitle>
                                 </CardHeader>
                                 <CardContent className="">
                                 </CardContent>
@@ -251,22 +257,22 @@ export default function DashboardContent({ children }: DashboardContentProps) {
                             </Card>
                             <Card className="flex-1 justify-between">
                                 <CardHeader>
-                                    <CardTitle>Total closed positions</CardTitle>
-                                    <span className="font-medium text-xl md:text-3xl">{dashboardData?.totalClosedOrders}</span>
+                                    <CardTitle className="text-sm text-muted-foreground">Total closed positions</CardTitle>
+                                    <CardTitle className="font-medium text-xl md:text-3xl">{dashboardData?.totalClosedOrders}</CardTitle>
                                 </CardHeader>
                                 <CardFooter className="text-sm text-muted-foreground">
                                     {dashboardData?.totalClosedOrders} Long / 0 Short
                                 </CardFooter>
                             </Card>
                         </div>
-                        <div className="shrink-0 flex gap-4">
+                        <div className="flex-2/3 flex gap-4">
                             <ChartBarNegative
                                 data={dashboardData?.dailyPnl || []}
                                 initialLoading={initialLoading}
                                 className="flex-1 shrink-0"
                                 monthly={monthly}
                             />
-                            <ChartLineDefault
+                            <ChartBarNegative
                                 data={dashboardData?.dailyPnl || []}
                                 initialLoading={initialLoading}
                                 className="flex-1 shrink-0"
@@ -276,9 +282,12 @@ export default function DashboardContent({ children }: DashboardContentProps) {
 
                     </div>
                     <div className="col-span-4 flex flex-col gap-4">
-                        <div className="flex gap-4">
-                        </div>
-
+                        <ChartLineDefault
+                            data={dashboardData?.dailyPnl || []}
+                            initialLoading={initialLoading}
+                            className="flex-1 shrink-0"
+                            monthly={monthly}
+                        />
                     </div>
 
                     {/* <Card className="col-span-4">

@@ -28,6 +28,7 @@ export const columns: ColumnDef<Bot>[] = [
     },
     {
         accessorKey: "asset",
+        enableHiding: false,
         header: ({ column }) => {
             return (
                 <Button
@@ -199,5 +200,6 @@ export const columns: ColumnDef<Bot>[] = [
                 </Badge>
             );
         },
+        enableHiding: false,
     },
 ];

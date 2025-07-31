@@ -4,7 +4,7 @@ import { useState, useEffect, useMemo } from "react";
 import { useUserData } from "@/store/useUserData";
 
 import { TrendingUp } from "lucide-react";
-import { Bar, BarChart, CartesianGrid, Cell, LabelList } from "recharts";
+import { Bar, BarChart, CartesianGrid, Cell, LabelList, XAxis } from "recharts";
 
 import {
     Card,
@@ -90,6 +90,14 @@ export function ChartBarNegative({ className, data, initialLoading, monthly }: C
         );
     }
 
+    function formatDate(dateString: string): string {
+        const date = new Date(dateString);
+        return new Intl.DateTimeFormat('en-US', {
+            month: 'short',
+            day: '2-digit'
+        }).format(date);
+    }
+
     return (
         <Card className={cn("", className)}>
             <CardHeader>
@@ -104,21 +112,32 @@ export function ChartBarNegative({ className, data, initialLoading, monthly }: C
                     className="h-full w-full max-h-[100px] md:max-h-[150px]"
                 >
                     <BarChart accessibilityLayer data={chartData}>
-                        <CartesianGrid vertical={false} horizontal={false} />
+                        <CartesianGrid vertical={false} />
                         <ChartTooltip
                             cursor={false}
                             content={
-                                <CustomTooltipContent hideLabel hideIndicator />
+                                <CustomTooltipContent />
                             }
                         />
-                        <Bar dataKey="pnl">
+                        <XAxis
+                            dataKey="date"
+                            tickLine={false}
+                            tickMargin={8}
+                            axisLine={false}
+                            tickFormatter={(value) => formatDate(String(value))}
+                        />
+                        <Bar
+                            dataKey="pnl"
+                            radius={[4, 4, 4, 4]}
+                            barSize={4}
+                        >
                             {data.map((item) => (
                                 <Cell
                                     key={item.date}
                                     fill={
                                         item.pnl > 0
                                             ? "var(--chart-1)"
-                                            : "var(--chart-3)"
+                                            : "var(--chart-5)"
                                     }
                                 />
                             ))}
@@ -126,7 +145,7 @@ export function ChartBarNegative({ className, data, initialLoading, monthly }: C
                     </BarChart>
                 </ChartContainer>
             </CardContent>
-            <CardFooter className="flex-col items-start gap-2 text-sm">
+            {/* <CardFooter className="flex-col items-start gap-2 text-sm">
                 <div className="flex gap-2 leading-none font-medium">
                     Trending up by 5.2% this month{" "}
                     <TrendingUp className="h-4 w-4" />
@@ -134,7 +153,7 @@ export function ChartBarNegative({ className, data, initialLoading, monthly }: C
                 <div className="text-muted-foreground leading-none">
                     {!monthly ? "Showing total PnL for the last 7 days." : "Showing total PnL for the last 30 days."}
                 </div>
-            </CardFooter>
+            </CardFooter> */}
         </Card>
     );
 }

@@ -1,7 +1,7 @@
 "use client";
 
 import { TrendingUp } from "lucide-react";
-import { Bar, BarChart, CartesianGrid, Cell, LabelList, XAxis } from "recharts";
+import { Area, AreaChart, Bar, BarChart, CartesianGrid, Cell, LabelList, XAxis } from "recharts";
 
 import {
     Card,
@@ -118,38 +118,53 @@ export function BotDailyChart({ className, dailyPnl = [] }: ChartBarNegativeProp
         );
     }
 
+    function formatDate(dateString: string): string {
+        const [day, month] = dateString.split("-").map(Number);
+        const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun",
+            "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+        const monthName = months[month - 1] || "???";
+
+        return `${monthName} ${String(day).padStart(2, "0")}`;
+    }
+
     return (
         <ChartContainer
             config={chartConfig}
             className="h-full w-full"
         >
             <BarChart accessibilityLayer data={dailyPnl}>
-                <CartesianGrid vertical={false} horizontal={false}/>
+                <CartesianGrid vertical={false} />
                 <XAxis
                     dataKey="date"
                     tickLine={false}
-                    tickMargin={10}
+                    tickMargin={8}
                     axisLine={false}
+                    tickFormatter={(value) => formatDate(value)}
                 />
                 <ChartTooltip content={<CustomTooltipContent hideLabel />} />
                 <ChartLegend content={<ChartLegendContent />} />
                 <Bar
                     dataKey="pnl"
+                    type="bump"
                     stackId="a"
-                    fill="var(--color-blue-400)"
-                    // radius={[0, 0, 4, 4]}
+                    fill="var(--color-chart-1)"
+                    barSize={4}
+                    radius={[0, 0, 2, 2]}
                 />
                 <Bar
                     dataKey="roi"
+                    type="bump"
                     stackId="a"
-                    fill="var(--color-blue-600)"
-                    radius={[0, 0, 0, 0]}
+                    fill="var(--color-chart-2)"
+                    barSize={4}
                 />
                 <Bar
                     dataKey="roe"
+                    type="bump"
                     stackId="a"
-                    fill="var(--color-blue-800)"
-                    // radius={[4, 4, 0, 0]}
+                    fill="var(--color-chart-3)"
+                    barSize={4}
+                    radius={[2, 2, 0, 0]}
                 />
             </BarChart>
         </ChartContainer>

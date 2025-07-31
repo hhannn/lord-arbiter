@@ -15,7 +15,7 @@ import { SpeedInsights } from "@vercel/speed-insights/next"
 
 export const metadata = {
     title: "Lord Arbiter",
-    description: "Sign in to your MyApp account",
+    description: "Weeping may endure for a night, but joy comes in the morning.",
 };
 
 export default function Layout({ children }: { children: React.ReactNode }) {

@@ -71,6 +71,7 @@ export function ChartLineDefault({ className, data, initialLoading, monthly }: C
 
     const chartConfig: ChartConfig = {
         cumulativePnl: { label: "Cum. PnL" },
+        pnl: { label: "Daily PnL" }
     };
 
     const CustomTooltipContent = ({ active, payload, label }: any) => {
@@ -79,9 +80,9 @@ export function ChartLineDefault({ className, data, initialLoading, monthly }: C
 
             return (
                 <div className="flex flex-col gap-2 bg-background border rounded-lg p-3 shadow-lg">
+                    <p className="text-xs font-medium text-muted-foreground">{dataPoint.date}</p>
                     {payload.map((entry: any, index: number) => (
                         <>
-                            <p className="text-xs font-medium text-muted-foreground">{dataPoint.date}</p>
                             <div className="flex gap-4 items-center">
                                 <p className="text-muted-foreground">Cum. PnL</p>
                                 <p className="text-sm font-mono text-end">{`${entry.value.toFixed(2)} USDT`}</p>
@@ -104,6 +105,14 @@ export function ChartLineDefault({ className, data, initialLoading, monthly }: C
         );
     }
 
+    function formatDate(dateString: string): string {
+        const date = new Date(dateString);
+        return new Intl.DateTimeFormat('en-US', {
+            month: 'short',
+            day: '2-digit'
+        }).format(date);
+    }
+
     return (
         <Card className={cn("", className)}>
             <CardHeader>
@@ -115,30 +124,30 @@ export function ChartLineDefault({ className, data, initialLoading, monthly }: C
                 </CardDescription>
             </CardHeader>
             <CardContent className="h-full">
-                <ChartContainer config={chartConfig} className="h-full w-full max-h-[100px] md:max-h-[150px]">
+                <ChartContainer config={chartConfig} className="h-full w-full">
                     <AreaChart
                         data={chartData}
                     >
-                        <CartesianGrid vertical={false} horizontal={false} />
-                        {/* <XAxis
+                        <CartesianGrid vertical={false} />
+                        <XAxis
                             dataKey="date"
                             tickLine={false}
                             axisLine={false}
                             tickMargin={8}
-                            tickFormatter={(value) => value.slice(5)}
-                        /> */}
+                            tickFormatter={(value) => formatDate(value)}
+                        />
                         <ChartTooltip
                             cursor={false}
                             content={<CustomTooltipContent hideLabel />}
                         />
                         <Area
                             dataKey="cumulativePnl"
-                            type="natural"
+                            type="monotone"
                             fill="url(#fill)"
                             fillOpacity={0.4}
                             stroke="var(--chart-1)"
                             strokeWidth={2}
-                            dot={false}
+                            stackId="a"
                         />
                     </AreaChart>
                 </ChartContainer>

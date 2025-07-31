@@ -689,7 +689,6 @@ export function BotActionButtons({
                                 <Card className="col-span-full px-4 gap-2">
                                     <CardTitle>Daily bot PnL</CardTitle>
                                     <CardDescription>Last 7 days</CardDescription>
-                                    {/* Pass the memoized dailyPnlChartData and userDataLoading */}
                                     <BotDailyChart className="max-h-[100px]" dailyPnl={dailyPnlChartData} />
                                 </Card>
                             </div>

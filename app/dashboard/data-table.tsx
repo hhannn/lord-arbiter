@@ -13,7 +13,7 @@ import {
     VisibilityState,
 } from "@tanstack/react-table";
 
-import { CirclePlus } from "lucide-react";
+import { ChevronDown, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, CirclePlus, PlusCircle } from "lucide-react";
 
 import {
     Table,
@@ -38,10 +38,12 @@ import { Separator } from "@/components/ui/separator";
 import { AssetsCombobox } from "@/components/assets-combobox";
 import { toast } from "sonner";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { cn } from "@/lib/utils";
-
 import { DataTableViewOptions } from "@/components/column-visibility";
 import { BotActionButtons } from "@/components/bot-action-button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { DropdownMenuContent, DropdownMenuTrigger, DropdownMenu, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
+import { cn } from "@/lib/utils";
+
 
 interface DataTableProps<TData, TValue> {
     columns: ColumnDef<TData, TValue>[];
@@ -374,236 +376,289 @@ export function DataTable<TData, TValue>({
     }, [bots, API_BACKEND_URL]);
 
     return (
-        <div className="rounded-md border flex flex-col gap-4 bg-card overflow-hidden">
-            <div className="flex items-start justify-between gap-2 px-6 py-4">
-                <span className="text-2xl font-medium">Running Bot</span>
-                <DataTableViewOptions table={table} />
-                <div className="flex items-center gap-2">
-                    <Button
-                        className="bg-red-800 text-white hover:bg-red-700"
-                        size="sm"
-                    >
-                        Stop all bots
-                    </Button>
-                    {/* Create Bot Dialog */}
-                    <Dialog open={createDialogOpen} onOpenChange={setCreateDialogOpen} >
-                        {isMounted && (
-                            <DialogTrigger asChild>
-                                <Button
-                                    className="ml-auto"
-                                    size="sm"
-                                    onClick={() => {
-                                        resetCreateForm(); // Reset form when opening
-                                        setCreateDialogOpen(true);
-                                    }}
-                                >
-                                    <CirclePlus />
-                                    Create new bot
-                                </Button>
-                            </DialogTrigger>
-                        )}
-                        <DialogContent>
-                            <DialogHeader className="flex flex-col gap-8">
-                                <DialogTitle className="text-2xl">
-                                    Create new bot
-                                </DialogTitle>
-                                <DialogDescription className="flex flex-col gap-4">
-                                    Enter the parameters for your new trading bot.
-                                </DialogDescription>
-                            </DialogHeader>
-                            <div className="flex gap-4 items-center">
-                                <span className="w-[200px] font-medium text-white">
-                                    Assets
-                                </span>
-                                <AssetsCombobox onSelect={setCreateAsset} />
-                            </div>
-                            <Separator className="my-4" />
-                            <div className="flex gap-4 items-center">
-                                <span className="w-[200px] font-medium text-white">
-                                    Start size
-                                </span>
-                                <div className="flex gap-2 w-full">
-                                    <Input
-                                        className={cn(
-                                            createErrors.start_size
-                                                ? "border-red-500"
-                                                : ""
-                                        )}
-                                        type="number"
-                                        step="any"
-                                        value={createStartSize}
-                                        onChange={(e) =>
-                                            setCreateStartSize(e.target.value)
-                                        }
-                                    />
-                                    <Select
-                                        onValueChange={(value) => setCreateStartType(value as "USDT" | "percent_equity")}
-                                        value={createStartType}>
-                                        <SelectTrigger className={cn("w-[200px]", createErrors.start_type && "border-red-500")}>
-                                            <SelectValue
-                                                placeholder={"% of equity"}
-                                            ></SelectValue>
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            <SelectGroup>
-                                                <SelectItem value="percent_equity">% of equity</SelectItem>
-                                                <SelectItem value="USDT">USDT</SelectItem>
-                                            </SelectGroup>
-                                        </SelectContent>
-                                    </Select>
-                                </div>
-                            </div>
-                            <div className="flex gap-4 items-center">
-                                <span className="w-[200px] font-medium text-white">
-                                    Leverage
-                                </span>
-                                <div className="w-full">
-                                    <Input
-                                        className={cn(createErrors.leverage && "border-red-500")}
-                                        type="number"
-                                        step="any"
-                                        value={createLeverage}
-                                        onChange={(e) =>
-                                            setCreateLeverage(e.target.value)
-                                        }
-                                    />
-                                </div>
-                            </div>
-                            <div className="flex gap-4 items-center">
-                                <span className="w-[200px] font-medium text-white">
-                                    Multiplier
-                                </span>
-                                <div className="w-full">
-                                    <Input
-                                        className={cn(createErrors.multiplier && "border-red-500")}
-                                        type="number"
-                                        step="any"
-                                        value={createMultiplier}
-                                        onChange={(e) =>
-                                            setCreateMultiplier(e.target.value)
-                                        }
-                                    />
-                                </div>
-                            </div>
-                            <div className="flex gap-4 items-center">
-                                <span className="w-[200px] font-medium text-white">
-                                    Take Profit
-                                </span>
-                                <div className="w-full">
-                                    <Input
-                                        className={cn(createErrors.take_profit && "border-red-500")}
-                                        type="number"
-                                        step="any"
-                                        value={createTakeProfit}
-                                        onChange={(e) =>
-                                            setCreateTakeProfit(e.target.value)
-                                        }
-                                    />
-                                </div>
-                            </div>
-                            <div className="flex gap-4 items-center">
-                                <span className="w-[200px] font-medium text-white">
-                                    Rebuy
-                                </span>
-                                <div className="w-full">
-                                    <Input
-                                        className={cn(createErrors.rebuy && "border-red-500")}
-                                        type="number"
-                                        step="any"
-                                        value={createRebuy}
-                                        onChange={(e) =>
-                                            setCreateRebuy(e.target.value)
-                                        }
-                                    />
-                                </div>
-                            </div>
-                            <DialogFooter>
-                                <Button onClick={handleCreateBot}>
-                                    Create bot
-                                </Button>
-                            </DialogFooter>
-                        </DialogContent>
-                    </Dialog>
-                </div>
-            </div>
-            <Table>
-                <TableHeader className="">
-                    {table.getHeaderGroups().map((headerGroup) => (
-                        <TableRow key={headerGroup.id}>
-                            {headerGroup.headers.map((header, index) => {
-                                const isFirstHeader = index === 0;
-                                const isLastHeader = index === headerGroup.headers.length - 1;
+        <Card className="rounded-md border flex flex-col items-stretch gap-4 bg-card overflow-hidden">
+            <CardHeader>
+                <CardTitle className="text-2xl">Running Bot</CardTitle>
+                <CardDescription>Monitoring the Comeback Trail</CardDescription>
+            </CardHeader>
+            <CardContent className="flex flex-col gap-4">
+                <div className="flex items-center justify-between gap-2">
+                    <div className="flex items-center gap-2">
+                        <Input className="max-w-md"
+                            placeholder="Search bot"
+                            size={32}
+                        />
+                        <Button variant="outline" className="border-dashed">
+                            <PlusCircle />
+                            Side
+                        </Button>
+                        <Button variant="outline" className="border-dashed">
+                            <PlusCircle />
+                            Status
+                        </Button>
+                    </div>
+                    <div className="flex items-center gap-2">
+                        <DataTableViewOptions table={table} />
+                        <Button
+                            className="bg-red-800 text-white hover:bg-red-700"
 
-                                return (
-                                    <TableHead
-                                        key={header.id}
-                                        className={cn(
-                                            "py-2",
-                                            isFirstHeader && "px-2",
-                                            isLastHeader && "px-2"
-                                        )}
+                        >
+                            Stop all bots
+                        </Button>
+                        {/* Create Bot Dialog */}
+                        <Dialog open={createDialogOpen} onOpenChange={setCreateDialogOpen} >
+                            {isMounted && (
+                                <DialogTrigger asChild>
+                                    <Button
+                                        className="ml-auto"
+
+                                        onClick={() => {
+                                            resetCreateForm(); // Reset form when opening
+                                            setCreateDialogOpen(true);
+                                        }}
                                     >
-                                        {header.isPlaceholder
-                                            ? null
-                                            : flexRender(
-                                                header.column.columnDef.header,
-                                                header.getContext()
-                                            )}
-                                    </TableHead>
-                                );
-                            })}
-                        </TableRow>
-                    ))}
-                </TableHeader>
-                <TableBody className="bg-background">
-                    {table.getRowModel().rows?.length ? (
-                        table.getRowModel().rows.map((row) => (
-                            <TableRow
-                                key={row.id}
-                                data-state={row.getIsSelected() && "selected"}
-                            >
-                                {row.getVisibleCells().map((cell, index) => {
-                                    const isFirstDataCell = index === 0;
-
-                                    return (
-                                        <TableCell
-                                            key={cell.id}
+                                        <CirclePlus />
+                                        Create new bot
+                                    </Button>
+                                </DialogTrigger>
+                            )}
+                            <DialogContent>
+                                <DialogHeader className="flex flex-col gap-8">
+                                    <DialogTitle className="text-2xl">
+                                        Create new bot
+                                    </DialogTitle>
+                                    <DialogDescription className="flex flex-col gap-4">
+                                        Enter the parameters for your new trading bot.
+                                    </DialogDescription>
+                                </DialogHeader>
+                                <div className="flex gap-4 items-center">
+                                    <span className="w-[200px] font-medium text-white">
+                                        Assets
+                                    </span>
+                                    <AssetsCombobox onSelect={setCreateAsset} />
+                                </div>
+                                <Separator className="my-4" />
+                                <div className="flex gap-4 items-center">
+                                    <span className="w-[200px] font-medium text-white">
+                                        Start size
+                                    </span>
+                                    <div className="flex gap-2 w-full">
+                                        <Input
                                             className={cn(
-                                                "py-2",
-                                                isFirstDataCell && "pl-6"
+                                                createErrors.start_size
+                                                    ? "border-red-500"
+                                                    : ""
                                             )}
-                                        >
-                                            {flexRender(
-                                                cell.column.columnDef.cell,
-                                                cell.getContext()
-                                            )}
+                                            type="number"
+                                            step="any"
+                                            value={createStartSize}
+                                            onChange={(e) =>
+                                                setCreateStartSize(e.target.value)
+                                            }
+                                        />
+                                        <Select
+                                            onValueChange={(value) => setCreateStartType(value as "USDT" | "percent_equity")}
+                                            value={createStartType}>
+                                            <SelectTrigger className={cn("w-[200px]", createErrors.start_type && "border-red-500")}>
+                                                <SelectValue
+                                                    placeholder={"% of equity"}
+                                                ></SelectValue>
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                <SelectGroup>
+                                                    <SelectItem value="percent_equity">% of equity</SelectItem>
+                                                    <SelectItem value="USDT">USDT</SelectItem>
+                                                </SelectGroup>
+                                            </SelectContent>
+                                        </Select>
+                                    </div>
+                                </div>
+                                <div className="flex gap-4 items-center">
+                                    <span className="w-[200px] font-medium text-white">
+                                        Leverage
+                                    </span>
+                                    <div className="w-full">
+                                        <Input
+                                            className={cn(createErrors.leverage && "border-red-500")}
+                                            type="number"
+                                            step="any"
+                                            value={createLeverage}
+                                            onChange={(e) =>
+                                                setCreateLeverage(e.target.value)
+                                            }
+                                        />
+                                    </div>
+                                </div>
+                                <div className="flex gap-4 items-center">
+                                    <span className="w-[200px] font-medium text-white">
+                                        Multiplier
+                                    </span>
+                                    <div className="w-full">
+                                        <Input
+                                            className={cn(createErrors.multiplier && "border-red-500")}
+                                            type="number"
+                                            step="any"
+                                            value={createMultiplier}
+                                            onChange={(e) =>
+                                                setCreateMultiplier(e.target.value)
+                                            }
+                                        />
+                                    </div>
+                                </div>
+                                <div className="flex gap-4 items-center">
+                                    <span className="w-[200px] font-medium text-white">
+                                        Take Profit
+                                    </span>
+                                    <div className="w-full">
+                                        <Input
+                                            className={cn(createErrors.take_profit && "border-red-500")}
+                                            type="number"
+                                            step="any"
+                                            value={createTakeProfit}
+                                            onChange={(e) =>
+                                                setCreateTakeProfit(e.target.value)
+                                            }
+                                        />
+                                    </div>
+                                </div>
+                                <div className="flex gap-4 items-center">
+                                    <span className="w-[200px] font-medium text-white">
+                                        Rebuy
+                                    </span>
+                                    <div className="w-full">
+                                        <Input
+                                            className={cn(createErrors.rebuy && "border-red-500")}
+                                            type="number"
+                                            step="any"
+                                            value={createRebuy}
+                                            onChange={(e) =>
+                                                setCreateRebuy(e.target.value)
+                                            }
+                                        />
+                                    </div>
+                                </div>
+                                <DialogFooter>
+                                    <Button onClick={handleCreateBot}>
+                                        Create bot
+                                    </Button>
+                                </DialogFooter>
+                            </DialogContent>
+                        </Dialog>
+                    </div>
+                </div>
+                <div className="border rounded-md overflow-hidden">
+                    <Table>
+                        <TableHeader className="">
+                            {table.getHeaderGroups().map((headerGroup) => (
+                                <TableRow key={headerGroup.id}>
+                                    {headerGroup.headers.map((header, index) => {
+                                        const isFirstHeader = index === 0;
+                                        const isLastHeader = index === headerGroup.headers.length - 1;
+
+                                        return (
+                                            <TableHead
+                                                key={header.id}
+                                                className={cn(
+                                                    "py-2",
+                                                    isFirstHeader && "px-2",
+                                                    isLastHeader && "px-2"
+                                                )}
+                                            >
+                                                {header.isPlaceholder
+                                                    ? null
+                                                    : flexRender(
+                                                        header.column.columnDef.header,
+                                                        header.getContext()
+                                                    )}
+                                            </TableHead>
+                                        );
+                                    })}
+                                </TableRow>
+                            ))}
+                        </TableHeader>
+                        <TableBody className="bg-background">
+                            {table.getRowModel().rows?.length ? (
+                                table.getRowModel().rows.map((row) => (
+                                    <TableRow
+                                        key={row.id}
+                                        data-state={row.getIsSelected() && "selected"}
+                                    >
+                                        {row.getVisibleCells().map((cell, index) => {
+                                            const isFirstDataCell = index === 0;
+
+                                            return (
+                                                <TableCell
+                                                    key={cell.id}
+                                                    className={cn(
+                                                        "py-2",
+                                                        isFirstDataCell && "pl-6"
+                                                    )}
+                                                >
+                                                    {flexRender(
+                                                        cell.column.columnDef.cell,
+                                                        cell.getContext()
+                                                    )}
+                                                </TableCell>
+                                            );
+                                        })}
+                                        {/* Action column */}
+                                        <TableCell className="py-2 pr-6">
+                                            <BotActionButtons
+                                                bot={row.original as Bot}
+                                                startBot={startBot}
+                                                stopBot={stopBot}
+                                                onDeleteBot={confirmDeleteBot}
+                                                onUpdateBot={handleUpdateBot}
+                                            />
                                         </TableCell>
-                                    );
-                                })}
-                                {/* Action column */}
-                                <TableCell className="py-2 pr-6">
-                                    <BotActionButtons
-                                        bot={row.original as Bot}
-                                        startBot={startBot}
-                                        stopBot={stopBot}
-                                        onDeleteBot={confirmDeleteBot}
-                                        onUpdateBot={handleUpdateBot}
-                                    />
-                                </TableCell>
-                            </TableRow>
-                        ))
-                    ) : (
-                        <TableRow>
-                            <TableCell
-                                colSpan={columns.length}
-                                className="h-24 text-center py-2 pl-6 pr-6"
-                            >
-                                No results.
-                            </TableCell>
-                        </TableRow>
-                    )}
-                </TableBody>
-            </Table>
+                                    </TableRow>
+                                ))
+                            ) : (
+                                <TableRow>
+                                    <TableCell
+                                        colSpan={columns.length}
+                                        className="h-24 text-center py-2 pl-6 pr-6"
+                                    >
+                                        No results.
+                                    </TableCell>
+                                </TableRow>
+                            )}
+                        </TableBody>
+                    </Table>
+                </div>
+                <div className="flex justify-end items-center gap-8">
+                    <DropdownMenu>
+                        <span className="text-sm font-medium">Rows per page</span>
+                        <DropdownMenuTrigger className="flex items-center gap-4">
+                            <Button variant="outline" size="sm">
+                                25
+                                <ChevronDown />
+                            </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent>
+                            <DropdownMenuItem>10</DropdownMenuItem>
+                            <DropdownMenuItem>25</DropdownMenuItem>
+                            <DropdownMenuItem>50</DropdownMenuItem>
+                            <DropdownMenuItem>100</DropdownMenuItem>
+                        </DropdownMenuContent>
+                    </DropdownMenu>
+                    <span className="text-sm font-medium">Page 1 of 1</span>
+                    <div className="flex justify-end gap-2">
+                        <Button variant="outline" size="sm" className="size-8">
+                            <ChevronsLeft />
+                        </Button>
+                        <Button variant="outline" size="sm" className="size-8">
+                            <ChevronLeft />
+                        </Button>
+                        <Button variant="outline" size="sm" className="size-8">
+                            <ChevronRight />
+                        </Button>
+                        <Button variant="outline" size="sm" className="size-8">
+                            <ChevronsRight />
+                        </Button>
+                    </div>
+                </div>
+            </CardContent>
 
             {/* Edit Bot Dialog */}
             {/* <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
@@ -711,6 +766,6 @@ export function DataTable<TData, TValue>({
                     </DialogFooter>
                 </DialogContent>
             </Dialog> */}
-        </div>
+        </Card>
     );
 }
