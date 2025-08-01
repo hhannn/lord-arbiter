@@ -1,6 +1,7 @@
 "use client";
 import { useEffect } from "react";
 import { useUserData } from "@/store/useUserData";
+import { usePathname } from 'next/navigation'
 import { useTheme } from "next-themes";
 import { SidebarTrigger, useSidebar } from "@/components/ui/sidebar";
 import { Button } from "./ui/button";
@@ -28,6 +29,10 @@ export function AppNavbar() {
         return () => clearInterval(interval);
     }, []);
 
+    const pathname = usePathname();
+    const pageName = pathname.split("/").pop();
+
+
     const userData = data?.userData?.result;
 
     return (
@@ -36,7 +41,7 @@ export function AppNavbar() {
                 <li className="flex items-center justify-between gap-2 min-w-0">
                     <SidebarTrigger />
                     <span className="h-[16px] w-[1px] bg-muted me-1"></span>
-                    <span className="font-medium truncate">Dashboard</span>
+                    <span className="font-medium truncate capitalize">{pageName}</span>
                 </li>
                 <li>
                     <DropdownMenu>

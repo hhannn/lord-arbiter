@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useUserData } from "@/store/useUserData";
 
-import { Home, Bot, ChevronsUpDown, ChevronUp } from "lucide-react";
+import { Home, Bot, ChevronsUpDown, ChevronUp, Calculator } from "lucide-react";
 import {
     Sidebar,
     SidebarContent,
@@ -20,8 +20,9 @@ import { Avatar, AvatarImage, AvatarFallback } from "./ui/avatar";
 import Image from "next/image";
 
 const items = [
-    { title: "Home", url: "#", icon: Home },
+    { title: "Home", url: "/dashboard", icon: Home },
     { title: "Bot", url: "#", icon: Bot },
+    { title: "Calculator", url: "/dashboard/calculator", icon: Calculator }
 ];
 
 type AppSidebarProps = {
@@ -39,9 +40,8 @@ export function AppSidebar({ collapsible = "icon" }: AppSidebarProps) {
             <SidebarContent>
                 {/* Logo Section - Always visible */}
                 <div
-                    className={`flex items-center gap-4 ${
-                        isCollapsed ? "px-2 py-1" : "px-4 py-3"
-                    }`}
+                    className={`flex items-center gap-4 ${isCollapsed ? "px-2 py-1" : "px-4 py-3"
+                        }`}
                 >
                     <Image
                         src="/assets/logo.png"

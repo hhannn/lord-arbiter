@@ -124,7 +124,7 @@ export function ChartLineDefault({ className, data, initialLoading, monthly }: C
                 </CardDescription>
             </CardHeader>
             <CardContent className="h-full">
-                <ChartContainer config={chartConfig} className="h-full w-full">
+                <ChartContainer config={chartConfig} className="h-full w-full max-h-[100px] md:max-h-[180px]">
                     <AreaChart
                         data={chartData}
                     >
@@ -152,15 +152,6 @@ export function ChartLineDefault({ className, data, initialLoading, monthly }: C
                     </AreaChart>
                 </ChartContainer>
             </CardContent>
-            <CardFooter className="flex-col items-start gap-2 text-sm">
-                <div className="flex gap-2 leading-none font-medium">
-                    Trending up by 5.2% this month{" "}
-                    <TrendingUp className="h-4 w-4" />
-                </div>
-                <div className="text-muted-foreground leading-none">
-                    {!monthly ? "Showing cumulative PnL for the last 7 days." : "Showing cumulative PnL for the last 30 days."}
-                </div>
-            </CardFooter>
         </Card>
     );
 }
