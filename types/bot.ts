@@ -19,6 +19,7 @@ export interface Bot {
     side: string;
     position_value: number;
     transaction_log: TrxEntries[];
+    max_rebuy: number;
 }
 
 export interface TrxEntries {

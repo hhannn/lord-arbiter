@@ -83,6 +83,7 @@ export function DataTable<TData, TValue>({
     const [createMultiplier, setCreateMultiplier] = useState("");
     const [createTakeProfit, setCreateTakeProfit] = useState("");
     const [createRebuy, setCreateRebuy] = useState("");
+    const [createMaxRebuy, setCreateMaxRebuy] = useState("");
     const [createStartType, setCreateStartType] = useState<"USDT" | "percent_equity">("percent_equity");
     const [createDialogOpen, setCreateDialogOpen] = useState(false);
 
@@ -114,6 +115,7 @@ export function DataTable<TData, TValue>({
         setCreateMultiplier("");
         setCreateTakeProfit("");
         setCreateRebuy("");
+        setCreateMaxRebuy("");
         setCreateStartType("percent_equity");
         setCreateErrors({
             asset: false, start_size: false, leverage: false,
@@ -130,6 +132,7 @@ export function DataTable<TData, TValue>({
             multiplier: !createMultiplier.trim() || isNaN(parseFloat(createMultiplier)) || parseFloat(createMultiplier) <= 0,
             take_profit: !createTakeProfit.trim() || isNaN(parseFloat(createTakeProfit)) || parseFloat(createTakeProfit) <= 0,
             rebuy: !createRebuy.trim() || isNaN(parseFloat(createRebuy)) || parseFloat(createRebuy) < 0,
+            max_rebuy: !createMaxRebuy.trim() || isNaN(Number(createMaxRebuy)) || Number(createMaxRebuy) < 0,
             start_type: !createStartType.trim(),
         };
 
@@ -155,7 +158,8 @@ export function DataTable<TData, TValue>({
                     multiplier: parseFloat(createMultiplier),
                     take_profit: parseFloat(createTakeProfit),
                     rebuy: parseFloat(createRebuy),
-                    start_type: createStartType
+                    start_type: createStartType,
+                    max_rebuy: parseFloat(createMaxRebuy)
                 }),
             });
 
@@ -533,6 +537,22 @@ export function DataTable<TData, TValue>({
                                             value={createRebuy}
                                             onChange={(e) =>
                                                 setCreateRebuy(e.target.value)
+                                            }
+                                        />
+                                    </div>
+                                </div>
+                                <div className="flex gap-4 items-center">
+                                    <span className="w-[200px] font-medium text-white">
+                                        Max rebuy
+                                    </span>
+                                    <div className="w-full">
+                                        <Input
+                                            className={cn(createErrors.rebuy && "border-red-500")}
+                                            type="number"
+                                            step="any"
+                                            value={createMaxRebuy}
+                                            onChange={(e) =>
+                                                setCreateMaxRebuy(e.target.value)
                                             }
                                         />
                                     </div>

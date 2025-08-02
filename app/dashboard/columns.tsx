@@ -129,6 +129,15 @@ export const columns: ColumnDef<Bot>[] = [
         },
     },
     {
+        accessorKey: "max_rebuy",
+        header: "Max rebuy",
+        cell: ({ row }) => {
+            const max_rebuy = String(row.getValue("max_rebuy"));
+
+            return `${max_rebuy}`;
+        },
+    },
+    {
         accessorKey: "current_position",
         header: "Current position",
         cell: ({ row }) => {

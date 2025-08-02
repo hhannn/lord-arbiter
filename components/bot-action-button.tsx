@@ -91,7 +91,7 @@ export function BotActionButtons({
     const {
         id, status, asset, start_size, leverage, multiplier, take_profit,
         rebuy, start_type, current_position, liq_price, unrealized_pnl, created_at,
-        take_profit_price, side, current_price, position_value, transaction_log
+        take_profit_price, side, current_price, position_value, transaction_log, max_rebuy
     } = bot;
 
     const dashboardData = useDashboardData();
@@ -105,14 +105,16 @@ export function BotActionButtons({
     const [editTakeProfit, setEditTakeProfit] = useState(String(take_profit));
     const [editRebuy, setEditRebuy] = useState(String(rebuy));
     const [editStartType, setEditStartType] = useState<"USDT" | "percent_equity">(start_type); // Explicitly typed
+    const [editMaxRebuy, setEditMaxRebuy] = useState(String(max_rebuy));
 
     // Error states for edit form (LOCAL TO THIS COMPONENT)
+    // State for Delete Confirmation Dialog (LOCAL TO THIS COMPONENT)
     const [editErrors, setEditErrors] = useState({
         asset: false, start_size: false, leverage: false,
         multiplier: false, take_profit: false, rebuy: false, start_type: false,
+        max_rebuy: false
     });
 
-    // State for Delete Confirmation Dialog (LOCAL TO THIS COMPONENT)
     const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 
     // State for Detail Dialog (LOCAL TO THIS COMPONENT)
@@ -144,12 +146,14 @@ export function BotActionButtons({
             setEditTakeProfit(String(take_profit));
             setEditRebuy(String(rebuy));
             setEditStartType(start_type);
+            setEditMaxRebuy(String(max_rebuy));
             setEditErrors({
                 asset: false, start_size: false, leverage: false,
-                multiplier: false, take_profit: false, rebuy: false, start_type: false
+                multiplier: false, take_profit: false, rebuy: false, start_type: false,
+                max_rebuy: false
             });
         }
-    }, [editDialogOpen, asset, start_size, leverage, multiplier, take_profit, rebuy, start_type]);
+    }, [editDialogOpen, asset, start_size, leverage, multiplier, take_profit, rebuy, start_type, max_rebuy]);
 
 
     const handleEditClick = () => {
@@ -171,14 +175,15 @@ export function BotActionButtons({
             take_profit: !editTakeProfit.trim() || isNaN(parseFloat(editTakeProfit)) || parseFloat(editTakeProfit) <= 0,
             rebuy: !editRebuy.trim() || isNaN(parseFloat(editRebuy)) || parseFloat(editRebuy) < 0,
             start_type: !editStartType.trim(),
+            max_rebuy: !editMaxRebuy.trim() || isNaN(parseFloat(editMaxRebuy)) || parseFloat(editMaxRebuy) < 0,
         };
+
 
         setEditErrors(newErrors);
 
         const hasError = Object.values(newErrors).some(Boolean);
         console.log("Calculated newErrors object (JSON.stringify):", JSON.stringify(newErrors));
         console.log("Value of hasError:", hasError);
-
         if (hasError) {
             toast.error("Please fill in all required fields correctly for editing.");
             return;
@@ -195,6 +200,7 @@ export function BotActionButtons({
                 take_profit: parseFloat(editTakeProfit),
                 rebuy: parseFloat(editRebuy),
                 start_type: editStartType,
+                max_rebuy: Number(editMaxRebuy),
             });
             setEditDialogOpen(false); // Close the dialog on successful update
         } catch (error) {
@@ -544,6 +550,20 @@ export function BotActionButtons({
                                         step="any"
                                         value={editRebuy}
                                         onChange={(e) => setEditRebuy(e.target.value)}
+                                    />
+                                </div>
+                            </div>
+                            <div className="flex gap-4 items-center">
+                                <span className="w-[200px] font-medium text-white">
+                                    Max Rebuy
+                                </span>
+                                <div className="w-full">
+                                    <Input
+                                        className={cn(editErrors.max_rebuy && "border-red-500")}
+                                        type="number"
+                                        step="any"
+                                        value={editMaxRebuy}
+                                        onChange={(e) => setEditMaxRebuy(e.target.value)}
                                     />
                                 </div>
                             </div>
