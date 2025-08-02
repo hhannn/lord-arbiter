@@ -164,8 +164,10 @@ export default function DashboardContent({ children }: DashboardContentProps) {
     }, [data, monthly]);
 
     if (!dashboardData || initialLoading) {
+        console.log("loading")
         return (
             <div className="flex flex-col space-y-2 px-8 min-h-screen w-full">
+                <div>LOADING</div>
                 <Skeleton className="h-full w-full" />
                 <Skeleton className="h-full w-full" />
                 <Skeleton className="h-full w-full" />

@@ -36,7 +36,7 @@ import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { AssetsCombobox } from "@/components/assets-combobox";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Badge } from "./ui/badge";
+import { Badge } from "../ui/badge";
 
 import { MoreHorizontal, Pencil, X, LoaderCircle, Rocket, ArrowUpRight, ArrowDownRight, FileText } from "lucide-react"; // Added FileText back
 import { IconPlayerStopFilled } from "@tabler/icons-react";
@@ -44,8 +44,8 @@ import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { useUserData } from "@/store/useUserData"; // Assuming this is your user data store
 import { BotDailyChart } from "./bot-daily-pnl-chart"; // Correct import and alias
-import { Sheet, SheetContent, SheetDescription, SheetTitle } from "./ui/sheet";
-import { Card, CardDescription, CardTitle } from "./ui/card"; // Assuming these are used for the chart card
+import { Sheet, SheetContent, SheetDescription, SheetTitle } from "../ui/sheet";
+import { Card, CardDescription, CardTitle } from "../ui/card"; // Assuming these are used for the chart card
 import { useDashboardData } from "@/context/dashboardContext";
 import { Item } from "@radix-ui/react-select";
 
@@ -388,6 +388,7 @@ export function BotActionButtons({
 
     switch (status.toLowerCase()) {
         case "idle":
+        case "error":
         case "stopped":
             return (
                 <>

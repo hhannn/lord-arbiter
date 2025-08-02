@@ -39,7 +39,7 @@ import { AssetsCombobox } from "@/components/assets-combobox";
 import { toast } from "sonner";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { DataTableViewOptions } from "@/components/column-visibility";
-import { BotActionButtons } from "@/components/bot-action-button";
+import { BotActionButtons } from "@/components/table/bot-action-button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { DropdownMenuContent, DropdownMenuTrigger, DropdownMenu, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";

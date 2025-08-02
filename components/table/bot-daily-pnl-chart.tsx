@@ -19,7 +19,7 @@ import {
     ChartTooltip,
     ChartTooltipContent,
 } from "@/components/ui/chart";
-import { Skeleton } from "./ui/skeleton";
+import { Skeleton } from "../ui/skeleton";
 import { cn } from "@/lib/utils";
 
 // Define the expected type for each item in the dailyPnl array
