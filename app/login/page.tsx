@@ -61,10 +61,11 @@ export default function Home() {
         });
 
         const json = await res.json();
+        console.log(json)
 
         if (res.ok) {
             await useUserData.getState().fetchData(); // ✅ fetch info from /api/user/data
-            useUserData.getState().setUserId(json.user_id, username, json.id);
+            useUserData.getState().setUserId(json.user_id, json.username, json.uid);
 
             router.push("/dashboard");
         } else {

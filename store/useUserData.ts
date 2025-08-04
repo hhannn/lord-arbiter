@@ -49,6 +49,7 @@ export const useUserData = create<UserDataStore>()(
                     }
                 },
                 setUserId: (id, username, uid) => {
+                    localStorage.setItem("userId", id.toString());
                     localStorage.setItem("username", username);
                     localStorage.setItem("uid", uid);
                     set({
