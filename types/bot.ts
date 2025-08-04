@@ -29,3 +29,14 @@ export interface TrxEntries {
     cash_balance: string;
     transactionTime: string;
 }
+
+export interface CreateBotPayload {
+    asset: string;
+    start_size: number;
+    leverage: number;
+    multiplier: number;
+    take_profit: number;
+    rebuy: number;
+    max_rebuy: number;
+    start_type: "USDT" | "percent_equity";
+}

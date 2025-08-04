@@ -30,6 +30,7 @@ import { Separator } from "./ui/separator";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { Badge } from "./ui/badge";
 import { ArrowDownRight, ArrowUpRight } from "lucide-react";
+import { useAuthRedirect } from "@/hooks/useAuthRedirect";
 
 // ----- Types -----
 interface DashboardData {
@@ -60,6 +61,8 @@ interface DashboardContentProps {
 
 // ----- Component -----
 export default function DashboardContent({ children }: DashboardContentProps) {
+    useAuthRedirect();
+
     const { data } = useUserData();
 
     const [initialLoading, setInitialLoading] = useState(true);
@@ -68,7 +71,7 @@ export default function DashboardContent({ children }: DashboardContentProps) {
     useEffect(() => {
         const store = useUserData.getState();
         const load = async () => {
-            store.restoreFromStorage();
+            store.fetchData();
             setInitialLoading(false);
 
             if (store.apiKey && store.apiSecret) {

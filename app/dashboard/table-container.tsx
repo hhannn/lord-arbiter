@@ -9,20 +9,18 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useAuthRedirect } from "@/hooks/useAuthRedirect";
 
 export function BotTableContainer() {
-    useAuthRedirect();
-    const { data, fetchBots } = useBotStore();
+    const { data, loading } = useBotStore();
     const [initialLoading, setInitialLoading] = useState(true);
 
     useEffect(() => {
-        const load = async () => {
-            await fetchBots();
-            setInitialLoading(false); // Only after first load
-        };
-        load();
-    }, []);
-    
+        const store = useBotStore.getState();
+        store.startPolling();
+        setInitialLoading(false);
 
-    if (initialLoading) {
+        return () => store.stopPolling();
+    }, []);
+
+    if (loading && initialLoading) {
         return (
             <div className="space-y-2">
                 <Skeleton className="h-8 w-full" />
@@ -32,5 +30,5 @@ export function BotTableContainer() {
         );
     }
 
-    return <DataTable<Bot, unknown> data={data} columns={columns}/>;
+    return <DataTable<Bot, unknown> data={data} columns={columns} />;
 }

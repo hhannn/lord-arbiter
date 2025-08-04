@@ -16,13 +16,13 @@ import {
     CardHeader,
 } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
-import { ThemeProvider } from "@/components/theme-provider";
+import { useState } from "react";
 
 export default function Home() {
-    const [username, setUsername] = React.useState("");
-    const [password, setPassword] = React.useState("");
-    const [apiKey, setApiKey] = React.useState("");
-    const [apiSecret, setApiSecret] = React.useState("");
+    const [username, setUsername] = useState("");
+    const [password, setPassword] = useState("");
+    const [apiKey, setApiKey] = useState("");
+    const [apiSecret, setApiSecret] = useState("");
     const router = useRouter();
 
     const API_BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
@@ -35,18 +35,11 @@ export default function Home() {
             body: JSON.stringify({ username, password }),
         });
 
-        const json = await res.json();
-        if (json.user_id) {
-            localStorage.setItem("bybit_api_key", json.api_key);
-            localStorage.setItem("bybit_api_secret", json.api_secret);
-            localStorage.setItem("user_id", json.user_id);
-
-            localStorage.setItem("username", json.username); // 👈 add
-            localStorage.setItem("uid", json.uid);
-
-            useUserData.getState().setKeys(json.api_key, json.api_secret);
-            useUserData.getState().fetchData();
+        if (res.ok) {
+            await useUserData.getState().fetchData(); // ✅ fetch info from /api/user/data
             router.push("/dashboard");
+        } else {
+            // handle login failure
         }
     };
 
@@ -62,16 +55,11 @@ export default function Home() {
             }),
         });
 
-        const json = await res.json();
-        if (json.user_id) {
-            // auto-login after register
-            localStorage.setItem("bybit_api_key", apiKey);
-            localStorage.setItem("bybit_api_secret", apiSecret);
-            localStorage.setItem("user_id", json.user_id);
-
-            useUserData.getState().setKeys(apiKey, apiSecret);
-            useUserData.getState().fetchData();
+        if (res.ok) {
+            await useUserData.getState().fetchData(); // ✅ fetch info from /api/user/data
             router.push("/dashboard");
+        } else {
+            // handle login failure
         }
     };
 

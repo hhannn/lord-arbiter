@@ -11,9 +11,6 @@ interface UserDataStore {
     username: string | null; // 👈 add
     uid: string | null;
     fetchData: () => void;
-    setKeys: (apiKey: string, apiSecret: string) => void;
-    setUserId: (id: number, username: string, uid: string) => void;
-    restoreFromStorage: () => void;
     logout: () => void;
 }
 
@@ -30,7 +27,7 @@ export const useUserData = create<UserDataStore>((set, get) => {
             });
 
             if (!res.ok) {
-                throw new Error("Failed to fetch");
+                throw new Error("Not authenticated");
             }
 
             const json = await res.json();
@@ -57,34 +54,6 @@ export const useUserData = create<UserDataStore>((set, get) => {
         uid: null,
 
         fetchData: throttledFetch, // 👈 exposed as throttled version
-        setKeys: (apiKey, apiSecret) => {
-            localStorage.setItem("bybit_api_key", apiKey);
-            localStorage.setItem("bybit_api_secret", apiSecret);
-            set({ apiKey, apiSecret });
-        },
-        setUserId: (id, username, uid) => {
-            localStorage.setItem("user_id", String(id));
-            localStorage.setItem("username", username);
-            localStorage.setItem("uid", uid);
-            set({ userId: id, username, uid });
-        },
-        restoreFromStorage: (): void => {
-            const apiKey = localStorage.getItem("bybit_api_key");
-            const apiSecret = localStorage.getItem("bybit_api_secret");
-            const userId = localStorage.getItem("user_id");
-            const username = localStorage.getItem("username");
-            const uid = localStorage.getItem("uid");
-
-            if (apiKey && apiSecret && userId) {
-                set({
-                    apiKey,
-                    apiSecret,
-                    userId: parseInt(userId),
-                    username,
-                    uid,
-                });
-            }
-        },
         logout: () => {
             localStorage.removeItem("bybit_api_key");
             localStorage.removeItem("bybit_api_secret");

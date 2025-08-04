@@ -27,7 +27,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             disableTransitionOnChange
         >
             <SidebarProvider>
-                <div className="flex min-h-screen w-full dark:bg-[radial-gradient(#fafafa12_1px,transparent_1px)] dark:[background-size:16px_16px]">
+                <div className="flex min-h-screen w-full dark:bg-[radial-gradient(#fcfcfc10_1px,transparent_1px)] dark:[background-size:16px_16px]">
                     <AppSidebar />
                     <main className="flex-1 w-full">
                         <Image
