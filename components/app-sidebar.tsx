@@ -31,10 +31,8 @@ type AppSidebarProps = {
 
 export function AppSidebar({ collapsible = "icon" }: AppSidebarProps) {
     const { state } = useSidebar();
+    const { username, uid } = useUserData();
     const isCollapsed = state === "collapsed";
-
-    const username = localStorage.getItem("username");
-    const uid = localStorage.getItem("uid");
 
     return (
         <Sidebar collapsible={collapsible}>
