@@ -39,7 +39,7 @@ export const useBotStore = create<BotState>()(
                         `${API_BACKEND_URL}/api/user/bots`,
                         {
                             method: "POST",
-                            credentials: "include", // ✅ crucial
+                            credentials: "include",
                         }
                     );
 
@@ -59,6 +59,7 @@ export const useBotStore = create<BotState>()(
                                         `${API_BACKEND_URL}/api/bot/position`,
                                         {
                                             method: "POST",
+                                            credentials: "include",
                                             headers: {
                                                 "Content-Type":
                                                     "application/json",
