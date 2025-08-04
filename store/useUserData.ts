@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { persist } from "zustand/middleware";
+import { createJSONStorage, persist } from "zustand/middleware";
 
 interface UserDataStore {
     data: any;
@@ -89,6 +89,10 @@ export const useUserData = create<UserDataStore>()(
                 userId: state.userId,
                 username: state.username,
                 uid: state.uid,
+                storage:
+                    typeof window !== "undefined"
+                        ? createJSONStorage(() => localStorage)
+                        : undefined,
             }),
         }
     )
