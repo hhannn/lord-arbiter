@@ -16,7 +16,8 @@ import {
     CardHeader,
 } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { toast } from "sonner";
 
 export default function Home() {
     const [username, setUsername] = useState("");
@@ -27,6 +28,30 @@ export default function Home() {
 
     const API_BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
 
+    useEffect(() => {
+        const checkSession = async () => {
+            try {
+                const res = await fetch(`${API_BACKEND_URL}/api/user/data`, {
+                    method: "GET",
+                    credentials: "include", // so cookies are sent
+                });
+
+                if (res.ok) {
+                    toast.success("Logging in...");
+                    const json = await res.json();
+                    // Optional: store data if you want
+                    console.log(json)
+                    useUserData.getState().fetchData();
+                    router.replace("/dashboard"); // 👈 redirect
+                }
+            } catch (err) {
+                console.log("No active session");
+            }
+        };
+
+        checkSession();
+    }, [router]);
+
     const handleLogin = async () => {
         const res = await fetch(`${API_BACKEND_URL}/api/user/login`, {
             method: "POST",
@@ -35,8 +60,12 @@ export default function Home() {
             body: JSON.stringify({ username, password }),
         });
 
+        const json = await res.json();
+
         if (res.ok) {
             await useUserData.getState().fetchData(); // ✅ fetch info from /api/user/data
+            useUserData.getState().setUserId(json.user_id, username, json.id);
+
             router.push("/dashboard");
         } else {
             // handle login failure

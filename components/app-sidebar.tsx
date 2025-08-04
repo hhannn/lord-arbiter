@@ -33,7 +33,8 @@ export function AppSidebar({ collapsible = "icon" }: AppSidebarProps) {
     const { state } = useSidebar();
     const isCollapsed = state === "collapsed";
 
-    const { username, uid } = useUserData();
+    const username = localStorage.getItem("username");
+    const uid = localStorage.getItem("uid");
 
     return (
         <Sidebar collapsible={collapsible}>

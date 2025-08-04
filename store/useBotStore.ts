@@ -116,8 +116,6 @@ export const useBotStore = create<BotState>()(
                 get().fetchBots(); // initial call
                 pollingInterval = setInterval(() => {
                     get().fetchBots();
-                    const data = get().data;
-                    console.log(data);
                 }, 5000);
             },
 

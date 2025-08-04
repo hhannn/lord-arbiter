@@ -46,13 +46,9 @@ export function BotDetailDialog({ bot, open, onOpenChange }: BotDetailDialogProp
     // Fetch user data on mount (if not already fetched by parent or other means)
     useEffect(() => {
         const store = useUserData.getState();
-        if (store.apiKey && store.apiSecret) {
-            store.fetchData();
-            // console.log(userData.closedPnL.result)
-        } else {
-            console.warn("API Key or Secret not available. Cannot fetch initial user data.");
-            // toast.error("Please configure your API keys to fetch user data."); // Optional: show toast
-        }
+
+        store.fetchData();
+        // console.log(userData.closedPnL.result)
     }, []);
 
     // Calculate bot PnL values using useMemo to optimize

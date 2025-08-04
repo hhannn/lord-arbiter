@@ -70,21 +70,10 @@ export default function DashboardContent({ children }: DashboardContentProps) {
 
     useEffect(() => {
         const store = useUserData.getState();
-        const load = async () => {
-            store.fetchData();
-            setInitialLoading(false);
+        store.startPolling();
+        setInitialLoading(false)
 
-            if (store.apiKey && store.apiSecret) {
-                store.fetchData();
-
-                const interval = setInterval(() => {
-                    store.fetchData();
-                }, 15000);
-
-                return () => clearInterval(interval);
-            }
-        };
-        load();
+        return () => store.stopPolling();
     }, []);
 
     type Transaction = {
