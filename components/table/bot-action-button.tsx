@@ -43,7 +43,7 @@ import { IconPlayerStopFilled } from "@tabler/icons-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { useUserData } from "@/store/useUserData"; // Assuming this is your user data store
-import { BotDailyChart } from "./bot-daily-pnl-chart"; // Correct import and alias
+import { BotDailyChart } from "../charts/bot-daily-pnl-chart"; // Correct import and alias
 import { Sheet, SheetContent, SheetDescription, SheetTitle } from "../ui/sheet";
 import { Card, CardDescription, CardTitle } from "../ui/card"; // Assuming these are used for the chart card
 import { useDashboardData } from "@/context/dashboardContext";

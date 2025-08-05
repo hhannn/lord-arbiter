@@ -177,7 +177,7 @@ export const columns: ColumnDef<Bot>[] = [
     },
     {
         accessorKey: "unrealized_pnl",
-        header: "Unrealized PnL",
+        header: "Unrealized P&L",
         cell: ({ row }) => {
             const value = row.getValue("unrealized_pnl");
             return (

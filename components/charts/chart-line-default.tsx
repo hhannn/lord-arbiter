@@ -18,7 +18,7 @@ import {
     ChartTooltip,
     ChartTooltipContent,
 } from "@/components/ui/chart";
-import { Skeleton } from "./ui/skeleton";
+import { Skeleton } from "../ui/skeleton";
 import { cn } from "@/lib/utils";
 
 interface ChartLineDefaultProps {
@@ -70,8 +70,8 @@ export function ChartLineDefault({ className, data, initialLoading, monthly }: C
     }, [data]);
 
     const chartConfig: ChartConfig = {
-        cumulativePnl: { label: "Cum. PnL" },
-        pnl: { label: "Daily PnL" }
+        cumulativePnl: { label: "Cum. P&L" },
+        pnl: { label: "Daily P&L" }
     };
 
     const CustomTooltipContent = ({ active, payload, label }: any) => {
@@ -84,7 +84,7 @@ export function ChartLineDefault({ className, data, initialLoading, monthly }: C
                     {payload.map((entry: any, index: number) => (
                         <>
                             <div className="flex gap-4 items-center">
-                                <p className="text-muted-foreground">Cum. PnL</p>
+                                <p className="text-muted-foreground">Cum. P&L</p>
                                 <p className="text-sm font-mono text-end">{`${entry.value.toFixed(2)} USDT`}</p>
                             </div>
                         </>
@@ -116,7 +116,7 @@ export function ChartLineDefault({ className, data, initialLoading, monthly }: C
     return (
         <Card className={cn("", className)}>
             <CardHeader>
-                <CardTitle>Cumulative PnL</CardTitle>
+                <CardTitle>Cumulative P&L</CardTitle>
                 <CardDescription>
                     {
                         monthly ? "This month" : "Last 7 days"

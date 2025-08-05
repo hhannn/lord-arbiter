@@ -1,6 +1,4 @@
 "use client";
-import { useEffect } from "react";
-import { useUserData } from "@/store/useUserData";
 import { usePathname } from 'next/navigation'
 import { useTheme } from "next-themes";
 import { SidebarTrigger, useSidebar } from "@/components/ui/sidebar";
@@ -9,7 +7,6 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { Sun, Moon } from "lucide-react";
 
 export function AppNavbar() {
-    const { data, loading, fetchData } = useUserData();
     const { setTheme } = useTheme();
     const {
         state,
@@ -21,19 +18,8 @@ export function AppNavbar() {
         toggleSidebar,
     } = useSidebar()
 
-    useEffect(() => {
-        fetchData();
-        const interval = setInterval(() => {
-            if (!loading) fetchData();
-        }, 10000);
-        return () => clearInterval(interval);
-    }, []);
-
     const pathname = usePathname();
-    const pageName = pathname.split("/").pop();
-
-
-    const userData = data?.userData?.result;
+    const pageName = pathname.split("/").pop()?.replace("-", " ");
 
     return (
         <div className={open ? "w-[calc(100%-16rem)]" : "w-[calc(100%-3rem)]"}>
@@ -41,7 +27,7 @@ export function AppNavbar() {
                 <li className="flex items-center justify-between gap-2 min-w-0">
                     <SidebarTrigger />
                     <span className="h-[16px] w-[1px] bg-muted me-1"></span>
-                    <span className="font-medium truncate capitalize">{pageName}</span>
+                    <span className="font-medium truncate first-letter:uppercase">{pageName}</span>
                 </li>
                 <li>
                     <DropdownMenu>

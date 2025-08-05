@@ -7,7 +7,7 @@ import { useEffect, useMemo } from "react";
 import { Bot } from "@/types/bot";
 import { useUserData } from "@/store/useUserData";
 import { useDashboardData } from "@/context/dashboardContext";
-import { BotDailyChart } from "../table/bot-daily-pnl-chart";
+import { BotDailyChart } from "../charts/bot-daily-pnl-chart";
 
 interface BotDetailDialogProps {
     bot: Bot;
@@ -272,15 +272,15 @@ export function BotDetailDialog({ bot, open, onOpenChange }: BotDetailDialogProp
                     </div>
                     <Separator className="col-span-full" />
                     <div className="flex flex-col gap-2">
-                        <span className="text-sm text-muted-foreground font-medium">Total bot PnL</span>
+                        <span className="text-sm text-muted-foreground font-medium">Total bot P&L</span>
                         <span>{`${botClosedPnL} USDT`}</span>
                     </div>
                     <div className="flex flex-col gap-2">
-                        <span className="text-sm text-muted-foreground font-medium">Average PnL</span>
+                        <span className="text-sm text-muted-foreground font-medium">Average P&L</span>
                         <span>{`${botAveragePnL} USDT`}</span>
                     </div>
                     <Card className="col-span-full px-4 gap-2">
-                        <CardTitle>Daily bot PnL</CardTitle>
+                        <CardTitle>Daily bot P&L</CardTitle>
                         <CardDescription>Last 7 days</CardDescription>
                         <BotDailyChart className="max-h-[100px]" dailyPnl={dailyPnlChartData} />
                     </Card>

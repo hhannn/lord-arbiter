@@ -20,9 +20,9 @@ import {
     ChartTooltip,
     ChartTooltipContent,
 } from "@/components/ui/chart";
-import { Skeleton } from "./ui/skeleton";
+import { Skeleton } from "../ui/skeleton";
 import { cn } from "@/lib/utils";
-import { Tabs, TabsList, TabsTrigger } from "./ui/tabs";
+import { Tabs, TabsList, TabsTrigger } from "../ui/tabs";
 
 interface ChartBarNegativeProps {
     className?: string;
@@ -54,7 +54,7 @@ export function ChartBarNegative({ className, data, initialLoading, monthly }: C
                         <>
                             <p className="text-xs font-medium text-muted-foreground">{dataPoint.date}</p>
                             <div className="flex gap-4 items-center">
-                                <p className="text-muted-foreground">PnL</p>
+                                <p className="text-muted-foreground">P&L</p>
                                 <p className="text-sm font-mono text-end">{`${entry.value.toFixed(2)} USDT`}</p>
                             </div>
                         </>
@@ -102,7 +102,7 @@ export function ChartBarNegative({ className, data, initialLoading, monthly }: C
         <Card className={cn("", className)}>
             <CardHeader>
                 <CardTitle>
-                    Daily PnL
+                    Daily P&L
                 </CardTitle>
                 <CardDescription>{monthly ? "This month" : "Last 7 days"}</CardDescription>
             </CardHeader>

@@ -1,6 +1,7 @@
 import { ThemeProvider } from "@/components/theme-provider";
 
 import { SpeedInsights } from "@vercel/speed-insights/next"
+import dynamic from "next/dynamic";
 
 export const metadata = {
     title: "Lord Arbiter",
@@ -12,13 +13,18 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         <html>
             <head />
             <body>
+                <video autoPlay muted loop playsInline className="fixed -z-20">
+                    <source
+                        src="https://hw-media-cdn-mingchao.kurogame.com/akiwebsite/website2.0/video/1734710400000/w9ijnl9qgqh70nc899-1734783150908.mp4"
+                    />
+                </video>
                 <ThemeProvider
                     attribute="class"
                     defaultTheme="dark"
                     enableSystem
                     disableTransitionOnChange
                 >
-                    <div className="dark:bg-[radial-gradient(#fafafa12_1px,transparent_1px)] dark:[background-size:16px_16px] min-h-screen">
+                    <div className="min-h-screen">
                         {children}
                     </div>
                 </ThemeProvider>

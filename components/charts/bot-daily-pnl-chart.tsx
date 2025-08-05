@@ -39,7 +39,7 @@ export function BotDailyChart({ className, dailyPnl = [] }: ChartBarNegativeProp
 
     const chartConfig: ChartConfig = {
         pnl: {
-            label: "PnL",
+            label: "P&L",
             color: "var(--chart-1)", // Default color, will be overridden by Cell fill
         },
         roi: {
@@ -79,42 +79,11 @@ export function BotDailyChart({ className, dailyPnl = [] }: ChartBarNegativeProp
         return null;
     };
 
-    // Use the isLoading prop to show skeleton loading
-    // if (isLoading) {
-    //     return (
-    //         <Card className={cn("flex flex-col", className)}>
-    //             <CardHeader>
-    //                 <Skeleton className="h-6 w-1/2 mb-2" />
-    //                 <Skeleton className="h-4 w-1/3" />
-    //             </CardHeader>
-    //             <CardContent className="h-full flex-grow">
-    //                 <Skeleton className="h-[150px] w-full" />
-    //             </CardContent>
-    //             <CardFooter className="flex-col items-start gap-2 text-sm">
-    //                 <Skeleton className="h-4 w-2/3" />
-    //                 <Skeleton className="h-4 w-1/2" />
-    //             </CardFooter>
-    //         </Card>
-    //     );
-    // }
-
-    // Check if dailyPnl is empty after being passed (e.g., if parent had no data)
     if (dailyPnl.length === 0) {
         return (
-            <Card className={cn("", className)}>
-                <CardHeader>
-                    <CardTitle>Daily PnL</CardTitle>
-                    <CardDescription>Last 7 days</CardDescription>
-                </CardHeader>
-                <CardContent className="h-full flex items-center justify-center text-muted-foreground">
-                    No PnL data available for the last 7 days.
-                </CardContent>
-                <CardFooter className="flex-col items-start gap-2 text-sm">
-                    <div className="text-muted-foreground leading-none">
-                        Showing total PnL for the last 7 days (UTC+7).
-                    </div>
-                </CardFooter>
-            </Card>
+            <div>
+                No P&L data available.
+            </div>
         );
     }
 

@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useUserData } from "@/store/useUserData";
 
-import { Home, Bot, ChevronsUpDown, ChevronUp, Calculator } from "lucide-react";
+import { Home, Bot, ChevronsUpDown, ChevronUp, Calculator, ChartArea, ChartLine } from "lucide-react";
 import {
     Sidebar,
     SidebarContent,
@@ -21,6 +21,7 @@ import Image from "next/image";
 
 const items = [
     { title: "Home", url: "/dashboard", icon: Home },
+    { title: "Trading performance", url: "/dashboard/trading-performance", icon: ChartLine },
     { title: "Bot", url: "#", icon: Bot },
     { title: "Calculator", url: "/dashboard/calculator", icon: Calculator }
 ];

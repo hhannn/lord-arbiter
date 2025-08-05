@@ -3,7 +3,6 @@
 "use client";
 
 import React, {
-    ReactElement,
     ReactNode,
     useEffect,
     useMemo,
@@ -11,8 +10,8 @@ import React, {
 } from "react";
 import { useUserData } from "@/store/useUserData";
 
-import { ChartBarNegative } from "@/components/chart-bar-negative";
-import { ChartLineDefault } from "@/components/chart-line-default";
+import { ChartBarNegative } from "@/components/charts/chart-bar-negative";
+import { ChartLineDefault } from "@/components/charts/chart-line-default";
 import {
     Card,
     CardHeader,
@@ -26,11 +25,8 @@ import { Tabs, TabsList, TabsTrigger } from "./ui/tabs";
 import { DashboardContext } from "@/context/dashboardContext";
 import { Skeleton } from "./ui/skeleton";
 import { ScrollArea } from "./ui/scroll-area";
-import { Separator } from "./ui/separator";
-import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
-import { Badge } from "./ui/badge";
-import { ArrowDownRight, ArrowUpRight } from "lucide-react";
 import { useAuthRedirect } from "@/hooks/useAuthRedirect";
+import { PnlCardItem } from "./pnl-card-item";
 
 // ----- Types -----
 interface DashboardData {
@@ -217,14 +213,14 @@ export default function DashboardContent({ children }: DashboardContentProps) {
                                         {dashboardData.unrealizedPnl.toFixed(2)} USDT
                                     </div>
                                     <p className="text-sm text-muted-foreground">
-                                        Total unrealized PnL
+                                        Total unrealized P&L
                                     </p>
                                 </CardFooter>
                             </Card>
 
                             <Card className="flex-1 justify-between">
                                 <CardHeader>
-                                    <CardTitle className="text-sm text-muted-foreground">Total PnL</CardTitle>
+                                    <CardTitle className="text-sm text-muted-foreground">Total P&L</CardTitle>
                                     <CardTitle className="flex items-end gap-2">
                                         <span className="text-2xl md:text-3xl">
                                             {data && dashboardData
@@ -236,8 +232,8 @@ export default function DashboardContent({ children }: DashboardContentProps) {
                                 </CardHeader>
                                 <CardFooter className="text-sm text-muted-foreground">
                                     {monthly
-                                        ? "Total closed PnL this month."
-                                        : "Total closed PnL this week."}
+                                        ? "Total closed P&L this month."
+                                        : "Total closed P&L this week."}
                                 </CardFooter>
                             </Card>
                             <Card className="flex-1">
@@ -283,7 +279,7 @@ export default function DashboardContent({ children }: DashboardContentProps) {
                     <div className="col-span-4 flex flex-col gap-4">
                         <Card className="flex-1">
                             <CardHeader>
-                                <CardTitle className="text-2xl">PnL list</CardTitle>
+                                <CardTitle className="text-xl">P&L list</CardTitle>
                             </CardHeader>
                             <CardContent className="px-4">
                                 <ScrollArea className="h-[380px] rounded-md">
@@ -312,54 +308,20 @@ export default function DashboardContent({ children }: DashboardContentProps) {
                                                 second: "2-digit",
                                             });
 
+                                            const itemData = {
+                                                symbol: symbol,
+                                                pair: item.symbol,
+                                                side: item.side,
+                                                createdDate: createdDate,
+                                                updatedDate: updatedDate,
+                                                duration: duration,
+                                                date: formattedDate,
+                                            }
+
                                             return (
-                                                <>
-                                                    <li className="flex flex-col gap-2 justify-between py-4 bg-background rounded-md border">
-                                                        <div className="flex justify-between px-4">
-                                                            <div className="flex gap-2 items-center">
-                                                                <Avatar className="size-4">
-                                                                    <AvatarImage src={`https://app.hyperliquid.xyz/coins/${symbol}.svg`} className="" />
-                                                                    <AvatarFallback>{item.symbol.slice(0, 2)}</AvatarFallback>
-                                                                </Avatar>
-                                                                <span className="">{item.symbol}</span>
-                                                                <Badge variant="outline">
-                                                                    {item.side === "Sell" ?
-                                                                        <>
-                                                                            <ArrowUpRight className="text-green-400" /> Close long
-                                                                        </>
-                                                                        :
-                                                                        <>
-                                                                            <ArrowDownRight className="text-destructive" /> Close short
-                                                                        </>
-                                                                    }
-                                                                </Badge>
-                                                            </div>
-                                                            <span className={`font-medium text-${item.closedPnl > 0 ? "green-400" : "destructive"}`}>
-                                                                {item.closedPnl > 0 ? `+${Number(item.closedPnl).toFixed(4)}` : Number(item.closedPnl).toFixed(4)}
-                                                            </span>
-                                                        </div>
-                                                        <Separator />
-                                                        <div className="grid grid-cols-1 xl:grid-cols-2 2xl:grid-cols-3 text-sm text-muted-foreground px-4 space-y-2">
-                                                            <div>
-                                                                <div className="font-medium">Entry price</div>
-                                                                <div className="text-foreground text-base">{Number(item.avgEntryPrice).toFixed(4)}</div>
-                                                            </div>
-                                                            <div>
-                                                                <div className="font-medium">Value</div>
-                                                                <div className="text-foreground text-base">{Number(item.cumEntryValue).toFixed(2)} USDT</div>
-                                                            </div>
-                                                            <div>
-                                                                <div className="font-medium">Trade time</div>
-                                                                <div className="text-foreground text-base">{String(formattedDate)}</div>
-                                                            </div>
-                                                            <div>
-                                                                <div className="font-medium">Trade duration</div>
-                                                                <div className="text-foreground text-base">{String(duration.hour)}h {String(duration.minute)}m</div>
-                                                            </div>
-                                                        </div>
-                                                    </li>
-                                                </>
-                                            );
+                                                <PnlCardItem data={itemData} item={item}/>
+                                            )
+
                                         })}
                                     </ul>
                                 </ScrollArea>

@@ -1,0 +1,46 @@
+"use client"
+
+import { useEffect } from "react";
+import { ClosedPnl, columns } from "./columns";
+import { DataTable } from "./data-table";
+
+import { useBotStore } from "@/store/useBotStore";
+import { useUserData } from "@/store/useUserData";
+
+function renameKeys(obj: Record<string, any>, keyMap: Record<string, string>) {
+    return Object.fromEntries(
+        Object.entries(obj).map(([key, value]) => [
+            keyMap[key] || key,
+            value
+        ])
+    );
+}
+
+export function TableContainer() {
+    const { data, startPolling, stopPolling } = useUserData();
+    let closedPnl = data.closedPnL?.result.list;
+
+    closedPnl = closedPnl.map((item: any) =>
+        renameKeys(item, { symbol: "asset" })
+    );
+
+    useEffect(() => {
+        startPolling();
+
+        console.log(data.closedPnL)
+
+        const interval = setInterval(() => {
+            console.log(closedPnl)
+        }, 5000);
+
+        return () => {
+            stopPolling();
+            clearInterval(interval);
+        }
+    }, []);
+
+    return (
+        <DataTable data={closedPnl} columns={columns} />
+        // <div></div>
+    )
+}
