@@ -1,10 +1,8 @@
 "use client"
 
 import { useEffect } from "react";
-import { ClosedPnl, columns } from "./columns";
+import { columns } from "./columns";
 import { DataTable } from "./data-table";
-
-import { useBotStore } from "@/store/useBotStore";
 import { useUserData } from "@/store/useUserData";
 
 function renameKeys(obj: Record<string, any>, keyMap: Record<string, string>) {
