@@ -27,16 +27,7 @@ export function TableContainer() {
     useEffect(() => {
         startPolling();
 
-        console.log(data.closedPnL)
-
-        const interval = setInterval(() => {
-            console.log(closedPnl)
-        }, 5000);
-
-        return () => {
-            stopPolling();
-            clearInterval(interval);
-        }
+        return () => stopPolling();
     }, []);
 
     return (
