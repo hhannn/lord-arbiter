@@ -16,7 +16,7 @@ function renameKeys(obj: Record<string, any>, keyMap: Record<string, string>) {
 
 export function TableContainer() {
     const { data, startPolling, stopPolling } = useUserData();
-    let closedPnl = data.closedPnL?.result.list;
+    let closedPnl = data?.closedPnL?.result.list ?? [];
 
     closedPnl = closedPnl.map((item: any) =>
         renameKeys(item, { symbol: "asset" })
