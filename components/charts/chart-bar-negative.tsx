@@ -97,6 +97,22 @@ export function ChartBarNegative({ className, data, initialLoading, monthly }: C
             day: '2-digit'
         }).format(date);
     }
+    
+    if (data.length === 0) {
+        return (
+            <Card className={cn("", className)}>
+                <CardHeader>
+                    <CardTitle>
+                        Daily P&L
+                    </CardTitle>
+                    <CardDescription>{monthly ? "This month" : "Last 7 days"}</CardDescription>
+                </CardHeader>
+                <CardContent className="h-full text-sm flex items-center justify-center">
+                    <div>No data available.</div>
+                </CardContent>
+            </Card>
+        )
+    }
 
     return (
         <Card className={cn("", className)}>

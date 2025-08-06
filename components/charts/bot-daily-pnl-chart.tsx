@@ -79,14 +79,6 @@ export function BotDailyChart({ className, dailyPnl = [] }: ChartBarNegativeProp
         return null;
     };
 
-    if (dailyPnl.length === 0) {
-        return (
-            <div>
-                No P&L data available.
-            </div>
-        );
-    }
-
     function formatDate(dateString: string): string {
         const [day, month] = dateString.split("-").map(Number);
         const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun",
@@ -94,6 +86,21 @@ export function BotDailyChart({ className, dailyPnl = [] }: ChartBarNegativeProp
         const monthName = months[month - 1] || "???";
 
         return `${monthName} ${String(day).padStart(2, "0")}`;
+    }
+
+    if (dailyPnl.length === 0) {
+        return (
+            <Card className={cn("", className)}>
+                <CardHeader>
+                    <CardTitle>
+                        Daily P&L
+                    </CardTitle>
+                </CardHeader>
+                <CardContent className="h-full text-sm flex items-center justify-center">
+                    <div>No data available.</div>
+                </CardContent>
+            </Card>
+        )
     }
 
     return (

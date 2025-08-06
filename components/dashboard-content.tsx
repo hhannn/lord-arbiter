@@ -123,10 +123,10 @@ export default function DashboardContent({ children }: DashboardContentProps) {
             const diffs: any[] = []
             data?.closedPnL?.result.list.forEach((item: any) => {
                 const diff = new Date(Number(item.updatedTime)).getTime() - new Date(Number(item.createdTime)).getTime();
-    
+
                 diffs.push(diff)
             })
-    
+
             const totalDiff = diffs?.reduce((acc, val) => acc + val)
             const diffMs = Number(totalDiff) / Number(diffs.length)
             const diffMinutes = Math.floor(diffMs / 1000 / 60);
@@ -210,9 +210,9 @@ export default function DashboardContent({ children }: DashboardContentProps) {
                                 </CardHeader>
                                 <CardFooter className="flex flex-col items-start">
                                     <div
-                                        className={`text-sm ${dashboardData && dashboardData.unrealizedPnl >= 0
-                                            ? "text-green-600 dark:text-green-400"
-                                            : "text-red-400"
+                                        className={`text-sm ${dashboardData && dashboardData.unrealizedPnl >= 0 ?
+                                            "text-green-600 dark:text-green-400" :
+                                            "text-red-400"
                                             }`}
                                     >
                                         {dashboardData.unrealizedPnl.toFixed(2)} USDT
@@ -228,9 +228,7 @@ export default function DashboardContent({ children }: DashboardContentProps) {
                                     <CardTitle className="text-sm text-muted-foreground">Total P&L</CardTitle>
                                     <CardTitle className="flex items-end gap-2">
                                         <span className="text-2xl md:text-3xl">
-                                            {data && dashboardData
-                                                ? dashboardData.totalPnl.toFixed(2)
-                                                : "Loading..."}
+                                            {data && dashboardData ? dashboardData.totalPnl.toFixed(2) : "Loading..."}
                                         </span>
                                         <span className="text-sm text-muted-foreground">USDT</span>
                                     </CardTitle>
@@ -241,7 +239,7 @@ export default function DashboardContent({ children }: DashboardContentProps) {
                                         : "Total closed P&L this week."}
                                 </CardFooter>
                             </Card>
-                            <Card className="flex-1">
+                            <Card className="flex-1 justify-between">
                                 <CardHeader className="gap-2">
                                     <CardTitle className="text-sm text-muted-foreground">Avg. trade duration</CardTitle>
                                     <CardTitle className="font-medium text-xl md:text-3xl">
@@ -265,7 +263,7 @@ export default function DashboardContent({ children }: DashboardContentProps) {
                                 </CardFooter>
                             </Card>
                         </div>
-                        <div className="grid grid-cols-2 gap-4">
+                        <div className="flex-2/3 grid grid-cols-2 gap-4">
                             <ChartBarNegative
                                 data={dashboardData?.dailyPnl || []}
                                 initialLoading={initialLoading}
@@ -324,7 +322,7 @@ export default function DashboardContent({ children }: DashboardContentProps) {
                                             }
 
                                             return (
-                                                <PnlCardItem data={itemData} item={item}/>
+                                                <PnlCardItem data={itemData} item={item} />
                                             )
 
                                         })}
