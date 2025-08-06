@@ -13,6 +13,8 @@ import { ThemeProvider } from "@/components/theme-provider";
 
 import { SpeedInsights } from "@vercel/speed-insights/next"
 import { DotPattern } from "@/components/magicui/dot-pattern";
+import { EtheralShadow } from "@/components/ui/shadcn-io/etheral-shadow";
+import { Shadow } from "@/components/shadow";
 
 export const metadata = {
     title: "Lord Arbiter",
@@ -43,6 +45,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                         <div className="w-full h-[57px] bg-background py-2 px-4 gap-4 border-b border-border fixed top-0 z-10 flex items-center">
                             <AppNavbar />
                         </div>
+                        <Shadow />
                         {children}
                     </main>
                     <Toaster richColors position="top-center" />

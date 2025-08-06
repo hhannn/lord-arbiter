@@ -1,9 +1,9 @@
 "use client";
 
-import { useState, useEffect } from "react";
 import { useUserData } from "@/store/useUserData";
+import { useRouter } from "next/navigation";
 
-import { Home, Bot, ChevronsUpDown, ChevronUp, Calculator, ChartArea, ChartLine } from "lucide-react";
+import { Home, Bot, ChevronsUpDown, ChevronUp, Calculator, ChartArea, ChartLine, Settings, LogOut } from "lucide-react";
 import {
     Sidebar,
     SidebarContent,
@@ -18,6 +18,7 @@ import {
 } from "@/components/ui/sidebar";
 import { Avatar, AvatarImage, AvatarFallback } from "./ui/avatar";
 import Image from "next/image";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "./ui/dropdown-menu";
 
 const items = [
     { title: "Home", url: "/dashboard", icon: Home },
@@ -31,8 +32,9 @@ type AppSidebarProps = {
 };
 
 export function AppSidebar({ collapsible = "icon" }: AppSidebarProps) {
+    const router = useRouter();
     const { state } = useSidebar();
-    const { username, uid } = useUserData();
+    const { username, uid, logout } = useUserData();
     const isCollapsed = state === "collapsed";
 
     return (
@@ -85,29 +87,49 @@ export function AppSidebar({ collapsible = "icon" }: AppSidebarProps) {
                     </SidebarGroupContent>
                 </SidebarGroup>
             </SidebarContent>
-            <SidebarFooter className={`w-full flex flex-row items-center justify-between gap-4 pb-8 ${isCollapsed ? "px-2" : "px-4"}`}>
-                <div className={`flex items-center gap-4`}>
-                    <Avatar className="w-8 h-8 aspect-square object-contain flex-shrink-0 rounded-sm">
-                        <AvatarImage
-                            src={
-                                "https://oyster.ignimgs.com/mediawiki/apis.ign.com/wuthering-waves/3/30/Rover-havoc-male-icon.png"
-                            }
-                            alt="MN"
-                        />
-                        <AvatarFallback>MN</AvatarFallback>
-                    </Avatar>
-                    {!isCollapsed && (
-                        <div className="flex flex-col gap-0 overflow-hidden">
-                            <span className="font-medium truncate">
-                                {username || "Unknown User"}
-                            </span>
-                            <span className="text-xs text-muted-foreground truncate">
-                                UID: {uid || "N/A"}
-                            </span>
+            <SidebarFooter className="w-full pb-8 px-2">
+                <DropdownMenu>
+                    <DropdownMenuTrigger>
+                        <div className="w-full flex items-center justify-between gap-4 p-2 hover:bg-accent cursor-pointer rounded-md">
+                            <div className={`flex items-center gap-4`}>
+                                <Avatar className="w-8 h-8 aspect-square object-contain flex-shrink-0 rounded-sm">
+                                    <AvatarImage
+                                        src={
+                                            "https://oyster.ignimgs.com/mediawiki/apis.ign.com/wuthering-waves/3/30/Rover-havoc-male-icon.png"
+                                        }
+                                        alt="MN"
+                                    />
+                                    <AvatarFallback>MN</AvatarFallback>
+                                </Avatar>
+                                {!isCollapsed && (
+                                    <div className="flex flex-col items-stretch gap-0 overflow-hidden">
+                                        <span className="font-medium truncate text-start">
+                                            {username || "Unknown User"}
+                                        </span>
+                                        <span className="text-xs text-muted-foreground truncate">
+                                            UID: {uid || "N/A"}
+                                        </span>
+                                    </div>
+                                )}
+                            </div>
+                            <ChevronUp className="size-4" />
                         </div>
-                    )}
-                </div>
-                <ChevronUp className="size-4" />
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent className="min-w-60">
+                        <DropdownMenuItem>
+                            <Settings />
+                            Settings
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem onClick={() => {
+                            logout();
+                            router.push("/login");
+                        }}>
+                            <LogOut className="text-destructive" />
+                            Logout
+                        </DropdownMenuItem>
+                    </DropdownMenuContent>
+                </DropdownMenu>
             </SidebarFooter>
         </Sidebar>
     );

@@ -1,6 +1,6 @@
+import { Shadow } from "@/components/shadow";
 import { ThemeProvider } from "@/components/theme-provider";
-
-import { SpeedInsights } from "@vercel/speed-insights/next"
+import { EtheralShadow } from "@/components/ui/shadcn-io/etheral-shadow";
 import dynamic from "next/dynamic";
 
 export const metadata = {
@@ -13,17 +13,18 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         <html>
             <head />
             <body>
-                <video autoPlay muted loop playsInline className="fixed -z-20">
+                {/* <video autoPlay muted loop playsInline className="fixed -z-20">
                     <source
                         src="https://hw-media-cdn-mingchao.kurogame.com/akiwebsite/website2.0/video/1734710400000/w9ijnl9qgqh70nc899-1734783150908.mp4"
                     />
-                </video>
+                </video> */}
                 <ThemeProvider
                     attribute="class"
                     defaultTheme="dark"
                     enableSystem
                     disableTransitionOnChange
                 >
+                    <Shadow color="rgba(125, 125, 125, 1)"/>
                     <div className="min-h-screen">
                         {children}
                     </div>

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Noto_Sans, Noto_Sans_Mono } from "next/font/google";
 import "./globals.css";
+import { Toaster } from "@/components/ui/sonner";
 
 const notoSans = Noto_Sans({
   variable: "--font-noto-sans",
@@ -27,10 +28,11 @@ export default function RootLayout({
       <body
         className={`${notoSans.variable} ${notoMono.variable} antialiased`}
       >
-        <video autoPlay loop muted playsInline className="mix-blend-lighten fixed bottom-0 -z-10 opacity-40">
+        {/* <video autoPlay loop muted playsInline className="mix-blend-lighten fixed bottom-0 -z-10 opacity-40">
           <source src="https://wutheringwaves.kurogames.com/static4.0/assets/bg-wave-4a496675.mp4" />
-        </video>
+        </video> */}
         {children}
+        <Toaster position="top-center"/>
       </body>
     </html>
   );

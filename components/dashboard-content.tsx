@@ -171,7 +171,7 @@ export default function DashboardContent({ children }: DashboardContentProps) {
                 <div className="flex flex-col md:flex-row">
                     <div className="flex flex-col items-center sm:items-start">
                         <h1 className="text-3xl font-bold mb-2">Welcome to Lord Arbiter</h1>
-                        <p className="text-neutral-600">
+                        <p className="">
                             Weeping may endure for a night, but joy comes in the morning.
                         </p>
                     </div>

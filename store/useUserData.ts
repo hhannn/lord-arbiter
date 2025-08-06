@@ -1,3 +1,4 @@
+import { toast } from "sonner";
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
 
@@ -15,6 +16,7 @@ interface UserDataStore {
 }
 
 let pollingInterval: NodeJS.Timeout | null = null;
+
 
 export const useUserData = create<UserDataStore>()(
     persist(
@@ -55,7 +57,19 @@ export const useUserData = create<UserDataStore>()(
                         uid,
                     });
                 },
-                logout: () => {
+                logout: async () => {
+                    try {
+                        await fetch(`${API_BACKEND_URL}/api/user/logout`, {
+                            method: "POST",
+                            credentials: "include",
+                        });
+                    } catch (e) {
+                        toast.error("Failed to logout", {
+                            description: "Unexpected error occurred",
+                        });
+                        console.error("❌ Error logging out", e);
+                    }
+
                     set({
                         data: null,
                         loading: false,
