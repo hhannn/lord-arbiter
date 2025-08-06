@@ -86,7 +86,7 @@ export default function DashboardContent({ children }: DashboardContentProps) {
         const days = range === "weekly" ? 7 : 30;
         const fromTime = now - days * 24 * 60 * 60 * 1000;
 
-        return transactions.reduce((sum, trx) => {
+        return transactions?.reduce((sum, trx) => {
             const timestamp = Number(trx.transactionTime) + offsetMs;
             if (timestamp >= fromTime && timestamp <= now) {
                 return sum + parseFloat(trx.change);
@@ -115,25 +115,27 @@ export default function DashboardContent({ children }: DashboardContentProps) {
                 .map(([date, pnl]) => ({ date, pnl }));
         };
 
-        const dailyPnl = calculateDailyPnl(data.transactionLogs || []);
-        const totalPnl = calculateTotalPnl(data.transactionLogs || [], monthly ? "monthly" : "weekly");
+        const dailyPnl = calculateDailyPnl(data?.transactionLogs || []);
+        const totalPnl = calculateTotalPnl(data?.transactionLogs || [], monthly ? "monthly" : "weekly");
 
         // Average trade time
-        const diffs: any[] = []
-        data.closedPnL?.result.list.forEach((item: any) => {
-            const diff = new Date(Number(item.updatedTime)).getTime() - new Date(Number(item.createdTime)).getTime();
-
-            diffs.push(diff)
-        })
-
-        const totalDiff = diffs.reduce((acc, val) => acc + val)
-        const diffMs = Number(totalDiff) / Number(diffs.length)
-        const diffMinutes = Math.floor(diffMs / 1000 / 60);
-        const hours = Math.floor(diffMinutes / 60);
-        const minutes = diffMinutes % 60;
-        const averageTradeDuration = {
-            hour: Number(hours),
-            minute: Number(minutes)
+        if (!data) {
+            const diffs: any[] = []
+            data?.closedPnL?.result.list.forEach((item: any) => {
+                const diff = new Date(Number(item.updatedTime)).getTime() - new Date(Number(item.createdTime)).getTime();
+    
+                diffs.push(diff)
+            })
+    
+            const totalDiff = diffs?.reduce((acc, val) => acc + val)
+            const diffMs = Number(totalDiff) / Number(diffs.length)
+            const diffMinutes = Math.floor(diffMs / 1000 / 60);
+            const hours = Math.floor(diffMinutes / 60);
+            const minutes = diffMinutes % 60;
+            const averageTradeDuration = {
+                hour: Number(hours),
+                minute: Number(minutes)
+            }
         }
         // `${hours}h ${minutes}m` //
 
@@ -145,7 +147,10 @@ export default function DashboardContent({ children }: DashboardContentProps) {
                 : "",
             dailyPnl,
             totalPnl,
-            averageTradeDuration,
+            averageTradeDuration: {
+                hour: 0,
+                minute: 0
+            },
             totalClosedOrders: data.closedPnL?.result.list.length,
             transactionLog: data.transactionLogs || [],
         };
