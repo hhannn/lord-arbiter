@@ -119,20 +119,26 @@ export default function DashboardContent({ children }: DashboardContentProps) {
         const totalPnl = calculateTotalPnl(data?.transactionLogs || [], monthly ? "monthly" : "weekly");
 
         // Average trade time
-        if (!data) {
-            const diffs: any[] = []
-            data?.closedPnL?.result.list.forEach((item: any) => {
-                const diff = new Date(Number(item.updatedTime)).getTime() - new Date(Number(item.createdTime)).getTime();
 
-                diffs.push(diff)
-            })
+        const diffs: any[] = []
+        data?.closedPnL?.result.list.forEach((item: any) => {
+            const diff = new Date(Number(item.updatedTime)).getTime() - new Date(Number(item.createdTime)).getTime();
 
-            const totalDiff = diffs?.reduce((acc, val) => acc + val)
+            diffs.push(diff)
+        })
+
+        let averageTradeDuration = {
+            hour: 0,
+            minute: 0
+        }
+        
+        if (diffs.length > 0) {
+            const totalDiff = diffs.reduce((acc, val) => acc + val)
             const diffMs = Number(totalDiff) / Number(diffs.length)
             const diffMinutes = Math.floor(diffMs / 1000 / 60);
             const hours = Math.floor(diffMinutes / 60);
             const minutes = diffMinutes % 60;
-            const averageTradeDuration = {
+            averageTradeDuration = {
                 hour: Number(hours),
                 minute: Number(minutes)
             }
@@ -147,10 +153,7 @@ export default function DashboardContent({ children }: DashboardContentProps) {
                 : "",
             dailyPnl,
             totalPnl,
-            averageTradeDuration: {
-                hour: 0,
-                minute: 0
-            },
+            averageTradeDuration,
             totalClosedOrders: data.closedPnL?.result.list.length,
             transactionLog: data.transactionLogs || [],
         };

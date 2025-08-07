@@ -22,15 +22,18 @@ import {
 } from "@/components/ui/popover";
 
 interface AssetsComboboxProps {
-    onSelect?: (value: string) => void;
+    value?: string;
+    onChange?: (value: string) => void;
+    onBlur?: () => void;
+    error?: string;
     initialValue?: string;
 }
 
-export function AssetsCombobox({ onSelect, initialValue }: AssetsComboboxProps) {
+export function AssetsCombobox({ value, onChange, onBlur, error, initialValue }: AssetsComboboxProps) {
     const [symbols, setSymbols] = useState<string[]>([]);
     const [loading, setLoading] = useState(true);
 
-    const [value, setValue] = useState(initialValue || "");
+    const [storeValue, setStoreValue] = useState(initialValue || "");
     const [open, setOpen] = useState(false);
 
     useEffect(() => {
@@ -59,14 +62,16 @@ export function AssetsCombobox({ onSelect, initialValue }: AssetsComboboxProps) 
         <Popover open={open} onOpenChange={setOpen}>
             <PopoverTrigger className="w-full">
                 <Button
+                    type="button"
                     variant="outline"
                     role="combobox"
                     aria-expanded={open}
                     className="justify-between w-full"
                 >
-                    {value
-                        ? symbols.find((symbol) => symbol === value)
-                        : "Select asset"}
+                    {value ? symbols.find((symbol) => symbol === value) :
+                        initialValue ? symbols.find((symbol) => symbol === initialValue) :
+                            "Select asset"
+                    }
                     <ChevronsUpDownIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                 </Button>
             </PopoverTrigger>
@@ -86,13 +91,9 @@ export function AssetsCombobox({ onSelect, initialValue }: AssetsComboboxProps) 
                                         key={symbol}
                                         value={symbol}
                                         onSelect={(currentValue) => {
-                                            const selectedValue =
-                                                currentValue === value
-                                                    ? ""
-                                                    : currentValue;
-                                            setValue(selectedValue);
+                                            const selectedValue = currentValue === value ? "" : currentValue;
+                                            onChange?.(selectedValue);
                                             setOpen(false);
-                                            onSelect?.(selectedValue);
                                         }}
                                     >
                                         <CheckIcon
@@ -110,6 +111,7 @@ export function AssetsCombobox({ onSelect, initialValue }: AssetsComboboxProps) 
                         </CommandGroup>
                     </CommandList>
                 </Command>
+                {error && <p className="text-sm text-red-500 mt-1">{error}</p>}
             </PopoverContent>
         </Popover>
     );

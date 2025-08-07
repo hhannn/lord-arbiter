@@ -4,7 +4,7 @@ export interface Bot {
     id: number; // or string, but make sure it's consistent!
     asset: string;
     start_size: number;
-    start_type: "USDT" | "percent_equity";
+    start_type: "USDT" | "percent_equity" | "qty";
     leverage: number;
     multiplier: number;
     take_profit: number;
@@ -20,6 +20,14 @@ export interface Bot {
     position_value: number;
     transaction_log: TrxEntries[];
     max_rebuy: number;
+}
+
+export interface instrumentInfo {
+    minQty: number;
+    qtyStep: number;
+    minValue: number;
+    minLeverage: number;
+    maxLeverage: number;
 }
 
 export interface TrxEntries {
@@ -38,5 +46,5 @@ export interface CreateBotPayload {
     take_profit: number;
     rebuy: number;
     max_rebuy: number;
-    start_type: "USDT" | "percent_equity";
+    start_type: "USDT" | "percent_equity" | "qty";
 }

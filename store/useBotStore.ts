@@ -1,15 +1,17 @@
 // store/useBotStore.ts
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import { Bot, CreateBotPayload } from "@/types/bot";
+import { Bot, CreateBotPayload, instrumentInfo } from "@/types/bot";
 
 import { toast } from "sonner";
 
 interface BotState {
     data: Bot[];
+    instrumentInfo: instrumentInfo | null;
     loading: boolean;
     error: string | null;
     fetchBots: () => Promise<void>;
+    fetchInstrumentInfo: (payload: string) => Promise<void>;
     startPolling: () => void;
     stopPolling: () => void;
     createBot: (payload: CreateBotPayload) => Promise<void>;
@@ -19,7 +21,8 @@ interface BotState {
     stopBot: (botId: number) => Promise<void>;
 }
 
-const API_BASE_URL =
+const BYBIT_URL = "https://api.bybit.com";
+const API_FRONTEND_URL =
     process.env.NEXT_PUBLIC_FRONTEND_URL || "http://localhost:3000";
 const API_BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL ?? "";
 
@@ -29,6 +32,7 @@ export const useBotStore = create<BotState>()(
     persist(
         (set, get) => ({
             data: [],
+            instrumentInfo: null,
             loading: false,
             error: null,
 
@@ -111,11 +115,44 @@ export const useBotStore = create<BotState>()(
                 }
             },
 
+            fetchInstrumentInfo: async (payload: string) => {
+                const res = await fetch(
+                    `${BYBIT_URL}/v5/market/instruments-info?category=linear&symbol=${payload}`,
+                    {
+                        method: "GET",
+                    }
+                );
+
+                if (!res.ok) {
+                    toast.error("Failed to fetch instrument info", {
+                        description: "Unexpected error occurred",
+                    });
+                }
+
+                const data = await res.json();
+                const symbolInfo = data?.result?.list?.[0];
+                if (!symbolInfo) {
+                    toast.error("Symbol info not found in response");
+                    return;
+                }
+                const lotSizeFilter = symbolInfo?.lotSizeFilter;
+                const leverageFilter = symbolInfo?.leverageFilter;
+                const minQty = Number(lotSizeFilter?.minOrderQty);
+                const qtyStep = Number(lotSizeFilter?.qtyStep);
+                const minValue = Number(lotSizeFilter?.minNotionalValue);
+                const minLeverage = Number(leverageFilter?.minLeverage);
+                const maxLeverage = Number(leverageFilter?.maxLeverage);
+                console.log(minQty, qtyStep, minValue);
+                set({ instrumentInfo: { minQty, qtyStep, minValue, minLeverage, maxLeverage } });
+            },
+
             startPolling: () => {
                 if (pollingInterval) return;
                 get().fetchBots(); // initial call
+
                 pollingInterval = setInterval(() => {
                     get().fetchBots();
+                    console.log(get().data);
                 }, 5000);
             },
 

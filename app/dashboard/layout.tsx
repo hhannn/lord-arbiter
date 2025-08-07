@@ -30,7 +30,8 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             disableTransitionOnChange
         >
             <SidebarProvider>
-                <div className="flex min-h-screen w-full font-sans dark:bg-[radial-gradient(#fcfcfc12_1px,transparent_1px)] dark:[background-size:32px_32px]">
+                {/* dark:bg-[radial-gradient(#fcfcfc12_1px,transparent_1px)] dark:[background-size:32px_32px] */}
+                <div className="flex min-h-screen w-full font-sans ">
                     {/* <DotPattern width={60} height={60} glow={true} cx={1} cy={1} cr={1} className={"-z-10 opacity-40"} /> */}
                     <AppSidebar />
                     <main className="flex-1 w-full">

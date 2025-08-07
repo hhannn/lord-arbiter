@@ -31,7 +31,7 @@ export function EditBotDialog({ bot, open, onOpenChange }: EditBotDialogProps) {
     const [editMultiplier, setEditMultiplier] = useState(String(bot.multiplier));
     const [editTakeProfit, setEditTakeProfit] = useState(String(bot.take_profit));
     const [editRebuy, setEditRebuy] = useState(String(bot.rebuy));
-    const [editStartType, setEditStartType] = useState<"USDT" | "percent_equity">(bot.start_type); // Explicitly typed
+    const [editStartType, setEditStartType] = useState<"USDT" | "percent_equity" | "qty">(bot.start_type); // Explicitly typed
     const [editMaxRebuy, setEditMaxRebuy] = useState(String(bot.max_rebuy));
 
     const [editErrors, setEditErrors] = useState({
@@ -97,7 +97,7 @@ export function EditBotDialog({ bot, open, onOpenChange }: EditBotDialogProps) {
                     <span className="w-[200px] font-medium text-white">
                         Assets
                     </span>
-                    <AssetsCombobox onSelect={setEditAsset} initialValue={editAsset} />
+                    {/* <AssetsCombobox onSelect={setEditAsset} initialValue={editAsset} /> */}
                 </div>
                 <Separator className="my-4" />
                 <div className="flex gap-4 items-center">
@@ -113,7 +113,7 @@ export function EditBotDialog({ bot, open, onOpenChange }: EditBotDialogProps) {
                             onChange={(e) => setEditStartSize(e.target.value)}
                         />
                         <Select
-                            onValueChange={(value) => setEditStartType(value as "USDT" | "percent_equity")}
+                            onValueChange={(value) => setEditStartType(value as "USDT" | "percent_equity" | "qty")}
                             value={editStartType}
                         >
                             <SelectTrigger className={cn("w-[200px]", editErrors.start_type && "border-red-500")}>
@@ -123,6 +123,7 @@ export function EditBotDialog({ bot, open, onOpenChange }: EditBotDialogProps) {
                                 <SelectGroup>
                                     <SelectItem value="percent_equity">% of equity</SelectItem>
                                     <SelectItem value="USDT">USDT</SelectItem>
+                                    <SelectItem value="qty">Quantity</SelectItem>
                                 </SelectGroup>
                             </SelectContent>
                         </Select>

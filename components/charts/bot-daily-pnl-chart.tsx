@@ -90,16 +90,7 @@ export function BotDailyChart({ className, dailyPnl = [] }: ChartBarNegativeProp
 
     if (dailyPnl.length === 0) {
         return (
-            <Card className={cn("", className)}>
-                <CardHeader>
-                    <CardTitle>
-                        Daily P&L
-                    </CardTitle>
-                </CardHeader>
-                <CardContent className="h-full text-sm flex items-center justify-center">
-                    <div>No data available.</div>
-                </CardContent>
-            </Card>
+            <div className="mt-4 text-center">No data available.</div>
         )
     }
 
