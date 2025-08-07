@@ -22,11 +22,12 @@ export function AppNavbar() {
     const pageName = pathname.split("/").pop()?.replace("-", " ");
 
     return (
-        <div className={open ? "w-[calc(100%-16rem)]" : "w-[calc(100%-3rem)]"}>
+        // <div className={`z-10 px-8 py-4 ${open ? "w-[calc(100%-16rem-8px)]" : "w-[calc(100%-3rem-8px)]"}`}>
+        <div className='relative z-10 px-8 py-3 border-b'>
             <ul className="w-full flex justify-between items-center">
                 <li className="flex items-center justify-between gap-2 min-w-0">
                     <SidebarTrigger />
-                    <span className="h-[16px] w-[1px] bg-muted me-1"></span>
+                    <span className="h-[16px] w-[1px] me-1"></span>
                     <span className="font-medium truncate first-letter:uppercase">{pageName}</span>
                 </li>
                 <li>
@@ -55,7 +56,3 @@ export function AppNavbar() {
         </div>
     );
 }
-function useState(arg0: boolean): [any, any] {
-    throw new Error("Function not implemented.");
-}
-

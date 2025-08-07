@@ -175,7 +175,7 @@ export default function DashboardContent({ children }: DashboardContentProps) {
 
     return (
         <DashboardContext.Provider value={dashboardData}>
-            <div className="flex flex-col min-h-screen w-full px-4 py-6 pt-[80px]">
+            <div className="relative flex flex-col min-h-screen w-full px-4 py-6">
                 <div className="flex flex-col md:flex-row">
                     <div className="flex flex-col items-center sm:items-start">
                         <h1 className="text-3xl font-bold mb-2">Welcome to Lord Arbiter</h1>

@@ -22,7 +22,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSepara
 
 const items = [
     { title: "Home", url: "/dashboard", icon: Home },
-    { title: "Trading performance", url: "/dashboard/trading-performance", icon: ChartLine },
+    { title: "Trading performance", url: "/dashboard/performance", icon: ChartLine },
     { title: "Bot", url: "#", icon: Bot },
     { title: "Calculator", url: "/dashboard/calculator", icon: Calculator }
 ];
@@ -38,8 +38,8 @@ export function AppSidebar({ collapsible = "icon" }: AppSidebarProps) {
     const isCollapsed = state === "collapsed";
 
     return (
-        <Sidebar collapsible={collapsible}>
-            <SidebarContent>
+        <Sidebar collapsible={collapsible} className="border-none">
+            <SidebarContent className="">
                 {/* Logo Section - Always visible */}
                 <div
                     className={`flex items-center gap-4 ${isCollapsed ? "px-2 py-1" : "px-4 py-3"
@@ -75,7 +75,7 @@ export function AppSidebar({ collapsible = "icon" }: AppSidebarProps) {
                                         >
                                             <item.icon className="w-5 h-5 flex-shrink-0" />
                                             {!isCollapsed && (
-                                                <span className="truncate">
+                                                <span className="truncate text-sm">
                                                     {item.title}
                                                 </span>
                                             )}

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState } from "react";
 import { Bot } from "@/types/bot"; // Assuming your Bot interface is in types/bot.ts
 
 import {
@@ -12,42 +12,9 @@ import {
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
-import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
-    DialogTrigger, // Keep DialogTrigger for the edit dialog
-} from "@/components/ui/dialog";
-import {
-    AlertDialog,
-    AlertDialogAction,
-    AlertDialogCancel,
-    AlertDialogContent,
-    AlertDialogDescription,
-    AlertDialogFooter,
-    AlertDialogHeader,
-    AlertDialogTitle,
-    AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
-import { Input } from "@/components/ui/input";
-import { Separator } from "@/components/ui/separator";
-import { AssetsCombobox } from "@/components/assets-combobox";
-import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Badge } from "../ui/badge";
 
-import { MoreHorizontal, Pencil, X, LoaderCircle, Rocket, ArrowUpRight, ArrowDownRight, FileText } from "lucide-react"; // Added FileText back
+import { MoreHorizontal, Pencil, X, LoaderCircle, Rocket } from "lucide-react"; // Added FileText back
 import { IconPlayerStopFilled } from "@tabler/icons-react";
-import { toast } from "sonner";
-import { cn } from "@/lib/utils";
-import { useUserData } from "@/store/useUserData"; // Assuming this is your user data store
-import { BotDailyChart } from "../charts/bot-daily-pnl-chart"; // Correct import and alias
-import { Sheet, SheetContent, SheetDescription, SheetTitle } from "../ui/sheet";
-import { Card, CardDescription, CardTitle } from "../ui/card"; // Assuming these are used for the chart card
-import { useDashboardData } from "@/context/dashboardContext";
-import { Item } from "@radix-ui/react-select";
 import { DeleteBotDialog } from "../dialogs/delete-bot";
 import { BotDetailDialog } from "../dialogs/bot-detail";
 import { EditBotDialog } from "../dialogs/edit-bot";
@@ -60,9 +27,7 @@ interface BotActionButtonsProps {
 export function BotActionButtons({
     bot
 }: BotActionButtonsProps) {
-    const {
-        id, status
-    } = bot;
+    const { id, status } = bot;
 
     const [editDialogOpen, setEditDialogOpen] = useState(false);
     const [detailDialogOpen, setDetailDialogOpen] = useState(false);

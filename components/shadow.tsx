@@ -4,6 +4,7 @@ import { useTheme } from "next-themes"
 import { EtheralShadow } from "@/components/ui/shadcn-io/etheral-shadow"
 import { useState, useEffect } from "react"
 import { cn } from "@/lib/utils"
+import { useSidebar } from "./ui/sidebar"
 
 interface ShadowProps {
     color?: string;
@@ -27,13 +28,15 @@ export const Shadow = ({ color }: ShadowProps) => {
     return (
         <>
             {mounted && (
-                <EtheralShadow
-                    color={shadowColor}
-                    animation={{ scale: 120, speed: 80 }}
-                    noise={{ opacity: opacity, scale: 1 }}
-                    sizing="fill"
-                    className="h-screen w-full fixed -z-10 right-0"
-                />
+                <div className="overflow-hidden">
+                    <EtheralShadow
+                        color={shadowColor}
+                        animation={{ scale: 120, speed: 80 }}
+                        noise={{ opacity: opacity, scale: 1 }}
+                        sizing="stretch"
+                        className="shadow h-[150%] absolute rounded-xl"
+                    />
+                </div>
             )}
         </>
     )
