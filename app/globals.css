@@ -41,10 +41,10 @@
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
-  --font-noto-sans: var(--font-noto-sans);
-  --font-noto-sans-mono: var(--font-noto-sans-mono);
+  /* --font-noto-sans: var(--font-noto-sans);
+  --font-noto-sans-mono: var(--font-noto-sans-mono); */
   --font-inter: var(--font-inter);
-  --font-azeret-mono: var(--font-azeret-mono);
+  --font-mono: var(--font-azeret-mono);
 
 }
 

@@ -13,18 +13,13 @@ const notoMono = Noto_Sans_Mono({
   subsets: ["latin"]
 })
 
-const inter = Noto_Sans({
+const inter = Inter({
   variable: "--font-inter",
   subsets: ["latin"]
 })
 
-const azeretMono = Noto_Sans({
+const azeretMono = Azeret_Mono({
   variable: "--font-azeret-mono",
-  subsets: ["latin"]
-})
-
-const interMono = Noto_Sans_Mono({
-  variable: "--font-noto-sans-mono",
   subsets: ["latin"]
 })
 
