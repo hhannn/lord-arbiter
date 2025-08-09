@@ -66,7 +66,7 @@ export function DataTable<TData, TValue>({
         <Card className="rounded-md border flex flex-col items-stretch gap-4 bg-card overflow-hidden">
             <CardHeader>
                 <CardTitle className="text-2xl">Running Bot</CardTitle>
-                <CardDescription>Charting the night's resilience</CardDescription>
+                <CardDescription>A gem cannot be polished without friction, nor a man perfected without trials.</CardDescription>
             </CardHeader>
             <CardContent className="flex flex-col gap-4">
                 <div className="flex items-center justify-between gap-2">
@@ -149,7 +149,7 @@ export function DataTable<TData, TValue>({
                                         })}
                                         {/* Action column */}
                                         <TableCell className="py-2 pr-6">
-                                            <BotActionButtons bot={row.original as Bot}/>
+                                            <BotActionButtons bot={row.original as Bot} />
                                         </TableCell>
                                     </TableRow>
                                 ))

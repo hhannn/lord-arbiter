@@ -159,7 +159,7 @@ export function EditBotDialog({ bot, open, onOpenChange }: EditBotDialogProps) {
                         Edit Bot {bot.id}
                     </DialogTitle>
                     <DialogDescription className="flex flex-col gap-4">
-                        Modify the parameters for your bot.
+                        Wisdom is gained from the journey, not the arrival.
                     </DialogDescription>
                 </DialogHeader>
                 <Button

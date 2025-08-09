@@ -136,9 +136,9 @@ export default function Home() {
 
     return (
         <main className="flex flex-col items-stretch justify-center gap-8 p-4 max-w-sm mx-auto min-h-screen">
-            <Card>
+            <Card className="bg-background/50 backdrop-blur-sm">
                 <CardHeader>
-                    <h1 className="text-2xl sm:text-4xl font-medium">
+                    <h1 className="text-2xl xl:text-5xl font-semibold text-balance">
                         Lord Arbiter
                     </h1>
                     <p className="text-sm text-muted-foreground">
@@ -162,7 +162,7 @@ export default function Home() {
                                             <FormItem>
                                                 <FormLabel>Username</FormLabel>
                                                 <FormControl>
-                                                    <Input {...field} />
+                                                    <Input {...field} className="bg-background/20"/>
                                                 </FormControl>
                                                 <FormMessage />
                                             </FormItem>
@@ -175,7 +175,7 @@ export default function Home() {
                                             <FormItem>
                                                 <FormLabel>Password</FormLabel>
                                                 <FormControl>
-                                                    <Input type="password" {...field} />
+                                                    <Input type="password" {...field} className="bg-background/20" />
                                                 </FormControl>
                                                 <FormMessage />
                                                 <Link href="#" className="text-sm text-primary">Forgot your password?</Link>
@@ -209,7 +209,7 @@ export default function Home() {
                         <CardContent className="flex flex-col gap-4">
                             <div className="grid w-full max-w-sm items-center gap-3">
                                 <Label htmlFor="username">Username</Label>
-                                <Input
+                                <Input className="bg-background/20"
                                     id="username"
                                     onChange={(e) => {
                                         setUsername(e.target.value);
@@ -218,7 +218,7 @@ export default function Home() {
                             </div>
                             <div className="grid w-full max-w-sm items-center gap-3">
                                 <Label htmlFor="password">Password</Label>
-                                <Input
+                                <Input className="bg-background/20"
                                     type="password"
                                     id="password"
                                     onChange={(e) => {
@@ -228,14 +228,14 @@ export default function Home() {
                             </div>
                             <div className="grid w-full max-w-sm items-center gap-3">
                                 <Label htmlFor="api_key">API Key</Label>
-                                <Input
+                                <Input className="bg-background/20"
                                     id="api_key"
                                     onChange={(e) => setApiKey(e.target.value)}
                                 />
                             </div>
                             <div className="grid w-full max-w-sm items-center gap-3">
                                 <Label htmlFor="api_secret">API Secret</Label>
-                                <Input
+                                <Input className="bg-background/20"
                                     id="api_secret"
                                     onChange={(e) =>
                                         setApiSecret(e.target.value)

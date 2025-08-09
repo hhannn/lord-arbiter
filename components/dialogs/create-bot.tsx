@@ -152,7 +152,7 @@ export function CreateBotDialog() {
                         Create new bot
                     </DialogTitle>
                     <DialogDescription className="flex flex-col gap-4">
-                        Enter the parameters for your new trading bot.
+                        A journey of a thousand miles begins with a single step.
                     </DialogDescription>
                 </DialogHeader>
                 <Form {...form}>
