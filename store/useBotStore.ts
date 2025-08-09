@@ -12,6 +12,7 @@ interface BotState {
     error: string | null;
     fetchBots: () => Promise<void>;
     fetchInstrumentInfo: (payload: string) => Promise<void>;
+    resetInstrumentInfo: () => void;
     startPolling: () => void;
     stopPolling: () => void;
     createBot: (payload: CreateBotPayload) => Promise<void>;
@@ -145,6 +146,8 @@ export const useBotStore = create<BotState>()(
                 console.log(minQty, qtyStep, minValue);
                 set({ instrumentInfo: { minQty, qtyStep, minValue, minLeverage, maxLeverage } });
             },
+
+            resetInstrumentInfo: () => set({ instrumentInfo: null }),
 
             startPolling: () => {
                 if (pollingInterval) return;

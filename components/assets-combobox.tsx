@@ -20,6 +20,7 @@ import {
     PopoverContent,
     PopoverTrigger,
 } from "@/components/ui/popover";
+import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 
 interface AssetsComboboxProps {
     value?: string;
@@ -68,14 +69,33 @@ export function AssetsCombobox({ value, onChange, onBlur, error, initialValue }:
                     aria-expanded={open}
                     className="justify-between w-full"
                 >
-                    {value ? symbols.find((symbol) => symbol === value) :
-                        initialValue ? symbols.find((symbol) => symbol === initialValue) :
-                            "Select asset"
-                    }
+                    {(() => {
+                        const selectedSymbol = symbols.find((s) => s === value) ?? (initialValue ? symbols.find((s) => s === initialValue) : null);
+
+                        if (!selectedSymbol) return "Select asset";
+
+                        // Helper for logo suffix
+                        const getLogoSuffix = (sym: string) => sym === "HYPEUSDT" ? "HYPEH" : sym.replace("USDT", "");
+
+                        return (
+                            <>
+                                <div className="flex gap-2 items-center">
+                                    <Avatar className="size-4">
+                                        <AvatarImage
+                                            src={`https://s3-symbol-logo.tradingview.com/crypto/XTVC${getLogoSuffix(selectedSymbol)}.svg`}
+                                            alt={selectedSymbol}
+                                        />
+                                        <AvatarFallback>{selectedSymbol.charAt(0).toUpperCase()}</AvatarFallback>
+                                    </Avatar>
+                                    {selectedSymbol}
+                                </div>
+                            </>
+                        );
+                    })()}
                     <ChevronsUpDownIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                 </Button>
             </PopoverTrigger>
-            <PopoverContent className="w-full p-0">
+            <PopoverContent className="w-[29rem] p-0">
                 <Command value="">
                     <CommandInput placeholder="Search asset..." />
                     <CommandList>
@@ -104,6 +124,17 @@ export function AssetsCombobox({ value, onChange, onBlur, error, initialValue }:
                                                     : "opacity-0"
                                             )}
                                         />
+                                        <Avatar className="size-6">
+                                            <AvatarImage
+                                                src={`https://s3-symbol-logo.tradingview.com/crypto/XTVC${symbol === "HYPEUSDT" ? "HYPEH" :
+                                                    symbol.replace("USDT", "")
+                                                    }.svg`}
+                                                alt={symbol}
+                                            />
+                                            <AvatarFallback>
+                                                {symbol.charAt(0).toUpperCase()}
+                                            </AvatarFallback>
+                                        </Avatar>
                                         {symbol}
                                     </CommandItem>
                                 ))

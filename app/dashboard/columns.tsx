@@ -42,21 +42,21 @@ export const columns: ColumnDef<Bot>[] = [
         },
         cell: ({ row }) => {
             const asset = String(row.getValue("asset"));
-            const iconUrl = `https://app.hyperliquid.xyz/coins/${asset.replace("USDT", "")}.svg`
+            const baseAsset = asset === "HYPEUSDT" ? "HYPEH" : asset.replace("USDT", "");
+            const iconUrl = `https://s3-symbol-logo.tradingview.com/crypto/XTVC${baseAsset}.svg`
             const side = String(row.getValue("side"));
 
             return (
-                <div className="flex items-center font-medium">
-                    <Avatar className="items-center">
+                <div className="flex items-center font-medium gap-2">
+                    <Avatar className="size-6 items-center">
                         <AvatarImage
                             src={iconUrl}
                             alt={`${asset} icon`}
-                            className="w-5 h-5 rounded-none"
                         />
-                        <AvatarFallback className="w-5 h-5">{asset.substring(0, 2)}</AvatarFallback>
+                        <AvatarFallback>{asset.substring(0, 2)}</AvatarFallback>
                     </Avatar>
                     {asset}
-                    <Badge variant="outline" className="ml-2 pl-1.5">
+                    <Badge variant="outline" className="pl-1.5">
                         {
                             side === "Buy" ? <><ArrowUpRight className="text-green-500" /> Long</> :
                                 side === "Sell" ? <><ArrowDownRight className="text-destructive" /> Short</> :
@@ -145,10 +145,10 @@ export const columns: ColumnDef<Bot>[] = [
             const baseAsset = symbol.replace("USDT", "");
             let position =
                 row.getValue("current_position") !== undefined
-                    ? String(row.getValue("current_position"))
-                    : "0.00";
+                    ? `${String(row.getValue("current_position"))} ${baseAsset}`
+                    : "-";
 
-            return `${parseFloat(String(position))} ${baseAsset}`;
+            return `${position}`;
         },
     },
     {
@@ -160,19 +160,17 @@ export const columns: ColumnDef<Bot>[] = [
                     ? String(row.getValue("current_price"))
                     : "-";
 
-            return `${parseFloat(String(price))}`;
+            return `${price}`;
         },
     },
     {
         accessorKey: "liq_price",
         header: "Liq. price",
         cell: ({ row }) => {
-            let price =
-                isNaN(row.getValue("liq_price")) ? "Loading..." :
-                    row.getValue("liq_price") !== undefined || row.getValue("liq_price") === "0" ? String(row.getValue("liq_price"))
-                        : "-";
+            let price = isNaN(parseFloat(row.getValue("liq_price"))) || row.getValue("liq_price") === 0 ? "-" :
+                String(row.getValue("liq_price"));
 
-            return `${parseFloat(String(price))}`;
+            return `${price}`;
         },
     },
     {
@@ -180,11 +178,18 @@ export const columns: ColumnDef<Bot>[] = [
         header: "Unrealized P&L",
         cell: ({ row }) => {
             const value = row.getValue("unrealized_pnl");
+            const isRunning = row.getValue("status") === "running";
+
             return (
                 <>
-                    <span className={Number(value) < 0 ? 'text-destructive' : 'text-green-600 dark:text-green-400'}>
-                        {parseFloat(String(value || 0)).toFixed(2)} USDT
-                    </span>
+                    {
+                        isRunning ?
+                            <span className={Number(value) < 0 ? 'text-destructive' : 'text-green-600 dark:text-green-400'}>
+                                {parseFloat(String(value || 0)).toFixed(2)} USDT
+                            </span>
+                            :
+                            "-"
+                    }
                 </>
             );
         },

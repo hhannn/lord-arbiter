@@ -5,8 +5,10 @@ import { Bot } from "@/types/bot";
 
 import {
     ColumnDef,
+    SortingState,
     flexRender,
     getCoreRowModel,
+    getSortedRowModel,
     useReactTable,
     VisibilityState,
 } from "@tanstack/react-table";
@@ -40,6 +42,7 @@ export function DataTable<TData, TValue>({
     columns,
     data,
 }: DataTableProps<TData, TValue>) {
+    const [sorting, setSorting] = useState<SortingState>([]);
     const [columnVisibility, setColumnVisibility] =
         useState<VisibilityState>({
             start_type: false,
@@ -53,7 +56,10 @@ export function DataTable<TData, TValue>({
         onColumnVisibilityChange: setColumnVisibility,
         state: {
             columnVisibility,
+            sorting
         },
+        getSortedRowModel: getSortedRowModel(),
+        onSortingChange: setSorting,
     });
 
     return (
@@ -80,9 +86,9 @@ export function DataTable<TData, TValue>({
                     </div>
                     <div className="flex items-center gap-2">
                         <DataTableViewOptions table={table} />
-                        <Button className="bg-red-800 text-white hover:bg-red-700 h-8" size="sm">
+                        {/* <Button className="bg-red-800 text-white hover:bg-red-700 h-8" size="sm">
                             Stop all bots
-                        </Button>
+                        </Button> */}
                         <CreateBotDialog />
                     </div>
                 </div>

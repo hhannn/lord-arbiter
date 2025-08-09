@@ -3,7 +3,7 @@
 import { useUserData } from "@/store/useUserData";
 import { useRouter } from "next/navigation";
 
-import { Home, Bot, ChevronsUpDown, ChevronUp, Calculator, ChartArea, ChartLine, Settings, LogOut } from "lucide-react";
+import { Home, Bot, ChevronsUpDown, ChevronUp, Calculator, ChartArea, ChartLine, Settings, LogOut, LayoutDashboard } from "lucide-react";
 import {
     Sidebar,
     SidebarContent,
@@ -21,7 +21,7 @@ import Image from "next/image";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "./ui/dropdown-menu";
 
 const items = [
-    { title: "Home", url: "/dashboard", icon: Home },
+    { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
     { title: "Trading performance", url: "/dashboard/performance", icon: ChartLine },
     { title: "Bot", url: "#", icon: Bot },
     { title: "Calculator", url: "/dashboard/calculator", icon: Calculator }
@@ -42,15 +42,13 @@ export function AppSidebar({ collapsible = "icon" }: AppSidebarProps) {
             <SidebarContent className="">
                 {/* Logo Section - Always visible */}
                 <div
-                    className={`flex items-center gap-4 ${isCollapsed ? "px-2 py-1" : "px-4 py-3"
+                    className={`flex items-center gap-4 ${isCollapsed ? "px-3 pt-6 pb-2" : "px-4 pt-6 pb-2"
                         }`}
                 >
-                    <Image
+                    <img
+                        className={`aspect-square object-contain shrink-0 rounded-sm ${isCollapsed ? "size-6" : "size-8"}`}
                         src="/assets/logo.png"
                         alt="logo"
-                        width={24}
-                        height={24}
-                        className="w-8 h-8 aspect-square object-contain flex-shrink-0 rounded-sm"
                     />
                     {!isCollapsed && (
                         <span className="text-md font-medium truncate">
@@ -92,7 +90,7 @@ export function AppSidebar({ collapsible = "icon" }: AppSidebarProps) {
                     <DropdownMenuTrigger>
                         <div className="w-full flex items-center justify-between gap-4 p-2 hover:bg-accent cursor-pointer rounded-md">
                             <div className={`flex items-center gap-4`}>
-                                <Avatar className="w-8 h-8 aspect-square object-contain flex-shrink-0 rounded-sm">
+                                <Avatar className={`aspect-square object-contain flex-shrink-0 rounded-sm ${isCollapsed ? "size-4" : "size-8"}`}>
                                     <AvatarImage
                                         src={
                                             "https://oyster.ignimgs.com/mediawiki/apis.ign.com/wuthering-waves/3/30/Rover-havoc-male-icon.png"

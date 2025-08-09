@@ -2,16 +2,30 @@ import { useEffect, useState } from "react";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "../ui/dialog";
 import { Button } from "../ui/button";
 import { AssetsCombobox } from "../assets-combobox";
-import { Separator } from "../ui/separator";
 import { Input } from "../ui/input";
-import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
 import { toast } from "sonner";
-import { CirclePlus } from "lucide-react";
+import { CirclePlus, Plus } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 
 import { useBotStore } from "@/store/useBotStore";
-import { InputBase, InputBaseAdornment, InputBaseControl, InputBaseInput } from "../ui/input-base";
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select";
+import {
+    ControlGroup,
+    ControlGroupItem,
+} from "@/components/ui/control-group";
+import {
+    InputBase,
+    InputBaseAdornment,
+    InputBaseControl,
+    InputBaseInput,
+} from "@/components/ui/input-base";
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "../ui/form";
 import z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -69,7 +83,7 @@ export function CreateBotDialog() {
                         origin: "number", // ✅ required in Zod 3.23+
                         minimum: 5,
                         inclusive: true,
-                        message: `Start size is less than minimum notional value of 5`,
+                        message: `Minimum notional value is 5 USDT`,
                     })
                 }
             }
@@ -128,7 +142,7 @@ export function CreateBotDialog() {
                         setCreateDialogOpen(true);
                     }}
                 >
-                    <CirclePlus />
+                    <Plus />
                     Create new bot
                 </Button>
             </DialogTrigger>
@@ -155,9 +169,9 @@ export function CreateBotDialog() {
                                 render={({ field }) => (
                                     <AssetsCombobox
                                         onChange={(value) => {
-                                            field.onChange(value);                  // update form value
-                                            fetchInstrumentInfo(value);             // your custom side effect
-                                            setOpenForm(true);                      // open the form
+                                            field.onChange(value);
+                                            fetchInstrumentInfo(value);
+                                            setOpenForm(true);
                                         }}
                                         value={field.value}
                                     />
@@ -177,139 +191,158 @@ export function CreateBotDialog() {
                                 <div className="text-foreground">{instrumentInfo?.maxLeverage}</div>
                             </div>
                         </div>
-                        <div className={`grid grid-cols-3 gap-y-3 text-sm items-center font-medium ${openForm ? "block" : "hidden"}`}>
-                            <div>Start size</div>
-                            <div className="grid grid-cols-2 col-span-2 gap-2">
-                                <FormField
-                                    control={form.control}
-                                    name="start_size"
-                                    render={({ field }) => (
-                                        <FormItem className="font-normal">
-                                            <FormControl className="">
-                                                <Input {...field}
-                                                    type="number"
-                                                    value={field.value as number}
-                                                    onChange={field.onChange}
+                        <div className={`w-full grid grid-cols-2 items-stretch gap-y-3 gap-x-2 text-sm font-medium ${openForm ? "block" : "hidden"}`}>
+                            <FormField
+                                control={form.control}
+                                name="start_size"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Start size</FormLabel>
+                                        <FormControl>
+                                            <ControlGroup>
+                                                <ControlGroupItem>
+                                                    <InputBase>
+                                                        <InputBaseControl>
+                                                            <InputBaseInput {...field}
+                                                                type="number"
+                                                                value={field.value as number}
+                                                                onChange={field.onChange}
+                                                            />
+                                                        </InputBaseControl>
+                                                    </InputBase>
+                                                </ControlGroupItem>
+                                                <FormField
+                                                    control={form.control}
+                                                    name="start_type"
+                                                    render={({ field }) => (
+                                                        <Select
+                                                            value={field.value}
+                                                            onValueChange={(value) => {
+                                                                field.onChange(value)
+                                                                setTimeout(() => {
+                                                                    trigger("start_size");     // ✅ run validation after state is updated
+                                                                }, 0);
+                                                            }}
+                                                        >
+                                                            <ControlGroupItem className="rounded-md rounded-l-none">
+                                                                <SelectTrigger className="w-[150px]">
+                                                                    <SelectValue placeholder="Currency" />
+                                                                </SelectTrigger>
+                                                            </ControlGroupItem>
+                                                            <SelectContent align="end">
+                                                                <SelectItem value="percent_equity">% of equity</SelectItem>
+                                                                <SelectItem value="USDT">USDT</SelectItem>
+                                                                <SelectItem value="qty">quantity</SelectItem>
+                                                            </SelectContent>
+                                                        </Select>
+                                                    )}
                                                 />
-                                            </FormControl>
-                                        </FormItem>
-                                    )}
-                                />
-                                <FormField
-                                    control={form.control}
-                                    name="start_type"
-                                    render={({ field }) => (
-                                        <Select
-                                            value={field.value}
-                                            onValueChange={(value) => {
-                                                field.onChange(value)
-                                                setTimeout(() => {
-                                                    trigger("start_size");     // ✅ run validation after state is updated
-                                                }, 0);
-                                            }}
-                                        >
-                                            <FormControl className="1">
-                                                <SelectTrigger className="w-full">
-                                                    <SelectValue />
-                                                </SelectTrigger>
-                                            </FormControl>
-                                            <SelectContent>
-                                                <SelectGroup>
-                                                    <SelectItem value="percent_equity">% of equity</SelectItem>
-                                                    <SelectItem value="USDT">USDT</SelectItem>
-                                                    <SelectItem value="qty">Quantity</SelectItem>
-                                                </SelectGroup>
-                                            </SelectContent>
-                                        </Select>
-                                    )}
-                                />
-                                <FormMessage className="col-span-2">
-                                    {form.formState.errors.start_size?.message}
-                                </FormMessage>
-                            </div>
-
-                            <div>Leverage</div>
+                                            </ControlGroup>
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
                             <FormField
                                 control={form.control}
                                 name="leverage"
                                 render={({ field }) => (
-                                    <FormItem className="col-span-2 font-normal">
+                                    <FormItem className="font-normal">
+                                        <FormLabel>Leverage</FormLabel>
                                         <FormControl>
-                                            <Input {...field}
-                                                type="number"
-                                                value={field.value as number}
-                                                onChange={field.onChange}
-                                                step={0.1}
-                                            />
+                                            <InputBase>
+                                                <InputBaseControl>
+                                                    <InputBaseInput {...field}
+                                                        type="number"
+                                                        value={field.value as number}
+                                                        onChange={field.onChange}
+                                                        step={0.1}
+                                                    />
+                                                </InputBaseControl>
+                                                <InputBaseAdornment>x</InputBaseAdornment>
+                                            </InputBase>
                                         </FormControl>
                                         <FormMessage />
                                     </FormItem>
                                 )}
                             />
 
-                            <div>Multiplier</div>
                             <FormField
                                 control={form.control}
                                 name="multiplier"
                                 render={({ field }) => (
-                                    <FormItem className="col-span-2 font-normal">
+                                    <FormItem className="font-normal">
+                                        <FormLabel>Multiplier</FormLabel>
                                         <FormControl>
-                                            <Input {...field}
-                                                type="number"
-                                                value={field.value as number}
-                                                onChange={field.onChange}
-                                                step={0.1}
-                                            />
+                                            <InputBase>
+                                                <InputBaseControl>
+                                                    <InputBaseInput {...field}
+                                                        type="number"
+                                                        value={field.value as number}
+                                                        onChange={field.onChange}
+                                                        step={0.1}
+                                                    />
+                                                </InputBaseControl>
+                                                <InputBaseAdornment>x</InputBaseAdornment>
+                                            </InputBase>
                                         </FormControl>
                                         <FormMessage />
                                     </FormItem>
                                 )}
                             />
-
-                            <div>Take profit</div>
                             <FormField
                                 control={form.control}
                                 name="take_profit"
                                 render={({ field }) => (
-                                    <FormItem className="col-span-2 font-normal">
+                                    <FormItem className="font-normal">
+                                        <FormLabel>Take profit</FormLabel>
                                         <FormControl>
-                                            <Input {...field}
-                                                type="number"
-                                                value={field.value as number}
-                                                onChange={field.onChange}
-                                                step={0.1}
-                                            />
+                                            <InputBase>
+                                                <InputBaseControl>
+                                                    <InputBaseInput {...field}
+                                                        type="number"
+                                                        value={field.value as number}
+                                                        onChange={field.onChange}
+                                                        step={0.1}
+                                                    />
+                                                </InputBaseControl>
+                                                <InputBaseAdornment>%</InputBaseAdornment>
+                                            </InputBase>
                                         </FormControl>
                                         <FormMessage />
                                     </FormItem>
                                 )}
                             />
 
-                            <div>Rebuy</div>
                             <FormField
                                 control={form.control}
                                 name="rebuy"
                                 render={({ field }) => (
-                                    <FormItem className="col-span-2 font-normal">
+                                    <FormItem className="font-normal">
+                                        <FormLabel>Rebuy</FormLabel>
                                         <FormControl>
-                                            <Input {...field}
-                                                type="number"
-                                                value={field.value as number}
-                                                onChange={field.onChange}
-                                                step={0.1}
-                                            />
+                                            <InputBase>
+                                                <InputBaseControl>
+                                                    <InputBaseInput {...field}
+                                                        type="number"
+                                                        value={field.value as number}
+                                                        onChange={field.onChange}
+                                                        step={0.1}
+                                                    />
+                                                </InputBaseControl>
+                                                <InputBaseAdornment>%</InputBaseAdornment>
+                                            </InputBase>
                                         </FormControl>
                                         <FormMessage />
                                     </FormItem>
                                 )}
                             />
-
-                            <div>Max rebuy</div>
                             <FormField
                                 control={form.control}
                                 name="max_rebuy"
                                 render={({ field }) => (
-                                    <FormItem className="col-span-2 font-normal">
+                                    <FormItem className="font-normal">
+                                        <FormLabel>Max rebuy</FormLabel>
                                         <FormControl>
                                             <Input {...field}
                                                 type="number"
@@ -326,6 +359,6 @@ export function CreateBotDialog() {
                     </form>
                 </Form>
             </DialogContent>
-        </Dialog>
+        </Dialog >
     )
 }

@@ -12,7 +12,13 @@ import { cn } from "@/lib/utils";
 import { Button } from "../ui/button";
 import { toast } from "sonner";
 import { useBotStore } from "@/store/useBotStore";
-import { InputBase, InputBaseAdornment, InputBaseInput } from "../ui/input-base";
+import { InputBase, InputBaseAdornment, InputBaseControl, InputBaseInput } from "../ui/input-base";
+import z from "zod";
+import { Controller, useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Form, FormControl, FormField, FormItem, FormMessage } from "../ui/form";
+import { ControlGroup, ControlGroupItem } from "../ui/control-group";
+import { ChevronsUpDownIcon } from "lucide-react";
 
 interface EditBotDialogProps {
     bot: Bot;
@@ -23,64 +29,127 @@ interface EditBotDialogProps {
 
 export function EditBotDialog({ bot, open, onOpenChange }: EditBotDialogProps) {
 
-    const { updateBot } = useBotStore();
+    const { updateBot, instrumentInfo, fetchInstrumentInfo, resetInstrumentInfo } = useBotStore();
 
-    const [editAsset, setEditAsset] = useState(bot.asset);
-    const [editStartSize, setEditStartSize] = useState(String(bot.start_size));
-    const [editLeverage, setEditLeverage] = useState(String(bot.leverage));
-    const [editMultiplier, setEditMultiplier] = useState(String(bot.multiplier));
-    const [editTakeProfit, setEditTakeProfit] = useState(String(bot.take_profit));
-    const [editRebuy, setEditRebuy] = useState(String(bot.rebuy));
-    const [editStartType, setEditStartType] = useState<"USDT" | "percent_equity" | "qty">(bot.start_type); // Explicitly typed
-    const [editMaxRebuy, setEditMaxRebuy] = useState(String(bot.max_rebuy));
-
-    const [editErrors, setEditErrors] = useState({
-        asset: false, start_size: false, leverage: false,
-        multiplier: false, take_profit: false, rebuy: false, start_type: false,
-        max_rebuy: false
-    });
-
-    const handleUpdateBot = async () => {
-        const newErrors = {
-            asset: !editAsset.trim(),
-            start_size: !editStartSize.trim() || isNaN(parseFloat(editStartSize)) || parseFloat(editStartSize) <= 0,
-            leverage: !editLeverage.trim() || isNaN(parseFloat(editLeverage)) || parseFloat(editLeverage) <= 0,
-            multiplier: !editMultiplier.trim() || isNaN(parseFloat(editMultiplier)) || parseFloat(editMultiplier) <= 0,
-            take_profit: !editTakeProfit.trim() || isNaN(parseFloat(editTakeProfit)) || parseFloat(editTakeProfit) <= 0,
-            rebuy: !editRebuy.trim() || isNaN(parseFloat(editRebuy)) || parseFloat(editRebuy) < 0,
-            start_type: !editStartType.trim(),
-            max_rebuy: !editMaxRebuy.trim() || isNaN(parseFloat(editMaxRebuy)) || parseFloat(editMaxRebuy) < 0,
-        };
-
-        setEditErrors(newErrors);
-
-        const hasError = Object.values(newErrors).some(Boolean);
-        console.log("Calculated newErrors object (JSON.stringify):", JSON.stringify(newErrors));
-        console.log("Value of hasError:", hasError);
-        if (hasError) {
-            toast.error("Please fill in all required fields correctly for editing.");
-            return;
+    useEffect(() => {
+        if (open) {
+            fetchInstrumentInfo(bot.asset);
+        } else {
+            resetInstrumentInfo();
         }
+    }, [open, bot.asset, fetchInstrumentInfo, resetInstrumentInfo]);
 
-        try {
-            await updateBot(bot.id, {
-                asset: editAsset,
-                start_size: parseFloat(editStartSize),
-                leverage: parseFloat(editLeverage),
-                multiplier: parseFloat(editMultiplier),
-                take_profit: parseFloat(editTakeProfit),
-                rebuy: parseFloat(editRebuy),
-                start_type: editStartType,
-                max_rebuy: Number(editMaxRebuy),
-            });
-            toast.success("Bot updated successfully!");
-            onOpenChange(false);
-        } catch (error) {
-            // The error handling for the actual API call is in the parent's onUpdateBot function.
-            console.error("Error during bot update (in EditBotDialog):", error);
-            toast.error("Failed to update bot. Please try again.");
-        }
-    };
+    const formSchema = z.object({
+        asset: z.string().nonempty("Asset is required"),
+        start_type: z.enum(["USDT", "percent_equity", "qty"]),
+        start_size: z.coerce.number(),
+        leverage: z.coerce.number()
+            .min(instrumentInfo?.minLeverage ?? 1, `Minimum leverage is ${instrumentInfo?.minLeverage}x`)
+            .max(instrumentInfo?.maxLeverage ?? 25, `Maximum leverage is ${instrumentInfo?.maxLeverage}x`),
+        multiplier: z.coerce.number()
+            .min(1, "Must be at least 1"),
+        take_profit: z.coerce.number()
+            .min(0.01, "Must be at least 0.01"),
+        rebuy: z.coerce.number()
+            .min(0.01, "Must be at least 0.01"),
+        max_rebuy: z.coerce.number()
+            .min(1, "Must be at least 1")
+    })
+        .superRefine((data, ctx) => {
+            if (data.start_type === "qty") {
+                const minQty = instrumentInfo?.minQty ?? 0.001;
+                const qtyStep = instrumentInfo?.qtyStep ?? 0.0001;
+
+                if (data.start_size < minQty) {
+                    ctx.addIssue({
+                        path: ["start_size"],
+                        code: "too_small",
+                        origin: "number", // ✅ required in Zod 3.23+
+                        minimum: minQty,
+                        inclusive: true,
+                        message: `Start size must be at least asset's minimum quantity of ${minQty}`,
+                    });
+                }
+
+                const isMultipleOf = Math.abs((data.start_size / qtyStep) % 1) < 1e-8;
+                if (!isMultipleOf) {
+                    ctx.addIssue({
+                        path: ["start_size"],
+                        code: "custom",
+                        message: `Must be multiple of asset's quantity step ${qtyStep}`,
+                    });
+                }
+            } else if (data.start_type === "USDT") {
+                if (data.start_size < 5) {
+                    ctx.addIssue({
+                        path: ["start_size"],
+                        code: "too_small",
+                        origin: "number", // ✅ required in Zod 3.23+
+                        minimum: 5,
+                        inclusive: true,
+                        message: `Start size is less than minimum notional value of 5`,
+                    })
+                }
+            }
+        });
+
+    const form = useForm({
+        resolver: zodResolver(formSchema),
+        defaultValues: {
+            asset: bot.asset,
+            start_type: bot.start_type,
+            start_size: bot.start_size,
+            leverage: bot.leverage,
+            multiplier: bot.multiplier,
+            take_profit: bot.take_profit,
+            rebuy: bot.rebuy,
+            max_rebuy: bot.max_rebuy
+        },
+        mode: "onBlur",
+        reValidateMode: "onBlur"
+    })
+
+    const { reset, trigger } = form;
+
+    async function onSubmit(values: z.infer<typeof formSchema>) {
+        // Do something with the form values.
+        // ✅ This will be type-safe and validated.
+        await updateBot(bot.id, {
+            asset: bot.asset,
+            start_size: values.start_size,
+            leverage: values.leverage,
+            multiplier: values.multiplier,
+            take_profit: values.take_profit,
+            rebuy: values.rebuy,
+            max_rebuy: values.max_rebuy,
+            start_type: values.start_type
+        });
+
+        console.log(values)
+        reset();
+    }
+
+    // const handleUpdateBot = async () => {
+
+    //     try {
+    //         await updateBot(bot.id, {
+    //             asset: editAsset,
+    //             start_size: parseFloat(editStartSize),
+    //             leverage: parseFloat(editLeverage),
+    //             multiplier: parseFloat(editMultiplier),
+    //             take_profit: parseFloat(editTakeProfit),
+    //             rebuy: parseFloat(editRebuy),
+    //             start_type: editStartType,
+    //             max_rebuy: Number(editMaxRebuy),
+    //         });
+    //         toast.success("Bot updated successfully!");
+    //         onOpenChange(false);
+    //     } catch (error) {
+    //         // The error handling for the actual API call is in the parent's onUpdateBot function.
+    //         console.error("Error during bot update (in EditBotDialog):", error);
+    //         toast.error("Failed to update bot. Please try again.");
+    //     }
+    // };
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
@@ -93,129 +162,208 @@ export function EditBotDialog({ bot, open, onOpenChange }: EditBotDialogProps) {
                         Modify the parameters for your bot.
                     </DialogDescription>
                 </DialogHeader>
-                <div className="flex gap-4 items-center">
-                    <span className="w-[200px] font-medium text-white">
-                        Assets
-                    </span>
-                    {/* <AssetsCombobox onSelect={setEditAsset} initialValue={editAsset} /> */}
-                </div>
-                <Separator className="my-4" />
-                <div className="flex gap-4 items-center">
-                    <span className="w-[200px] font-medium text-white">
-                        Start size
-                    </span>
-                    <div className="flex gap-2 w-full">
-                        <Input
-                            className={cn(editErrors.start_size ? "border-red-500" : "")}
-                            type="number"
-                            step="any"
-                            value={editStartSize}
-                            onChange={(e) => setEditStartSize(e.target.value)}
-                        />
-                        <Select
-                            onValueChange={(value) => setEditStartType(value as "USDT" | "percent_equity" | "qty")}
-                            value={editStartType}
-                        >
-                            <SelectTrigger className={cn("w-[200px]", editErrors.start_type && "border-red-500")}>
-                                <SelectValue placeholder={"% of equity"}></SelectValue>
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectGroup>
-                                    <SelectItem value="percent_equity">% of equity</SelectItem>
-                                    <SelectItem value="USDT">USDT</SelectItem>
-                                    <SelectItem value="qty">Quantity</SelectItem>
-                                </SelectGroup>
-                            </SelectContent>
-                        </Select>
-                    </div>
-                </div>
-                <div className="flex gap-4 items-center">
-                    <span className="w-[200px] font-medium text-white">
-                        Leverage
-                    </span>
-                    <div className="w-full">
-                        <InputBase>
-                            <InputBaseInput
-                                className={cn(editErrors.leverage && "border-red-500")}
-                                type="number"
-                                step="any"
-                                value={editLeverage}
-                                onChange={(e) => setEditLeverage(e.target.value)}
+                <Button
+                    type="button"
+                    disabled
+                    variant="outline"
+                    role="combobox"
+                    aria-expanded={open}
+                    className="justify-between w-full"
+                >   
+                    {bot.asset}
+                    <ChevronsUpDownIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                </Button>
+                <Form {...form}>
+                    <form className="flex flex-col gap-4 items-end justify-end"
+                        onSubmit={(e) => {
+                            console.log("submitted")
+                            form.handleSubmit(onSubmit)(e)
+                        }}
+                    >
+                        <div className="space-y-4 w-full">
+                            <div className="border p-4 rounded-md text-sm grid grid-cols-3 text-muted-foreground">
+                                <div className="font-medium">Min. quantity</div>
+                                <div className="font-medium">Quantity step</div>
+                                <div className="font-medium">Market price</div>
+                                <div className="text-foreground">{instrumentInfo?.minQty ?? "-"}</div>
+                                <div className="text-foreground">{instrumentInfo?.qtyStep ?? "-"}</div>
+                                <div className="text-foreground">WIP</div>
+                                <div className="mt-2 font-medium">Min. leverage</div>
+                                <div className="mt-2 font-medium">Max. leverage</div>
+                                <div className="col-start-1 text-foreground">{instrumentInfo?.minLeverage}</div>
+                                <div className="text-foreground">{instrumentInfo?.maxLeverage}</div>
+                            </div>
+                        </div>
+                        <div className={`grid grid-cols-3 gap-y-3 text-sm items-center font-medium`}>
+                            <div>Start size</div>
+                            <div className="grid col-span-2 gap-2">
+                                <ControlGroup>
+                                    <ControlGroupItem>
+                                        <InputBase>
+                                            <InputBaseControl>
+                                                <FormField
+                                                    control={form.control}
+                                                    name="start_size"
+                                                    render={({ field }) => (
+                                                        <InputBaseInput {...field}
+                                                            type="number"
+                                                            value={field.value as number}
+                                                            onChange={field.onChange}
+                                                        />
+                                                    )}
+                                                />
+                                            </InputBaseControl>
+                                        </InputBase>
+                                    </ControlGroupItem>
+                                    <FormField
+                                        control={form.control}
+                                        name="start_type"
+                                        render={({ field }) => (
+                                            <Select
+                                                value={field.value}
+                                                onValueChange={(value) => {
+                                                    field.onChange(value)
+                                                    setTimeout(() => {
+                                                        trigger("start_size");     // ✅ run validation after state is updated
+                                                    }, 0);
+                                                }}
+                                            >
+                                                <ControlGroupItem className="rounded-md rounded-l-none">
+                                                    <SelectTrigger className="w-[150px]">
+                                                        <SelectValue placeholder="Currency" />
+                                                    </SelectTrigger>
+                                                </ControlGroupItem>
+                                                <SelectContent align="end">
+                                                    <SelectItem value="percent_equity">% of equity</SelectItem>
+                                                    <SelectItem value="USDT">USDT</SelectItem>
+                                                    <SelectItem value="qty">quantity</SelectItem>
+                                                </SelectContent>
+                                            </Select>
+                                        )}
+                                    />
+                                </ControlGroup>
+                                <FormMessage className="col-span-2">
+                                    {form.formState.errors.start_size?.message}
+                                </FormMessage>
+                            </div>
+
+                            <div>Leverage</div>
+                            <FormField
+                                control={form.control}
+                                name="leverage"
+                                render={({ field }) => (
+                                    <FormItem className="col-span-2 font-normal">
+                                        <FormControl>
+                                            <InputBase>
+                                                <InputBaseControl>
+                                                    <InputBaseInput {...field}
+                                                        type="number"
+                                                        value={field.value as number}
+                                                        onChange={field.onChange}
+                                                        step={0.1}
+                                                    />
+                                                </InputBaseControl>
+                                                <InputBaseAdornment>x</InputBaseAdornment>
+                                            </InputBase>
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
                             />
-                            <InputBaseAdornment>x</InputBaseAdornment>
-                        </InputBase>
-                    </div>
-                </div>
-                <div className="flex gap-4 items-center">
-                    <span className="w-[200px] font-medium text-white">
-                        Multiplier
-                    </span>
-                    <div className="w-full">
-                        <InputBase>
-                            <InputBaseInput
-                                className={cn(editErrors.multiplier && "border-red-500")}
-                                type="number"
-                                step="any"
-                                value={editMultiplier}
-                                onChange={(e) => setEditMultiplier(e.target.value)}
+
+                            <div>Multiplier</div>
+                            <FormField
+                                control={form.control}
+                                name="multiplier"
+                                render={({ field }) => (
+                                    <FormItem className="col-span-2 font-normal">
+                                        <FormControl>
+                                            <InputBase>
+                                                <InputBaseControl>
+                                                    <InputBaseInput {...field}
+                                                        type="number"
+                                                        value={field.value as number}
+                                                        onChange={field.onChange}
+                                                        step={0.1}
+                                                    />
+                                                </InputBaseControl>
+                                                <InputBaseAdornment>%</InputBaseAdornment>
+                                            </InputBase>
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
                             />
-                            <InputBaseAdornment>x</InputBaseAdornment>
-                        </InputBase>
-                    </div>
-                </div>
-                <div className="flex gap-4 items-center">
-                    <span className="w-[200px] font-medium text-white">
-                        Take Profit
-                    </span>
-                    <div className="w-full">
-                        <InputBase>
-                            <InputBaseInput
-                                className={cn(editErrors.take_profit && "border-red-500")}
-                                type="number"
-                                step="any"
-                                value={editTakeProfit}
-                                onChange={(e) => setEditTakeProfit(e.target.value)}
+
+                            <div>Take profit</div>
+                            <FormField
+                                control={form.control}
+                                name="take_profit"
+                                render={({ field }) => (
+                                    <FormItem className="col-span-2 font-normal">
+                                        <FormControl>
+                                            <InputBase>
+                                                <InputBaseControl>
+                                                    <InputBaseInput {...field}
+                                                        type="number"
+                                                        value={field.value as number}
+                                                        onChange={field.onChange}
+                                                        step={0.1}
+                                                    />
+                                                </InputBaseControl>
+                                                <InputBaseAdornment>%</InputBaseAdornment>
+                                            </InputBase>
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
                             />
-                            <InputBaseAdornment>%</InputBaseAdornment>
-                        </InputBase>
-                    </div>
-                </div>
-                <div className="flex gap-4 items-center">
-                    <span className="w-[200px] font-medium text-white">
-                        Rebuy
-                    </span>
-                    <div className="w-full">
-                        <InputBase>
-                            <InputBaseInput
-                                className={cn(editErrors.rebuy && "border-red-500")}
-                                type="number"
-                                step="any"
-                                value={editRebuy}
-                                onChange={(e) => setEditRebuy(e.target.value)}
+
+                            <div>Rebuy</div>
+                            <FormField
+                                control={form.control}
+                                name="rebuy"
+                                render={({ field }) => (
+                                    <FormItem className="col-span-2 font-normal">
+                                        <FormControl>
+                                            <InputBase>
+                                                <InputBaseControl>
+                                                    <InputBaseInput {...field}
+                                                        type="number"
+                                                        value={field.value as number}
+                                                        onChange={field.onChange}
+                                                        step={0.1}
+                                                    />
+                                                </InputBaseControl>
+                                                <InputBaseAdornment>%</InputBaseAdornment>
+                                            </InputBase>
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
                             />
-                            <InputBaseAdornment>%</InputBaseAdornment>
-                        </InputBase>
-                    </div>
-                </div>
-                <div className="flex gap-4 items-center">
-                    <span className="w-[200px] font-medium text-white">
-                        Max Rebuy
-                    </span>
-                    <div className="w-full">
-                        <Input
-                            className={cn(editErrors.max_rebuy && "border-red-500")}
-                            type="number"
-                            step="any"
-                            value={editMaxRebuy}
-                            onChange={(e) => setEditMaxRebuy(e.target.value)}
-                        />
-                    </div>
-                </div>
-                <DialogFooter>
-                    <Button onClick={handleUpdateBot}>
-                        Update Bot
-                    </Button>
-                </DialogFooter>
+
+                            <div>Max rebuy</div>
+                            <FormField
+                                control={form.control}
+                                name="max_rebuy"
+                                render={({ field }) => (
+                                    <FormItem className="col-span-2 font-normal">
+                                        <FormControl>
+                                            <Input {...field}
+                                                type="number"
+                                                value={field.value as number}
+                                                onChange={field.onChange}
+                                            />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                        </div>
+                        <Button type="submit">Create bot</Button>
+                    </form>
+                </Form>
             </DialogContent>
         </Dialog>
     );

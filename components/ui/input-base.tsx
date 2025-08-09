@@ -70,9 +70,9 @@ function InputBase({
           }
         })}
         className={cn(
-          "border-input selection:bg-primary selection:text-primary-foreground dark:bg-input/30 flex min-h-9 cursor-text items-center gap-2 rounded-md border bg-transparent px-3 py-1 text-base shadow-xs transition-[color,box-shadow] outline-none md:text-sm",
+          "border-input selection:bg-primary selection:text-primary-foreground flex h-9 cursor-text items-center gap-2 rounded-md border bg-transparent px-3 py-1 text-base shadow-xs transition-[color,box-shadow] outline-none md:text-sm",
           disabled && "pointer-events-none cursor-not-allowed opacity-50",
-          focused && "border-ring ring-ring/50 ring-[3px]",
+          focused && "focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px]",
           error &&
             "ring-destructive/20 dark:ring-destructive/40 border-destructive",
           className,

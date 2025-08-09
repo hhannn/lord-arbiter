@@ -46,7 +46,7 @@ export function BotActionButtons({
                             <Button
                                 className="my-2 size-8"
                                 size="icon"
-                                variant="secondary"
+                                variant="ghost"
                                 title="More action"
                             >
                                 <MoreHorizontal />
