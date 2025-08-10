@@ -52,6 +52,8 @@ export function BotDailyChart({ className, dailyPnl = [] }: ChartBarNegativeProp
         },
     };
 
+    console.log(dailyPnl)
+
     const CustomTooltipContent = ({ active, payload, label }: any) => {
         if (active && payload && payload.length) {
             return (

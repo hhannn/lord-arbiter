@@ -53,7 +53,7 @@ export function BotDetailDialog({ bot, open, onOpenChange }: BotDetailDialogProp
 
     // Calculate bot PnL values using useMemo to optimize
     const botPnLValues = useMemo(() => {
-        const closedPnL = userData?.closedPnL?.result?.list ?? [];
+        const closedPnL = userData?.closedPnL ?? [];
         if (!closedPnL || closedPnL.length === 0) {
             return [];
         }
