@@ -121,7 +121,7 @@ export default function DashboardContent({ children }: DashboardContentProps) {
         // Average trade time
 
         const diffs: any[] = []
-        data?.closedPnL?.result.list.forEach((item: any) => {
+        data?.closedPnL?.forEach((item: any) => {
             const diff = new Date(Number(item.updatedTime)).getTime() - new Date(Number(item.createdTime)).getTime();
 
             diffs.push(diff)
@@ -154,7 +154,7 @@ export default function DashboardContent({ children }: DashboardContentProps) {
             dailyPnl,
             totalPnl,
             averageTradeDuration,
-            totalClosedOrders: data.closedPnL?.result.list.length,
+            totalClosedOrders: data.closedPnL?.length,
             transactionLog: data.transactionLogs || [],
         };
     }, [data, monthly]);
@@ -290,7 +290,7 @@ export default function DashboardContent({ children }: DashboardContentProps) {
                             <CardContent className="px-4">
                                 <ScrollArea className="h-[380px] rounded-md">
                                     <ul className="space-y-2">
-                                        {data.closedPnL?.result.list.map((item: any) => {
+                                        {data.closedPnL?.map((item: any) => {
                                             // console.log(item)
                                             const symbol = String(item.symbol).replace("USDT", "");
                                             const createdDate = new Date(Number(item.createdTime));

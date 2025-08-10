@@ -96,7 +96,7 @@ export function BotDetailDialog({ bot, open, onOpenChange }: BotDetailDialogProp
         // Convert bot's created_at to a timestamp for filtering
         const botCreatedAtTimestamp = bot.created_at ? new Date(bot.created_at).getTime() : 0;
 
-        userData?.closedPnL.result.list.forEach((item: any) => {
+        userData?.closedPnL?.forEach((item: any) => {
 
             const itemTimestamp = Number(item.updatedTime);
             const timeFilter = itemTimestamp >= botCreatedAtTimestamp
