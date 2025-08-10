@@ -63,7 +63,7 @@ export function DataTable<TData, TValue>({
     });
 
     return (
-        <Card className="rounded-md border flex flex-col items-stretch gap-4 bg-card overflow-hidden">
+        <Card className="border flex flex-col items-stretch gap-4 bg-card overflow-hidden">
             <CardHeader>
                 <CardTitle className="text-2xl">Running Bot</CardTitle>
                 <CardDescription>A gem cannot be polished without friction, nor a man perfected without trials.</CardDescription>
@@ -125,7 +125,7 @@ export function DataTable<TData, TValue>({
                         <TableBody className="bg-background">
                             {table.getRowModel().rows?.length ? (
                                 table.getRowModel().rows.map((row) => (
-                                    <TableRow
+                                    <TableRow className="space-x-0"
                                         key={row.id}
                                         data-state={row.getIsSelected() && "selected"}
                                     >
@@ -137,7 +137,7 @@ export function DataTable<TData, TValue>({
                                                     key={cell.id}
                                                     className={cn(
                                                         "py-2",
-                                                        isFirstDataCell && "pl-6"
+                                                        isFirstDataCell && "pl-6", 
                                                     )}
                                                 >
                                                     {flexRender(

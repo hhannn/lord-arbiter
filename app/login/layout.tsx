@@ -10,28 +10,19 @@ export const metadata = {
 
 export default function Layout({ children }: { children: React.ReactNode }) {
     return (
-        <html>
-            <head />
-            <body>
-                {/* <video autoPlay muted loop playsInline className="fixed -z-20">
-                    <source
-                        src="https://hw-media-cdn-mingchao.kurogame.com/akiwebsite/website2.0/video/1734710400000/w9ijnl9qgqh70nc899-1734783150908.mp4"
-                    />
-                </video> */}
-                <ThemeProvider
-                    attribute="class"
-                    defaultTheme="dark"
-                    enableSystem
-                    disableTransitionOnChange
-                >
-                    <main className="h-screen overflow-hidden relative">
-                        <Shadow color="rgba(125, 125, 125, 1)" />
-                        <div className="relative min-h-screen">
-                            {children}
-                        </div>
-                    </main>
-                </ThemeProvider>
-            </body>
-        </html>
+        <>
+            <main className="h-screen overflow-hidden relative">
+                <Shadow color="rgba(125, 125, 125, 1)" />
+                <div className="relative min-h-screen">
+                    {children}
+                </div>
+            </main>
+            {/* <video autoPlay muted loop playsInline className="fixed -z-20">
+                <source
+                    src="https://hw-media-cdn-mingchao.kurogame.com/akiwebsite/website2.0/video/1734710400000/w9ijnl9qgqh70nc899-1734783150908.mp4"
+                />
+            </video> */}
+        </>
+
     );
 }
