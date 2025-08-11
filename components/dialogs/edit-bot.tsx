@@ -34,8 +34,6 @@ export function EditBotDialog({ bot, open, onOpenChange }: EditBotDialogProps) {
     useEffect(() => {
         if (open) {
             fetchInstrumentInfo(bot.asset);
-        } else {
-            resetInstrumentInfo();
         }
     }, [open, bot.asset, fetchInstrumentInfo, resetInstrumentInfo]);
 
@@ -126,7 +124,14 @@ export function EditBotDialog({ bot, open, onOpenChange }: EditBotDialogProps) {
         });
 
         console.log(values)
-        reset();
+        
+        onOpenChange(false)
+        const timeout = setTimeout(() => {
+            resetInstrumentInfo();
+            reset();
+        }, 50)
+
+        return() => clearTimeout(timeout)
     }
 
     // const handleUpdateBot = async () => {
@@ -361,7 +366,7 @@ export function EditBotDialog({ bot, open, onOpenChange }: EditBotDialogProps) {
                                 )}
                             />
                         </div>
-                        <Button type="submit">Create bot</Button>
+                        <Button type="submit">Update bot</Button>
                     </form>
                 </Form>
             </DialogContent>

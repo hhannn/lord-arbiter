@@ -32,7 +32,6 @@ import { DropdownMenuContent, DropdownMenuTrigger, DropdownMenu, DropdownMenuIte
 import { cn } from "@/lib/utils";
 import { CreateBotDialog } from "@/components/dialogs/create-bot";
 
-
 interface DataTableProps<TData, TValue> {
     columns: ColumnDef<TData, TValue>[];
     data: TData[];
@@ -46,7 +45,8 @@ export function DataTable<TData, TValue>({
     const [columnVisibility, setColumnVisibility] =
         useState<VisibilityState>({
             start_type: false,
-            side: false
+            side: false,
+            resonance: false
         });
 
     const table = useReactTable({

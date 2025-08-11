@@ -1,16 +1,6 @@
 "use client";
 
-import { TrendingUp } from "lucide-react";
 import { Area, AreaChart, Bar, BarChart, CartesianGrid, Cell, LabelList, XAxis } from "recharts";
-
-import {
-    Card,
-    CardContent,
-    CardDescription,
-    CardFooter,
-    CardHeader,
-    CardTitle,
-} from "@/components/ui/card";
 import {
     ChartConfig,
     ChartContainer,
@@ -52,7 +42,7 @@ export function BotDailyChart({ className, dailyPnl = [] }: ChartBarNegativeProp
         },
     };
 
-    console.log(dailyPnl)
+    // console.log(dailyPnl)
 
     const CustomTooltipContent = ({ active, payload, label }: any) => {
         if (active && payload && payload.length) {

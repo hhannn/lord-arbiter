@@ -3,7 +3,7 @@
 import { useUserData } from "@/store/useUserData";
 import { useRouter } from "next/navigation";
 
-import { Home, Bot, ChevronsUpDown, ChevronUp, Calculator, ChartArea, ChartLine, Settings, LogOut, LayoutDashboard } from "lucide-react";
+import { Home, Bot, ChevronsUpDown, ChevronUp, Calculator, ChartArea, ChartLine, Settings, LogOut, LayoutDashboard, User } from "lucide-react";
 import {
     Sidebar,
     SidebarContent,
@@ -19,6 +19,8 @@ import {
 import { Avatar, AvatarImage, AvatarFallback } from "./ui/avatar";
 import Image from "next/image";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "./ui/dropdown-menu";
+import { ProfileDialog } from "./dialogs/profile-dialog";
+import { use, useState } from "react";
 
 const items = [
     { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
@@ -36,6 +38,8 @@ export function AppSidebar({ collapsible = "icon" }: AppSidebarProps) {
     const { state } = useSidebar();
     const { username, uid, logout } = useUserData();
     const isCollapsed = state === "collapsed";
+
+    const [profileDialogOpen, setProfileDialogOpen] = useState(false);
 
     return (
         <Sidebar collapsible={collapsible} className="border-none">
@@ -114,9 +118,9 @@ export function AppSidebar({ collapsible = "icon" }: AppSidebarProps) {
                         </div>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent className="min-w-60">
-                        <DropdownMenuItem>
-                            <Settings />
-                            Settings
+                        <DropdownMenuItem onClick={() => setProfileDialogOpen(true)}>
+                            <User />
+                            Profile
                         </DropdownMenuItem>
                         <DropdownMenuSeparator />
                         <DropdownMenuItem onClick={() => {
@@ -129,6 +133,7 @@ export function AppSidebar({ collapsible = "icon" }: AppSidebarProps) {
                     </DropdownMenuContent>
                 </DropdownMenu>
             </SidebarFooter>
+            <ProfileDialog open={profileDialogOpen} onOpenChange={setProfileDialogOpen}/>
         </Sidebar>
     );
 }

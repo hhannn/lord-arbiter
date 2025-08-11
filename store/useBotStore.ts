@@ -144,7 +144,15 @@ export const useBotStore = create<BotState>()(
                 const minLeverage = Number(leverageFilter?.minLeverage);
                 const maxLeverage = Number(leverageFilter?.maxLeverage);
                 console.log(minQty, qtyStep, minValue);
-                set({ instrumentInfo: { minQty, qtyStep, minValue, minLeverage, maxLeverage } });
+                set({
+                    instrumentInfo: {
+                        minQty,
+                        qtyStep,
+                        minValue,
+                        minLeverage,
+                        maxLeverage,
+                    },
+                });
             },
 
             resetInstrumentInfo: () => set({ instrumentInfo: null }),
@@ -154,7 +162,7 @@ export const useBotStore = create<BotState>()(
                 get().fetchBots(); // initial call
 
                 pollingInterval = setInterval(() => {
-                    get().fetchBots();
+                    if (document.visibilityState === "visible") get().fetchBots();
                     // console.log(get().data);
                 }, 5000);
             },

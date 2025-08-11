@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { Bot } from "@/types/bot";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
+import { string } from "zod";
 
 export const columns: ColumnDef<Bot>[] = [
     {
@@ -102,12 +103,25 @@ export const columns: ColumnDef<Bot>[] = [
         },
     },
     {
+        accessorKey: "resonance",
+        header: "Resonance",
+        enableHiding: false,
+    },
+    {
         accessorKey: "multiplier",
         header: "Multiplier",
         cell: ({ row }) => {
             const multiplier = String(row.getValue("multiplier"));
+            const resonance = row.getValue("resonance");
 
-            return `${multiplier}x`;
+            return (
+                resonance !== "A018123" ?
+                    `${multiplier}x` :
+                    <img className="size-6"
+                        src="https://cdn.wanderer.moe/wuthering-waves/elements/T_IconElementLight_UI.png"
+                        alt="Resonance"
+                    />
+            );
         },
     },
     {

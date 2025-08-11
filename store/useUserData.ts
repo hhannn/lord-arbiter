@@ -82,7 +82,11 @@ export const useUserData = create<UserDataStore>()(
                     if (pollingInterval) return;
                     get().fetchData(); // initial call
                     pollingInterval = setInterval(() => {
-                        get().fetchData();
+                        if (document.visibilityState === "visible") {
+                            get().fetchData();
+                        } else {
+                            console.log("page inactive")
+                        }
                     }, 5000);
                 },
                 stopPolling: () => {

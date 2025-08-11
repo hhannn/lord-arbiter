@@ -131,7 +131,7 @@ export default function DashboardContent({ children }: DashboardContentProps) {
             hour: 0,
             minute: 0
         }
-        
+
         if (diffs.length > 0) {
             const totalDiff = diffs.reduce((acc, val) => acc + val)
             const diffMs = Number(totalDiff) / Number(diffs.length)
@@ -162,21 +162,35 @@ export default function DashboardContent({ children }: DashboardContentProps) {
     if (!dashboardData || initialLoading) {
         console.log("loading")
         return (
-            <div className="flex flex-col space-y-2 px-8 min-h-screen w-full">
-                <div>LOADING</div>
-                <Skeleton className="h-full w-full" />
-                <Skeleton className="h-full w-full" />
-                <Skeleton className="h-full w-full" />
-                <Skeleton className="h-full w-full" />
-                <Skeleton className="h-full w-full" />
+            <div className="relative flex flex-col gap-4 w-full px-4 py-6">
+                <Skeleton className="h-12" />
+                <Skeleton className="h-4" />
+                <div className="grid grid-cols-3 gap-4 h-full w-full">
+                    <div className="flex flex-col gap-4">
+                        <div className="flex gap-4 w-full">
+                            <Skeleton className="h-48 w-full" />
+                            <Skeleton className="h-48 w-full" />
+                        </div>
+                        <Skeleton className="h-72" />
+                    </div>
+                    <div className="flex flex-col gap-4">
+                        <div className="flex gap-4 w-full">
+                            <Skeleton className="h-48 w-full" />
+                            <Skeleton className="h-48 w-full" />
+                        </div>
+                        <Skeleton className="h-72" />
+                    </div>
+                    <Skeleton className="h-full w-full" />
+                </div>
+                <Skeleton className="h-64" />
             </div>
         )// prevent context from being null
     }
 
     return (
         <DashboardContext.Provider value={dashboardData}>
-            <div className="relative flex flex-col min-h-screen w-full px-4 py-6">
-                <div className="flex flex-col md:flex-row">
+            <div className="relative flex flex-col md:grid md:grid-cols-12 gap-4 items-stretch min-h-screen w-full px-4 py-6">
+                <div className="col-span-full flex">
                     <div className="flex flex-col items-center sm:items-start">
                         <h1 className="text-3xl font-bold mb-2">Welcome to Lord Arbiter</h1>
                         <p className="">
@@ -185,7 +199,7 @@ export default function DashboardContent({ children }: DashboardContentProps) {
                     </div>
                     <div className="text-sm text-neutral-500 ms-auto">
                         {data ? dashboardData?.time : "Loading..."}
-                        <Tabs defaultValue="7">
+                        <Tabs defaultValue="7" className="mt-2">
                             <TabsList>
                                 <TabsTrigger value="7" onClick={() => setMonthly(false)}>
                                     7 days
@@ -198,144 +212,137 @@ export default function DashboardContent({ children }: DashboardContentProps) {
                     </div>
                 </div>
 
-                <div className="flex flex-col md:grid grid-cols-12 gap-4 mt-6">
-                    <div className="col-span-8 flex flex-col gap-4">
-                        <div className="flex-1/3 flex flex-col md:flex-row items-stretch gap-4">
-                            <Card className="flex-1 justify-between">
-                                <CardHeader>
-                                    <CardTitle className="text-sm text-muted-foreground">Equity</CardTitle>
-                                    <CardTitle className="flex items-end gap-2">
-                                        <span className="text-2xl md:text-3xl">
-                                            {dashboardData.equity.toFixed(2)}
-                                        </span>
-                                        <span className="text-sm text-muted-foreground">USDT</span>
-                                    </CardTitle>
-                                </CardHeader>
-                                <CardFooter className="flex flex-col items-start">
-                                    <div
-                                        className={`text-sm ${dashboardData && dashboardData.unrealizedPnl >= 0 ?
-                                            "text-green-600 dark:text-green-400" :
-                                            "text-red-400"
-                                            }`}
-                                    >
-                                        {dashboardData.unrealizedPnl.toFixed(2)} USDT
-                                    </div>
-                                    <p className="text-sm text-muted-foreground">
-                                        Total unrealized P&L
-                                    </p>
-                                </CardFooter>
-                            </Card>
-
-                            <Card className="flex-1 justify-between">
-                                <CardHeader>
-                                    <CardTitle className="text-sm text-muted-foreground">Total P&L</CardTitle>
-                                    <CardTitle className="flex items-end gap-2">
-                                        <span className="text-2xl md:text-3xl">
-                                            {data && dashboardData ? dashboardData.totalPnl.toFixed(2) : "Loading..."}
-                                        </span>
-                                        <span className="text-sm text-muted-foreground">USDT</span>
-                                    </CardTitle>
-                                </CardHeader>
-                                <CardFooter className="text-sm text-muted-foreground">
-                                    {monthly
-                                        ? "Total closed P&L this month."
-                                        : "Total closed P&L this week."}
-                                </CardFooter>
-                            </Card>
-                            <Card className="flex-1 justify-between">
-                                <CardHeader className="gap-2">
-                                    <CardTitle className="text-sm text-muted-foreground">Avg. trade duration</CardTitle>
-                                    <CardTitle className="font-medium text-xl md:text-3xl">
-                                        {dashboardData?.averageTradeDuration.hour}<span className="ms-0 text-base text-muted-foreground">h </span>
-                                        {dashboardData?.averageTradeDuration.minute}<span className="text-base text-muted-foreground">m</span>
-                                    </CardTitle>
-                                </CardHeader>
-                                <CardContent className="">
-                                </CardContent>
-                                <CardFooter className="text-sm text-muted-foreground">
-                                    Avg. trade duration this week
-                                </CardFooter>
-                            </Card>
-                            <Card className="flex-1 justify-between">
-                                <CardHeader>
-                                    <CardTitle className="text-sm text-muted-foreground">Total closed positions</CardTitle>
-                                    <CardTitle className="font-medium text-xl md:text-3xl">{dashboardData?.totalClosedOrders}</CardTitle>
-                                </CardHeader>
-                                <CardFooter className="text-sm text-muted-foreground">
-                                    {dashboardData?.totalClosedOrders} Long / 0 Short
-                                </CardFooter>
-                            </Card>
+                <Card className="col-span-2 flex-1 justify-between">
+                    <CardHeader>
+                        <CardTitle className="text-sm text-muted-foreground">Equity</CardTitle>
+                        <CardTitle className="flex items-end gap-2">
+                            <span className="text-2xl md:text-3xl">
+                                {dashboardData.equity.toFixed(2)}
+                            </span>
+                            <span className="text-sm text-muted-foreground">USDT</span>
+                        </CardTitle>
+                    </CardHeader>
+                    <CardFooter className="flex flex-col items-start">
+                        <div
+                            className={`text-sm ${dashboardData && dashboardData.unrealizedPnl >= 0 ?
+                                "text-green-600 dark:text-green-400" :
+                                "text-red-400"
+                                }`}
+                        >
+                            {dashboardData.unrealizedPnl.toFixed(2)} USDT
                         </div>
-                        <div className="flex-2/3 grid grid-cols-2 gap-4">
-                            <ChartBarNegative
-                                data={dashboardData?.dailyPnl || []}
-                                initialLoading={initialLoading}
-                                className="flex-1 shrink-0"
-                                monthly={monthly}
-                            />
-                            <ChartLineDefault
-                                data={dashboardData?.dailyPnl || []}
-                                initialLoading={initialLoading}
-                                className="flex-1 shrink-0"
-                                monthly={monthly}
-                            />
-                        </div>
+                        <p className="text-sm text-muted-foreground">
+                            Total unrealized P&L
+                        </p>
+                    </CardFooter>
+                </Card>
 
-                    </div>
-                    <div className="col-span-4 flex flex-col gap-4">
-                        <Card className="flex-1">
-                            <CardHeader>
-                                <CardTitle className="text-xl">P&L list</CardTitle>
-                            </CardHeader>
-                            <CardContent className="px-4">
-                                <ScrollArea className="h-[380px] rounded-md">
-                                    <ul className="space-y-2">
-                                        {data.closedPnL?.map((item: any) => {
-                                            // console.log(item)
-                                            const symbol = String(item.symbol).replace("USDT", "");
-                                            const createdDate = new Date(Number(item.createdTime));
-                                            const updatedDate = new Date(Number(item.updatedTime));
-                                            const timeDiff = Number(updatedDate) - Number(createdDate);
-                                            const totalMinutes = Math.floor(timeDiff / 1000 / 60);
+                <Card className="col-span-2 justify-between">
+                    <CardHeader>
+                        <CardTitle className="text-sm text-muted-foreground">Total P&L</CardTitle>
+                        <CardTitle className="flex items-end gap-2">
+                            <span className="text-2xl md:text-3xl">
+                                {data && dashboardData ? dashboardData.totalPnl.toFixed(2) : "Loading..."}
+                            </span>
+                            <span className="text-sm text-muted-foreground">USDT</span>
+                        </CardTitle>
+                    </CardHeader>
+                    <CardFooter className="text-sm text-muted-foreground">
+                        {monthly
+                            ? "Total closed P&L this month."
+                            : "Total closed P&L this week."}
+                    </CardFooter>
+                </Card>
 
-                                            const duration = {
-                                                hour: Math.floor(totalMinutes / 60),
-                                                minute: totalMinutes % 60
-                                            }
+                <Card className="col-span-2 justify-between">
+                    <CardHeader className="gap-2">
+                        <CardTitle className="text-sm text-muted-foreground">Avg. trade duration</CardTitle>
+                        <CardTitle className="font-medium text-xl md:text-3xl">
+                            {dashboardData?.averageTradeDuration.hour}<span className="ms-0 text-base text-muted-foreground">h </span>
+                            {dashboardData?.averageTradeDuration.minute}<span className="text-base text-muted-foreground">m</span>
+                        </CardTitle>
+                    </CardHeader>
+                    <CardFooter className="text-sm text-muted-foreground">
+                        Avg. trade duration
+                    </CardFooter>
+                </Card>
 
-                                            // const formattedDate = createdDate.toDateString().slice(3) + ", " + createdDate.toTimeString().slice(0, 8)
-                                            const formattedDate = createdDate.toLocaleString("en-GB", {
-                                                timeZone: "Asia/Jakarta", // or "Asia/Bangkok"
-                                                year: "numeric",
-                                                month: "short",
-                                                day: "2-digit",
-                                                hour: "2-digit",
-                                                minute: "2-digit",
-                                                second: "2-digit",
-                                            });
+                <Card className="col-span-2 justify-between">
+                    <CardHeader>
+                        <CardTitle className="text-sm text-muted-foreground">Total closed positions</CardTitle>
+                        <CardTitle className="font-medium text-xl md:text-3xl">{dashboardData?.totalClosedOrders}</CardTitle>
+                    </CardHeader>
+                    <CardFooter className="text-sm text-muted-foreground">
+                        {dashboardData?.totalClosedOrders} Long / 0 Short
+                    </CardFooter>
+                </Card>
 
-                                            const itemData = {
-                                                symbol: symbol,
-                                                pair: item.symbol,
-                                                side: item.side,
-                                                createdDate: createdDate,
-                                                updatedDate: updatedDate,
-                                                duration: duration,
-                                                date: formattedDate,
-                                            }
+                <ChartBarNegative
+                    data={dashboardData?.dailyPnl || []}
+                    initialLoading={initialLoading}
+                    className="col-span-4 col-start-1"
+                    monthly={monthly}
+                />
 
-                                            return (
-                                                <PnlCardItem data={itemData} item={item} />
-                                            )
+                <ChartLineDefault
+                    data={dashboardData?.dailyPnl || []}
+                    initialLoading={initialLoading}
+                    className="col-span-4"
+                    monthly={monthly}
+                />
 
-                                        })}
-                                    </ul>
-                                </ScrollArea>
-                            </CardContent>
-                        </Card>
-                    </div>
+                <Card className="col-span-4 row-span-2 row-start-2 col-start-9">
+                    <CardHeader>
+                        <CardTitle className="text-xl">P&L list</CardTitle>
+                    </CardHeader>
+                    <CardContent className="px-4">
+                        <ScrollArea className="h-[380px] rounded-md">
+                            <ul className="space-y-2">
+                                {data.closedPnL?.map((item: any) => {
+                                    // console.log(item)
+                                    const symbol = String(item.symbol).replace("USDT", "");
+                                    const createdDate = new Date(Number(item.createdTime));
+                                    const updatedDate = new Date(Number(item.updatedTime));
+                                    const timeDiff = Number(updatedDate) - Number(createdDate);
+                                    const totalMinutes = Math.floor(timeDiff / 1000 / 60);
 
-                    {/* <Card className="col-span-4">
+                                    const duration = {
+                                        hour: Math.floor(totalMinutes / 60),
+                                        minute: totalMinutes % 60
+                                    }
+
+                                    // const formattedDate = createdDate.toDateString().slice(3) + ", " + createdDate.toTimeString().slice(0, 8)
+                                    const formattedDate = createdDate.toLocaleString("en-GB", {
+                                        timeZone: "Asia/Jakarta", // or "Asia/Bangkok"
+                                        year: "numeric",
+                                        month: "short",
+                                        day: "2-digit",
+                                        hour: "2-digit",
+                                        minute: "2-digit",
+                                        second: "2-digit",
+                                    });
+
+                                    const itemData = {
+                                        symbol: symbol,
+                                        pair: item.symbol,
+                                        side: item.side,
+                                        createdDate: createdDate,
+                                        updatedDate: updatedDate,
+                                        duration: duration,
+                                        date: formattedDate,
+                                    }
+
+                                    return (
+                                        <PnlCardItem data={itemData} item={item} />
+                                    )
+
+                                })}
+                            </ul>
+                        </ScrollArea>
+                    </CardContent>
+                </Card>
+
+                {/* <Card className="col-span-4">
                         <CardHeader>
                             <CardTitle className="text-xl">Activity Log</CardTitle>
                             <CardDescription>
@@ -351,9 +358,8 @@ export default function DashboardContent({ children }: DashboardContentProps) {
                         </CardHeader>
                     </Card> */}
 
-                    <div className="col-span-12">
-                        {children}
-                    </div>
+                <div className="col-span-full">
+                    {children}
                 </div>
             </div>
         </DashboardContext.Provider>

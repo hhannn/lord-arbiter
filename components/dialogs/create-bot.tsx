@@ -1,10 +1,10 @@
-import { useEffect, useState } from "react";
+import { use, useEffect, useState } from "react";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "../ui/dialog";
 import { Button } from "../ui/button";
 import { AssetsCombobox } from "../assets-combobox";
 import { Input } from "../ui/input";
 import { toast } from "sonner";
-import { CirclePlus, Plus } from "lucide-react";
+import { ChevronDown, CirclePlus, Plus } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 
@@ -30,10 +30,13 @@ import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, For
 import z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Controller, useForm } from "react-hook-form";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "../ui/dropdown-menu";
+import { Switch } from "../ui/switch";
 
 export function CreateBotDialog() {
 
     const { createBot, instrumentInfo, fetchInstrumentInfo } = useBotStore();
+    const [switched, setSwitched] = useState(false);
 
     const formSchema = z.object({
         asset: z.string().nonempty("Asset is required"),
@@ -114,16 +117,32 @@ export function CreateBotDialog() {
     async function onSubmit(values: z.infer<typeof formSchema>) {
         // Do something with the form values.
         // ✅ This will be type-safe and validated.
-        await createBot({
-            asset: values.asset,
-            start_size: values.start_size,
-            leverage: values.leverage,
-            multiplier: values.multiplier,
-            take_profit: values.take_profit,
-            rebuy: values.rebuy,
-            max_rebuy: values.max_rebuy,
-            start_type: values.start_type
-        });
+
+        if (values.asset === "FARTCOINUSDT" && switched) {
+            await createBot({
+                asset: values.asset,
+                start_size: values.start_size,
+                leverage: 25,
+                multiplier: 1,
+                take_profit: 1.2,
+                rebuy: 6,
+                max_rebuy: 9,
+                start_type: values.start_type,
+                resonance: "A018123"
+            });
+        } else {
+            await createBot({
+                asset: values.asset,
+                start_size: values.start_size,
+                leverage: values.leverage,
+                multiplier: values.multiplier,
+                take_profit: values.take_profit,
+                rebuy: values.rebuy,
+                max_rebuy: values.max_rebuy,
+                start_type: values.start_type,
+                resonance: null
+            });
+        }
 
         setOpenForm(false);
         setCreateDialogOpen(false);
@@ -191,17 +210,200 @@ export function CreateBotDialog() {
                                 <div className="text-foreground">{instrumentInfo?.maxLeverage}</div>
                             </div>
                         </div>
-                        <div className={`w-full grid grid-cols-2 items-stretch gap-y-3 gap-x-2 text-sm font-medium ${openForm ? "block" : "hidden"}`}>
+                        <div className={
+                            `${!openForm ? "hidden" :
+                                form.getValues("asset") === "FARTCOINUSDT" ? "flex" :
+                                    "hidden"
+                            } 
+                            w-full flex justify-between items-center gap-4 p-4 border border-b-border rounded-md`
+                        }>
+                            <div className="space-y-1">
+                                <div className="text-base font-medium">
+                                    Resonance liberation
+                                </div>
+                                <div className="text-sm font-base text-muted-foreground">
+                                    If enabled, special parameters will be used for this bot.
+                                </div>
+                            </div>
+                            <Switch className={`cursor-pointer`}
+                                checked={switched}
+                                onCheckedChange={() => setSwitched(!switched)}>
+                            </Switch>
+                        </div>
+                        {!switched ?
+                            <div className={`w-full grid grid-cols-2 items-stretch gap-y-3 gap-x-2 text-sm ${openForm ? "block" : "hidden"}`}>
+                                <FormField
+                                    control={form.control}
+                                    name="start_size"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Start size</FormLabel>
+                                            <FormControl>
+                                                <ControlGroup>
+                                                    <ControlGroupItem>
+                                                        <InputBase>
+                                                            <InputBaseControl>
+                                                                <InputBaseInput {...field}
+                                                                    type="number"
+                                                                    value={field.value as number}
+                                                                    onChange={field.onChange}
+                                                                />
+                                                            </InputBaseControl>
+                                                        </InputBase>
+                                                    </ControlGroupItem>
+                                                    <FormField
+                                                        control={form.control}
+                                                        name="start_type"
+                                                        render={({ field }) => (
+                                                            <Select
+                                                                value={field.value}
+                                                                onValueChange={(value) => {
+                                                                    field.onChange(value)
+                                                                    setTimeout(() => {
+                                                                        trigger("start_size");     // ✅ run validation after state is updated
+                                                                    }, 0);
+                                                                }}
+                                                            >
+                                                                <ControlGroupItem className="rounded-md rounded-l-none">
+                                                                    <SelectTrigger className="w-[150px]">
+                                                                        <SelectValue placeholder="Currency" />
+                                                                    </SelectTrigger>
+                                                                </ControlGroupItem>
+                                                                <SelectContent align="end">
+                                                                    <SelectItem value="percent_equity">% of equity</SelectItem>
+                                                                    <SelectItem value="USDT">USDT</SelectItem>
+                                                                    <SelectItem value="qty">quantity</SelectItem>
+                                                                </SelectContent>
+                                                            </Select>
+                                                        )}
+                                                    />
+                                                </ControlGroup>
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                                <FormField
+                                    control={form.control}
+                                    name="leverage"
+                                    render={({ field }) => (
+                                        <FormItem className="font-normal flex flex-col items-start">
+                                            <FormLabel className="h-min">Leverage</FormLabel>
+                                            <FormControl className="w-full">
+                                                <InputBase>
+                                                    <InputBaseControl>
+                                                        <InputBaseInput {...field}
+                                                            type="number"
+                                                            value={field.value as number}
+                                                            onChange={field.onChange}
+                                                            step={0.1}
+                                                        />
+                                                    </InputBaseControl>
+                                                    <InputBaseAdornment>x</InputBaseAdornment>
+                                                </InputBase>
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                                <FormField
+                                    control={form.control}
+                                    name="multiplier"
+                                    render={({ field }) => (
+                                        <FormItem className="font-normal">
+                                            <FormLabel>Multiplier</FormLabel>
+                                            <FormControl>
+                                                <InputBase>
+                                                    <InputBaseControl>
+                                                        <InputBaseInput {...field}
+                                                            type="number"
+                                                            value={field.value as number}
+                                                            onChange={field.onChange}
+                                                            step={0.1}
+                                                        />
+                                                    </InputBaseControl>
+                                                    <InputBaseAdornment>x</InputBaseAdornment>
+                                                </InputBase>
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                                <FormField
+                                    control={form.control}
+                                    name="take_profit"
+                                    render={({ field }) => (
+                                        <FormItem className="font-normal">
+                                            <FormLabel>Take profit</FormLabel>
+                                            <FormControl>
+                                                <InputBase>
+                                                    <InputBaseControl>
+                                                        <InputBaseInput {...field}
+                                                            type="number"
+                                                            value={field.value as number}
+                                                            onChange={field.onChange}
+                                                            step={0.1}
+                                                        />
+                                                    </InputBaseControl>
+                                                    <InputBaseAdornment>%</InputBaseAdornment>
+                                                </InputBase>
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                                <FormField
+                                    control={form.control}
+                                    name="rebuy"
+                                    render={({ field }) => (
+                                        <FormItem className="font-normal">
+                                            <FormLabel>Rebuy</FormLabel>
+                                            <FormControl>
+                                                <InputBase>
+                                                    <InputBaseControl>
+                                                        <InputBaseInput {...field}
+                                                            type="number"
+                                                            value={field.value as number}
+                                                            onChange={field.onChange}
+                                                            step={0.1}
+                                                        />
+                                                    </InputBaseControl>
+                                                    <InputBaseAdornment>%</InputBaseAdornment>
+                                                </InputBase>
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                                <FormField
+                                    control={form.control}
+                                    name="max_rebuy"
+                                    render={({ field }) => (
+                                        <FormItem className="font-normal">
+                                            <FormLabel>Max rebuy</FormLabel>
+                                            <FormControl>
+                                                <Input {...field}
+                                                    type="number"
+                                                    value={field.value as number}
+                                                    onChange={field.onChange}
+                                                />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                            </div>
+                            :
                             <FormField
                                 control={form.control}
                                 name="start_size"
                                 render={({ field }) => (
-                                    <FormItem>
+                                    <FormItem className="w-full">
                                         <FormLabel>Start size</FormLabel>
                                         <FormControl>
                                             <ControlGroup>
                                                 <ControlGroupItem>
-                                                    <InputBase>
+                                                    <InputBase className="w-full">
                                                         <InputBaseControl>
                                                             <InputBaseInput {...field}
                                                                 type="number"
@@ -243,118 +445,7 @@ export function CreateBotDialog() {
                                     </FormItem>
                                 )}
                             />
-                            <FormField
-                                control={form.control}
-                                name="leverage"
-                                render={({ field }) => (
-                                    <FormItem className="font-normal">
-                                        <FormLabel>Leverage</FormLabel>
-                                        <FormControl>
-                                            <InputBase>
-                                                <InputBaseControl>
-                                                    <InputBaseInput {...field}
-                                                        type="number"
-                                                        value={field.value as number}
-                                                        onChange={field.onChange}
-                                                        step={0.1}
-                                                    />
-                                                </InputBaseControl>
-                                                <InputBaseAdornment>x</InputBaseAdornment>
-                                            </InputBase>
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-
-                            <FormField
-                                control={form.control}
-                                name="multiplier"
-                                render={({ field }) => (
-                                    <FormItem className="font-normal">
-                                        <FormLabel>Multiplier</FormLabel>
-                                        <FormControl>
-                                            <InputBase>
-                                                <InputBaseControl>
-                                                    <InputBaseInput {...field}
-                                                        type="number"
-                                                        value={field.value as number}
-                                                        onChange={field.onChange}
-                                                        step={0.1}
-                                                    />
-                                                </InputBaseControl>
-                                                <InputBaseAdornment>x</InputBaseAdornment>
-                                            </InputBase>
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-                            <FormField
-                                control={form.control}
-                                name="take_profit"
-                                render={({ field }) => (
-                                    <FormItem className="font-normal">
-                                        <FormLabel>Take profit</FormLabel>
-                                        <FormControl>
-                                            <InputBase>
-                                                <InputBaseControl>
-                                                    <InputBaseInput {...field}
-                                                        type="number"
-                                                        value={field.value as number}
-                                                        onChange={field.onChange}
-                                                        step={0.1}
-                                                    />
-                                                </InputBaseControl>
-                                                <InputBaseAdornment>%</InputBaseAdornment>
-                                            </InputBase>
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-
-                            <FormField
-                                control={form.control}
-                                name="rebuy"
-                                render={({ field }) => (
-                                    <FormItem className="font-normal">
-                                        <FormLabel>Rebuy</FormLabel>
-                                        <FormControl>
-                                            <InputBase>
-                                                <InputBaseControl>
-                                                    <InputBaseInput {...field}
-                                                        type="number"
-                                                        value={field.value as number}
-                                                        onChange={field.onChange}
-                                                        step={0.1}
-                                                    />
-                                                </InputBaseControl>
-                                                <InputBaseAdornment>%</InputBaseAdornment>
-                                            </InputBase>
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-                            <FormField
-                                control={form.control}
-                                name="max_rebuy"
-                                render={({ field }) => (
-                                    <FormItem className="font-normal">
-                                        <FormLabel>Max rebuy</FormLabel>
-                                        <FormControl>
-                                            <Input {...field}
-                                                type="number"
-                                                value={field.value as number}
-                                                onChange={field.onChange}
-                                            />
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-                        </div>
+                        }
                         <Button className={openForm ? "block" : "hidden"} type="submit">Create bot</Button>
                     </form>
                 </Form>
