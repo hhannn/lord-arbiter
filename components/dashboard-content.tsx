@@ -27,6 +27,7 @@ import { Skeleton } from "./ui/skeleton";
 import { ScrollArea } from "./ui/scroll-area";
 import { useAuthRedirect } from "@/hooks/useAuthRedirect";
 import { PnlCardItem } from "./pnl-card-item";
+import { Button } from "./ui/button";
 
 // ----- Types -----
 interface DashboardData {
@@ -212,6 +213,17 @@ export default function DashboardContent({ children }: DashboardContentProps) {
                     </div>
                 </div>
 
+                <Card className="relative col-span-full row-start-2 bg-background/20 backdrop-blur-xl overflow-hidden flex-row items-center justify-between pe-6">
+                    <img className="w-full h-auto absolute left-0 top-0" src="https://cdn.wanderer.moe/wuthering-waves/cards/T_CardLong22.png" />
+                    <CardHeader className="w-full">
+                        <CardTitle className="text-lg font-semibold">Backtest results</CardTitle>
+                        <CardDescription className="text-sm text-muted-foreground">
+                            Check the performance of the bots from 2 February 2025.
+                        </CardDescription>
+                    </CardHeader>
+                    <Button className="relative" disabled>Work in progress</Button>
+                </Card>
+
                 <Card className="col-span-2 flex-1 justify-between">
                     <CardHeader>
                         <CardTitle className="text-sm text-muted-foreground">Equity</CardTitle>
@@ -291,7 +303,7 @@ export default function DashboardContent({ children }: DashboardContentProps) {
                     monthly={monthly}
                 />
 
-                <Card className="col-span-4 row-span-2 row-start-2 col-start-9">
+                <Card className="col-span-4 row-span-2 row-start-3 col-start-9">
                     <CardHeader>
                         <CardTitle className="text-xl">P&L list</CardTitle>
                     </CardHeader>

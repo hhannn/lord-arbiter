@@ -21,6 +21,7 @@ export interface Bot {
     transaction_log: TrxEntries[];
     max_rebuy: number;
     resonance: string | null;
+    average_based: boolean;
 }
 
 export interface instrumentInfo {
@@ -49,4 +50,5 @@ export interface CreateBotPayload {
     max_rebuy: number;
     start_type: "USDT" | "percent_equity" | "qty";
     resonance: string | null;
+    average_based: boolean;
 }

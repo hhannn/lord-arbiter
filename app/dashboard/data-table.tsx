@@ -46,7 +46,8 @@ export function DataTable<TData, TValue>({
         useState<VisibilityState>({
             start_type: false,
             side: false,
-            resonance: false
+            resonance: false,
+            average_based: false,
         });
 
     const table = useReactTable({

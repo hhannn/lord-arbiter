@@ -3,7 +3,7 @@
 import { useUserData } from "@/store/useUserData";
 import { useRouter } from "next/navigation";
 
-import { Home, Bot, ChevronsUpDown, ChevronUp, Calculator, ChartArea, ChartLine, Settings, LogOut, LayoutDashboard, User } from "lucide-react";
+import { Home, Bot, ChevronsUpDown, ChevronUp, Calculator, ChartArea, ChartLine, Settings, LogOut, LayoutDashboard, User, BotIcon, TestTubeDiagonal } from "lucide-react";
 import {
     Sidebar,
     SidebarContent,
@@ -23,10 +23,11 @@ import { ProfileDialog } from "./dialogs/profile-dialog";
 import { use, useState } from "react";
 
 const items = [
-    { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
+    // { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
+    { title: "Backtest result", url: "/dashboard/backtest", icon: TestTubeDiagonal },
     { title: "Trading performance", url: "/dashboard/performance", icon: ChartLine },
-    { title: "Bot", url: "#", icon: Bot },
-    { title: "Calculator", url: "/dashboard/calculator", icon: Calculator }
+    // { title: "Bot", url: "#", icon: Bot },
+    { title: "Calculator", url: "/dashboard/calculator", icon: Calculator },
 ];
 
 type AppSidebarProps = {
@@ -63,28 +64,64 @@ export function AppSidebar({ collapsible = "icon" }: AppSidebarProps) {
 
                 {/* Navigation Menu */}
                 <SidebarGroup>
-                    <SidebarGroupLabel className={isCollapsed ? "sr-only" : ""}>
-                        Navigation
-                    </SidebarGroupLabel>
+                    <SidebarMenu>
+                        <SidebarMenuItem>
+                            <SidebarMenuButton asChild>
+                                <a
+                                    href="/dashboard"
+                                    className="flex items-center gap-3"
+                                >
+                                    <LayoutDashboard className="w-5 h-5 flex-shrink-0" />
+                                    {!isCollapsed && (
+                                        <span className="truncate text-sm">
+                                            Dashboard
+                                        </span>
+                                    )}
+                                </a>
+                            </SidebarMenuButton>
+                        </SidebarMenuItem>
+                    </SidebarMenu>
+                    <SidebarMenu>
+                        <SidebarMenuItem>
+                            <SidebarMenuButton asChild>
+                                <a
+                                    href="/dashboard/bots"
+                                    className="flex items-center gap-3"
+                                >
+                                    <BotIcon className="w-5 h-5 flex-shrink-0" />
+                                    {!isCollapsed && (
+                                        <span className="truncate text-sm">
+                                            Bots
+                                        </span>
+                                    )}
+                                </a>
+                            </SidebarMenuButton>
+                        </SidebarMenuItem>
+                    </SidebarMenu>
+                </SidebarGroup>
+                <SidebarGroup>
                     <SidebarGroupContent>
+                        <SidebarGroupLabel>Analysis</SidebarGroupLabel>
                         <SidebarMenu>
-                            {items.map((item) => (
-                                <SidebarMenuItem key={item.title}>
-                                    <SidebarMenuButton asChild>
-                                        <a
-                                            href={item.url}
-                                            className="flex items-center gap-3"
-                                        >
-                                            <item.icon className="w-5 h-5 flex-shrink-0" />
-                                            {!isCollapsed && (
-                                                <span className="truncate text-sm">
-                                                    {item.title}
-                                                </span>
-                                            )}
-                                        </a>
-                                    </SidebarMenuButton>
-                                </SidebarMenuItem>
-                            ))}
+                            <SidebarMenu>
+                                {items.map((item) => (
+                                    <SidebarMenuItem key={item.title}>
+                                        <SidebarMenuButton asChild>
+                                            <a
+                                                href={item.url}
+                                                className="flex items-center gap-3"
+                                            >
+                                                <item.icon className="w-5 h-5 flex-shrink-0" />
+                                                {!isCollapsed && (
+                                                    <span className="truncate text-sm">
+                                                        {item.title}
+                                                    </span>
+                                                )}
+                                            </a>
+                                        </SidebarMenuButton>
+                                    </SidebarMenuItem>
+                                ))}
+                            </SidebarMenu>
                         </SidebarMenu>
                     </SidebarGroupContent>
                 </SidebarGroup>
@@ -133,7 +170,7 @@ export function AppSidebar({ collapsible = "icon" }: AppSidebarProps) {
                     </DropdownMenuContent>
                 </DropdownMenu>
             </SidebarFooter>
-            <ProfileDialog open={profileDialogOpen} onOpenChange={setProfileDialogOpen}/>
+            <ProfileDialog open={profileDialogOpen} onOpenChange={setProfileDialogOpen} />
         </Sidebar>
     );
 }

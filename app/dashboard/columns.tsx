@@ -10,6 +10,7 @@ import { Bot } from "@/types/bot";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { string } from "zod";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 
 export const columns: ColumnDef<Bot>[] = [
     {
@@ -117,12 +118,17 @@ export const columns: ColumnDef<Bot>[] = [
             return (
                 resonance !== "A018123" ?
                     `${multiplier}x` :
-                    <img className="size-6"
+                    <img className="size-4"
                         src="https://cdn.wanderer.moe/wuthering-waves/elements/T_IconElementLight_UI.png"
                         alt="Resonance"
                     />
             );
         },
+    },
+    {
+        accessorKey: "average_based",
+        header: "Average based",
+        enableHiding: false,
     },
     {
         accessorKey: "take_profit",
@@ -138,8 +144,24 @@ export const columns: ColumnDef<Bot>[] = [
         header: "Rebuy",
         cell: ({ row }) => {
             const rebuy = String(row.getValue("rebuy"));
+            const averageBased = String(row.getValue("average_based"));
 
-            return `${rebuy}%`;
+            return (
+                <>
+                    {rebuy}%
+                    {
+                        averageBased === "true" &&
+                        <Tooltip>
+                            <TooltipTrigger className="ml-2">
+                                <Badge variant="outline" className="pl-1.5">Avg</Badge>
+                            </TooltipTrigger>
+                            <TooltipContent className="">
+                                Average based rebuy
+                            </TooltipContent>
+                        </Tooltip>
+                    }
+                </>
+            );
         },
     },
     {

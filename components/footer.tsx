@@ -23,11 +23,16 @@ export default function Footer() {
                         This is an independent fan project, not affiliated with or endorsed by Kuro Games. All game assets, content, and trademarks belong to their respective owners.
                     </div>
                 </div>
-                <div className="-col-start-1 grid grid-cols-2 text-sm text-muted-foreground">
+                <div className="-col-start-1 grid grid-cols-2 gap-4 text-sm text-muted-foreground">
                     <ul className="space-y-1">
                         <li className="font-medium text-foreground">Development</li>
                         <li>System status</li>
-                        <li>Update notes</li>
+                        <li>Changelog</li>
+                        <li>
+                            <a href="https://www.notion.so/24d4dd36cfab804381bcfa62ac2289f6?v=24d4dd36cfab80be8db0000c6fcb3c3e&source=copy_link" target="_blank" rel="noopener noreferrer">
+                                Project tracker
+                            </a>
+                        </li>
                     </ul>
                     <ul className="space-y-1">
                         <li className="font-medium text-foreground">Legal</li>
