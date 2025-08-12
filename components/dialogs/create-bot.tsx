@@ -57,8 +57,8 @@ export function CreateBotDialog() {
             .min(0.01, "Must be at least 0.01"),
         max_rebuy: z.coerce.number()
             .min(1, "Must be at least 1"),
-        resonance: z.string().nullable(),
-        average_based: z.boolean().optional().default(false),
+        resonance: z.string().nullable().optional(),
+        average_based: z.coerce.boolean()
     })
         .superRefine((data, ctx) => {
             if (data.start_type === "qty") {
@@ -149,7 +149,7 @@ export function CreateBotDialog() {
                 max_rebuy: values.max_rebuy,
                 start_type: values.start_type,
                 resonance: null,
-                average_based: false
+                average_based: values.average_based ? true : false
             });
         }
 
@@ -293,9 +293,20 @@ export function CreateBotDialog() {
                                     name="leverage"
                                     render={({ field }) => (
                                         <FormItem className="col-span-2 font-normal flex flex-col items-start">
-                                            <FormLabel className="h-min">Leverage</FormLabel>
+                                            <FormLabel className="h-9 absolute">Leverage</FormLabel>
                                             <FormControl className="w-full">
-                                                <div className="flex items-center justify-between gap-2">
+                                                <div className="flex flex-col gap-4 items-end">
+                                                    <InputBase className="gap-0.5 w-16">
+                                                        <InputBaseControl>
+                                                            <InputBaseInput {...field} className="text-end mx-0"
+                                                                type="number"
+                                                                value={field.value as number}
+                                                                onChange={field.onChange}
+                                                                step={5}
+                                                            />
+                                                        </InputBaseControl>
+                                                        <InputBaseAdornment>x</InputBaseAdornment>
+                                                    </InputBase>
                                                     <Slider defaultValue={[25]}
                                                         min={instrumentInfo?.minLeverage}
                                                         max={instrumentInfo?.maxLeverage}
@@ -308,24 +319,13 @@ export function CreateBotDialog() {
                                                             }, 0);
                                                         }}
                                                     />
-                                                    <InputBase className="gap-0.5 w-16">
-                                                        <InputBaseControl>
-                                                            <InputBaseInput {...field} className="text-end mx-0"
-                                                                type="number"
-                                                                value={field.value as number}
-                                                                onChange={field.onChange}
-                                                                step={5}
-                                                            />
-                                                        </InputBaseControl>
-                                                        <InputBaseAdornment>x</InputBaseAdornment>
-                                                    </InputBase>
                                                 </div>
                                             </FormControl>
                                             <FormMessage />
                                         </FormItem>
                                     )}
                                 />
-                                <Separator className="col-span-2 my-2"/>
+                                <Separator className="col-span-2 my-2" />
 
                                 <FormField
                                     control={form.control}
@@ -420,12 +420,9 @@ export function CreateBotDialog() {
                                         <FormItem className="font-normal flex items-center gap-2">
                                             <FormControl>
                                                 <Checkbox
-                                                    checked={field.value}
+                                                    checked={field.value as boolean}
                                                     onCheckedChange={(checked) => {
                                                         field.onChange(checked);
-                                                        setTimeout(() => {
-                                                            trigger("rebuy"); // ✅ run validation after state is updated
-                                                        }, 0);
                                                     }}
                                                 />
                                             </FormControl>

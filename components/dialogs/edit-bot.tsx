@@ -16,9 +16,11 @@ import { InputBase, InputBaseAdornment, InputBaseControl, InputBaseInput } from 
 import z from "zod";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Form, FormControl, FormField, FormItem, FormMessage } from "../ui/form";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "../ui/form";
 import { ControlGroup, ControlGroupItem } from "../ui/control-group";
 import { ChevronsUpDownIcon } from "lucide-react";
+import { Slider } from "../ui/slider";
+import { Checkbox } from "../ui/checkbox";
 
 interface EditBotDialogProps {
     bot: Bot;
@@ -51,7 +53,9 @@ export function EditBotDialog({ bot, open, onOpenChange }: EditBotDialogProps) {
         rebuy: z.coerce.number()
             .min(0.01, "Must be at least 0.01"),
         max_rebuy: z.coerce.number()
-            .min(1, "Must be at least 1")
+            .min(1, "Must be at least 1"),
+        resonance: z.string().nullable().optional(),
+        average_based: z.coerce.boolean(),
     })
         .superRefine((data, ctx) => {
             if (data.start_type === "qty") {
@@ -101,7 +105,9 @@ export function EditBotDialog({ bot, open, onOpenChange }: EditBotDialogProps) {
             multiplier: bot.multiplier,
             take_profit: bot.take_profit,
             rebuy: bot.rebuy,
-            max_rebuy: bot.max_rebuy
+            max_rebuy: bot.max_rebuy,
+            resonance: bot.resonance,
+            average_based: bot.average_based
         },
         mode: "onBlur",
         reValidateMode: "onBlur"
@@ -120,18 +126,20 @@ export function EditBotDialog({ bot, open, onOpenChange }: EditBotDialogProps) {
             take_profit: values.take_profit,
             rebuy: values.rebuy,
             max_rebuy: values.max_rebuy,
-            start_type: values.start_type
+            start_type: values.start_type,
+            resonance: values.resonance ?? null,
+            average_based: values.average_based
         });
 
         console.log(values)
-        
+
         onOpenChange(false)
         const timeout = setTimeout(() => {
             resetInstrumentInfo();
             reset();
         }, 50)
 
-        return() => clearTimeout(timeout)
+        return () => clearTimeout(timeout)
     }
 
     // const handleUpdateBot = async () => {
@@ -174,7 +182,7 @@ export function EditBotDialog({ bot, open, onOpenChange }: EditBotDialogProps) {
                     role="combobox"
                     aria-expanded={open}
                     className="justify-between w-full"
-                >   
+                >
                     {bot.asset}
                     <ChevronsUpDownIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                 </Button>
@@ -193,10 +201,6 @@ export function EditBotDialog({ bot, open, onOpenChange }: EditBotDialogProps) {
                                 <div className="text-foreground">{instrumentInfo?.minQty ?? "-"}</div>
                                 <div className="text-foreground">{instrumentInfo?.qtyStep ?? "-"}</div>
                                 <div className="text-foreground">WIP</div>
-                                <div className="mt-2 font-medium">Min. leverage</div>
-                                <div className="mt-2 font-medium">Max. leverage</div>
-                                <div className="col-start-1 text-foreground">{instrumentInfo?.minLeverage}</div>
-                                <div className="text-foreground">{instrumentInfo?.maxLeverage}</div>
                             </div>
                         </div>
                         <div className={`grid grid-cols-3 gap-y-3 text-sm items-center font-medium`}>
@@ -252,24 +256,38 @@ export function EditBotDialog({ bot, open, onOpenChange }: EditBotDialogProps) {
                                 </FormMessage>
                             </div>
 
-                            <div>Leverage</div>
                             <FormField
                                 control={form.control}
                                 name="leverage"
                                 render={({ field }) => (
-                                    <FormItem className="col-span-2 font-normal">
-                                        <FormControl>
-                                            <InputBase>
-                                                <InputBaseControl>
-                                                    <InputBaseInput {...field}
-                                                        type="number"
-                                                        value={field.value as number}
-                                                        onChange={field.onChange}
-                                                        step={0.1}
-                                                    />
-                                                </InputBaseControl>
-                                                <InputBaseAdornment>x</InputBaseAdornment>
-                                            </InputBase>
+                                    <FormItem className="col-span-full font-normal flex flex-col items-start mb-4">
+                                        <FormLabel className="h-9 absolute">Leverage</FormLabel>
+                                        <FormControl className="w-full">
+                                            <div className="flex flex-col gap-4 items-end">
+                                                <InputBase className="gap-0.5 w-16">
+                                                    <InputBaseControl>
+                                                        <InputBaseInput {...field} className="text-end mx-0"
+                                                            type="number"
+                                                            value={field.value as number}
+                                                            onChange={field.onChange}
+                                                            step={5}
+                                                        />
+                                                    </InputBaseControl>
+                                                    <InputBaseAdornment>x</InputBaseAdornment>
+                                                </InputBase>
+                                                <Slider defaultValue={[25]}
+                                                    min={instrumentInfo?.minLeverage}
+                                                    max={instrumentInfo?.maxLeverage}
+                                                    step={5}
+                                                    value={[Number(field.value)]}
+                                                    onValueChange={(value) => {
+                                                        field.onChange(value[0])
+                                                        setTimeout(() => {
+                                                            trigger("leverage"); // ✅ run validation after state is updated
+                                                        }, 0);
+                                                    }}
+                                                />
+                                            </div>
                                         </FormControl>
                                         <FormMessage />
                                     </FormItem>
@@ -361,6 +379,25 @@ export function EditBotDialog({ bot, open, onOpenChange }: EditBotDialogProps) {
                                                 onChange={field.onChange}
                                             />
                                         </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+
+                            <FormField
+                                control={form.control}
+                                name="average_based"
+                                render={({ field }) => (
+                                    <FormItem className="font-normal flex items-center gap-2">
+                                        <FormControl>
+                                            <Checkbox
+                                                checked={field.value as boolean}
+                                                onCheckedChange={(checked) => {
+                                                    field.onChange(checked);
+                                                }}
+                                            />
+                                        </FormControl>
+                                        <FormLabel className="font-normal">Average based rebuy</FormLabel>
                                         <FormMessage />
                                     </FormItem>
                                 )}
