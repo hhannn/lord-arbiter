@@ -126,7 +126,7 @@ export function CreateBotDialog() {
                 multiplier: 1,
                 take_profit: 1.2,
                 rebuy: 6,
-                max_rebuy: 9,
+                max_rebuy: 10,
                 start_type: values.start_type,
                 resonance: "A018123"
             });
