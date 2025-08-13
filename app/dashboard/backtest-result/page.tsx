@@ -44,7 +44,7 @@ export default function Performance() {
             takeProfit: 2,
             rebuy: 5,
             averageBased: false,
-            maxRebuy: 0,
+            maxRebuy: 14,
             drawdown: 62.7,
             drawdownRatio: 20.29,
             pnl: 153.76,
@@ -65,10 +65,6 @@ export default function Performance() {
                 <div className="rounded-sm text-sm">
                     <div className="font-bold text-muted-foreground mb-1">Starting equity</div>
                     <div>300 USDT</div>
-                </div>
-                <div className="col-span-2 rounded-sm text-sm">
-                    <div className="font-bold text-muted-foreground mb-1">Additional notes</div>
-                    <div>P/D is a result of the P&L divided by the drawdown. Higher P/D is better.</div>
                 </div>
             </div>
             <DataTable data={data} columns={columns} />

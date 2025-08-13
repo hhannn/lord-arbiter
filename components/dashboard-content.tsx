@@ -28,6 +28,7 @@ import { ScrollArea } from "./ui/scroll-area";
 import { useAuthRedirect } from "@/hooks/useAuthRedirect";
 import { PnlCardItem } from "./pnl-card-item";
 import { Button } from "./ui/button";
+import Link from "next/link";
 
 // ----- Types -----
 interface DashboardData {
@@ -221,7 +222,9 @@ export default function DashboardContent({ children }: DashboardContentProps) {
                             Check the performance of the bots from 2 February 2025.
                         </CardDescription>
                     </CardHeader>
-                    <Button className="relative" disabled>Work in progress</Button>
+                    <Button className="relative">
+                        <Link href="/dashboard/backtest-result">Check now</Link>
+                    </Button>
                 </Card>
 
                 <Card className="col-span-2 flex-1 justify-between">

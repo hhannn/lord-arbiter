@@ -21,6 +21,7 @@ import Image from "next/image";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "./ui/dropdown-menu";
 import { ProfileDialog } from "./dialogs/profile-dialog";
 import { use, useState } from "react";
+import Link from "next/link";
 
 const items = [
     // { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
@@ -67,7 +68,7 @@ export function AppSidebar({ collapsible = "icon" }: AppSidebarProps) {
                     <SidebarMenu>
                         <SidebarMenuItem>
                             <SidebarMenuButton asChild>
-                                <a
+                                <Link
                                     href="/dashboard"
                                     className="flex items-center gap-3"
                                 >
@@ -77,14 +78,14 @@ export function AppSidebar({ collapsible = "icon" }: AppSidebarProps) {
                                             Dashboard
                                         </span>
                                     )}
-                                </a>
+                                </Link>
                             </SidebarMenuButton>
                         </SidebarMenuItem>
                     </SidebarMenu>
                     <SidebarMenu>
                         <SidebarMenuItem>
                             <SidebarMenuButton asChild>
-                                <a
+                                <Link
                                     href="/dashboard/bots"
                                     className="flex items-center gap-3"
                                 >
@@ -94,7 +95,7 @@ export function AppSidebar({ collapsible = "icon" }: AppSidebarProps) {
                                             Bots
                                         </span>
                                     )}
-                                </a>
+                                </Link>
                             </SidebarMenuButton>
                         </SidebarMenuItem>
                     </SidebarMenu>
@@ -107,7 +108,7 @@ export function AppSidebar({ collapsible = "icon" }: AppSidebarProps) {
                                 {items.map((item) => (
                                     <SidebarMenuItem key={item.title}>
                                         <SidebarMenuButton asChild>
-                                            <a
+                                            <Link
                                                 href={item.url}
                                                 className="flex items-center gap-3"
                                             >
@@ -117,7 +118,7 @@ export function AppSidebar({ collapsible = "icon" }: AppSidebarProps) {
                                                         {item.title}
                                                     </span>
                                                 )}
-                                            </a>
+                                            </Link>
                                         </SidebarMenuButton>
                                     </SidebarMenuItem>
                                 ))}

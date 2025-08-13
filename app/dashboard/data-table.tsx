@@ -13,7 +13,7 @@ import {
     VisibilityState,
 } from "@tanstack/react-table";
 
-import { ChevronDown, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, PlusCircle } from "lucide-react";
+import { AlertCircle, ChevronDown, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, PlusCircle, Terminal, XIcon } from "lucide-react";
 
 import {
     Table,
@@ -31,6 +31,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { DropdownMenuContent, DropdownMenuTrigger, DropdownMenu, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
 import { CreateBotDialog } from "@/components/dialogs/create-bot";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 interface DataTableProps<TData, TValue> {
     columns: ColumnDef<TData, TValue>[];
@@ -49,6 +50,17 @@ export function DataTable<TData, TValue>({
             resonance: false,
             average_based: false,
         });
+
+    const [isAlertVisible, setIsAlertVisible] = useState(() => {
+        // load from localStorage on init
+        const stored = localStorage.getItem("isAlertVisible");
+        return stored !== null ? stored === "true" : true;
+    });
+
+    useEffect(() => {
+        // save whenever it changes
+        localStorage.setItem("isAlertVisible", String(isAlertVisible));
+    }, [isAlertVisible]);
 
     const table = useReactTable({
         data,
@@ -70,6 +82,22 @@ export function DataTable<TData, TValue>({
                 <CardDescription>A gem cannot be polished without friction, nor a man perfected without trials.</CardDescription>
             </CardHeader>
             <CardContent className="flex flex-col gap-4">
+                {isAlertVisible &&
+                    <Alert className="border-amber-500/50 text-amber-600 dark:text-amber-500 flex items-center py-1 pe-1">
+                        <AlertCircle />
+                        <div className="w-full">
+                            <AlertTitle className="-mb-0.5">Make sure that your setup will be safe in a black swan event</AlertTitle>
+                        </div>
+                        <Button
+                            size="icon"
+                            variant="ghost"
+                            className="!pl-0 hover:text-amber-400 hover:bg-amber-500/20 dark:hover:text-amber-400"
+                            onClick={() => setIsAlertVisible(false)}
+                        >
+                            <XIcon className="h-5 w-5" />
+                        </Button>
+                    </Alert>
+                }
                 <div className="flex items-center justify-between gap-2">
                     <div className="flex items-center gap-2">
                         <Input className="max-w-md h-8"
@@ -138,7 +166,7 @@ export function DataTable<TData, TValue>({
                                                     key={cell.id}
                                                     className={cn(
                                                         "py-2",
-                                                        isFirstDataCell && "pl-6", 
+                                                        isFirstDataCell && "pl-6",
                                                     )}
                                                 >
                                                     {flexRender(
