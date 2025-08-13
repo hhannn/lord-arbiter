@@ -24,7 +24,7 @@ import { use, useState } from "react";
 
 const items = [
     // { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
-    { title: "Backtest result", url: "/dashboard/backtest", icon: TestTubeDiagonal },
+    { title: "Backtest result", url: "/dashboard/backtest-result", icon: TestTubeDiagonal },
     { title: "Trading performance", url: "/dashboard/performance", icon: ChartLine },
     // { title: "Bot", url: "#", icon: Bot },
     { title: "Calculator", url: "/dashboard/calculator", icon: Calculator },
