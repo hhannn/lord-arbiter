@@ -19,6 +19,8 @@ import { DeleteBotDialog } from "../dialogs/delete-bot";
 import { BotDetailDialog } from "../dialogs/bot-detail";
 import { EditBotDialog } from "../dialogs/edit-bot";
 import { useBotStore } from "@/store/useBotStore";
+import { StopBot } from "../dialogs/stop-bot";
+import { set } from "lodash";
 
 interface BotActionButtonsProps {
     bot: Bot;
@@ -32,6 +34,10 @@ export function BotActionButtons({
     const [editDialogOpen, setEditDialogOpen] = useState(false);
     const [detailDialogOpen, setDetailDialogOpen] = useState(false);
     const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+    const [stopDialogOpen, setStopDialogOpen] = useState(false);
+
+    const [selectedBot, setSelectedBot] = useState<Bot | null>(null);
+
 
     const { startBot, stopBot } = useBotStore();
 
@@ -52,7 +58,7 @@ export function BotActionButtons({
                                 <MoreHorizontal />
                             </Button>
                         </DropdownMenuTrigger>
-                        <DropdownMenuContent>
+                        <DropdownMenuContent align="end">
                             <DropdownMenuGroup>
                                 <DropdownMenuItem onClick={() => startBot(id)}>
                                     <Rocket className="mr-2 h-4 w-4" />
@@ -100,14 +106,17 @@ export function BotActionButtons({
                                 <MoreHorizontal />
                             </Button>
                         </DropdownMenuTrigger>
-                        <DropdownMenuContent>
+                        <DropdownMenuContent align="end">
                             <DropdownMenuItem onClick={() => setDetailDialogOpen(true)}>
                                 Bot details
                             </DropdownMenuItem>
                             <DropdownMenuSeparator />
                             <DropdownMenuItem
                                 className="text-destructive"
-                                onClick={() => stopBot(id)}
+                                onClick={() => {
+                                    setStopDialogOpen(true);
+                                    setSelectedBot(bot);
+                                }}
                             >
                                 <IconPlayerStopFilled className="text-destructive mr-2" />
                                 Stop bot
@@ -115,6 +124,46 @@ export function BotActionButtons({
                         </DropdownMenuContent>
                     </DropdownMenu >
                     <BotDetailDialog open={detailDialogOpen} onOpenChange={setDetailDialogOpen} bot={bot} />
+                    <StopBot bot={bot} open={stopDialogOpen} onOpenChange={setStopDialogOpen} />
+                </>
+            );
+        case "graceful_stopping":
+            return (
+                <>
+                    <DropdownMenu>
+                        <DropdownMenuTrigger> {/* Added asChild here */}
+                            <Button
+                                className="my-2 size-8"
+                                size="icon"
+                                variant="ghost"
+                                title="More actions"
+                            >
+                                <MoreHorizontal />
+                            </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                            <DropdownMenuItem onClick={() => startBot(id)}>
+                                <Rocket className="mr-2 h-4 w-4" />
+                                Continue bot
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => setDetailDialogOpen(true)}>
+                                Bot details
+                            </DropdownMenuItem>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem
+                                className="text-destructive"
+                                onClick={() => {
+                                    setStopDialogOpen(true);
+                                    setSelectedBot(bot);
+                                }}
+                            >
+                                <IconPlayerStopFilled className="text-destructive mr-2" />
+                                Stop bot
+                            </DropdownMenuItem>
+                        </DropdownMenuContent>
+                    </DropdownMenu >
+                    <BotDetailDialog open={detailDialogOpen} onOpenChange={setDetailDialogOpen} bot={bot} />
+                    <StopBot bot={bot} open={stopDialogOpen} onOpenChange={setStopDialogOpen} />
                 </>
             );
         case "stopping":

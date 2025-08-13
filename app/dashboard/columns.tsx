@@ -3,7 +3,7 @@
 import { ColumnDef } from "@tanstack/react-table";
 
 import { IconCircleCheckFilled, IconMoonFilled } from "@tabler/icons-react"
-import { ArrowDownRight, ArrowUpDown, ArrowUpRight } from "lucide-react"
+import { ArrowDownRight, ArrowUpDown, ArrowUpRight, Clock } from "lucide-react"
 
 import { Badge } from "@/components/ui/badge";
 import { Bot } from "@/types/bot";
@@ -214,7 +214,7 @@ export const columns: ColumnDef<Bot>[] = [
         header: "Unrealized P&L",
         cell: ({ row }) => {
             const value = row.getValue("unrealized_pnl");
-            const isRunning = row.getValue("status") === "running";
+            const isRunning = row.getValue("status") === "running" || row.getValue("status") === "graceful_stopping";
 
             return (
                 <>
@@ -239,14 +239,15 @@ export const columns: ColumnDef<Bot>[] = [
             return (
                 <Badge
                     variant={"outline"}
-                    className="flex items-center capitalize"
+                    className="flex items-center"
                 >
-                    {status === "running" ? (
-                        <IconCircleCheckFilled className="text-green-500" />
-                    ) : (
-                        <IconMoonFilled />
-                    )}
-                    {status}
+                    {status === "running" ? <IconCircleCheckFilled className="text-green-500" /> :
+                        status === "graceful_stopping" ? <Clock className="text-yellow-500" /> :
+                            <IconMoonFilled />
+                    }
+                    <span className="first-letter:uppercase">
+                        {status.replace("_", " ")}
+                    </span>
                 </Badge>
             );
         },

@@ -18,9 +18,10 @@ import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "../ui/form";
 import { ControlGroup, ControlGroupItem } from "../ui/control-group";
-import { ChevronsUpDownIcon } from "lucide-react";
+import { ChevronsUpDownIcon, Info } from "lucide-react";
 import { Slider } from "../ui/slider";
 import { Checkbox } from "../ui/checkbox";
+import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
 
 interface EditBotDialogProps {
     bot: Bot;
@@ -36,6 +37,9 @@ export function EditBotDialog({ bot, open, onOpenChange }: EditBotDialogProps) {
     useEffect(() => {
         if (open) {
             fetchInstrumentInfo(bot.asset);
+        } else {
+            resetInstrumentInfo();
+            reset();
         }
     }, [open, bot.asset, fetchInstrumentInfo, resetInstrumentInfo]);
 
@@ -134,35 +138,7 @@ export function EditBotDialog({ bot, open, onOpenChange }: EditBotDialogProps) {
         console.log(values)
 
         onOpenChange(false)
-        const timeout = setTimeout(() => {
-            resetInstrumentInfo();
-            reset();
-        }, 50)
-
-        return () => clearTimeout(timeout)
     }
-
-    // const handleUpdateBot = async () => {
-
-    //     try {
-    //         await updateBot(bot.id, {
-    //             asset: editAsset,
-    //             start_size: parseFloat(editStartSize),
-    //             leverage: parseFloat(editLeverage),
-    //             multiplier: parseFloat(editMultiplier),
-    //             take_profit: parseFloat(editTakeProfit),
-    //             rebuy: parseFloat(editRebuy),
-    //             start_type: editStartType,
-    //             max_rebuy: Number(editMaxRebuy),
-    //         });
-    //         toast.success("Bot updated successfully!");
-    //         onOpenChange(false);
-    //     } catch (error) {
-    //         // The error handling for the actual API call is in the parent's onUpdateBot function.
-    //         console.error("Error during bot update (in EditBotDialog):", error);
-    //         toast.error("Failed to update bot. Please try again.");
-    //     }
-    // };
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
@@ -397,7 +373,18 @@ export function EditBotDialog({ bot, open, onOpenChange }: EditBotDialogProps) {
                                                 }}
                                             />
                                         </FormControl>
-                                        <FormLabel className="font-normal">Average based rebuy</FormLabel>
+                                        <FormLabel className="flex items-center">
+                                            Average based rebuy
+                                            <Tooltip>
+                                                <TooltipTrigger>
+                                                    <Info className="size-4 text-muted-foreground" />
+                                                </TooltipTrigger>
+                                                <TooltipContent>
+                                                    <p className="text-sm">If enabled, rebuy will be calculated based on average entry price.</p>
+                                                    <p className="text-sm">If disabled, rebuy will be calculated based on last entry price.</p>
+                                                </TooltipContent>
+                                            </Tooltip>
+                                        </FormLabel>
                                         <FormMessage />
                                     </FormItem>
                                 )}

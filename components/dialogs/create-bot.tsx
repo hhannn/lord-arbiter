@@ -4,7 +4,7 @@ import { Button } from "../ui/button";
 import { AssetsCombobox } from "../assets-combobox";
 import { Input } from "../ui/input";
 import { toast } from "sonner";
-import { ChevronDown, CirclePlus, Plus } from "lucide-react";
+import { ChevronDown, CirclePlus, Info, Plus } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 
@@ -36,6 +36,7 @@ import { Shadow } from "../shadow";
 import { Checkbox } from "../ui/checkbox";
 import { Slider } from "../ui/slider";
 import { Separator } from "../ui/separator";
+import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
 
 export function CreateBotDialog() {
 
@@ -426,7 +427,18 @@ export function CreateBotDialog() {
                                                     }}
                                                 />
                                             </FormControl>
-                                            <FormLabel className="font-normal">Average based rebuy</FormLabel>
+                                            <FormLabel className="flex items-center">
+                                                Average based rebuy
+                                                <Tooltip>
+                                                    <TooltipTrigger>
+                                                        <Info className="size-4 text-muted-foreground" />
+                                                    </TooltipTrigger>
+                                                    <TooltipContent>
+                                                        <p className="text-sm">If enabled, rebuy will be calculated based on average entry price.</p>
+                                                        <p className="text-sm">If disabled, rebuy will be calculated based on last entry price.</p>
+                                                    </TooltipContent>
+                                                </Tooltip>
+                                            </FormLabel>
                                             <FormMessage />
                                         </FormItem>
                                     )}

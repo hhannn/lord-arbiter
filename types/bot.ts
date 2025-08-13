@@ -12,7 +12,7 @@ export interface Bot {
     current_position: number;
     current_price: number;
     unrealized_pnl: number;
-    status: "Running" | "Stopped" | "Idle" | "Stopping";
+    status: "Running" | "Stopped" | "Idle" | "Stopping" | "Error" | "Graceful Stopping";
     created_at: string;
     liq_price: number;
     take_profit_price: number;
@@ -51,4 +51,9 @@ export interface CreateBotPayload {
     start_type: "USDT" | "percent_equity" | "qty";
     resonance: string | null;
     average_based: boolean;
+}
+
+export interface StopBotPayload {
+    botId: number;
+    type: "immediate" | "graceful";
 }

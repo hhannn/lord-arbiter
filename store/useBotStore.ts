@@ -1,7 +1,12 @@
 // store/useBotStore.ts
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import { Bot, CreateBotPayload, instrumentInfo } from "@/types/bot";
+import {
+    Bot,
+    CreateBotPayload,
+    instrumentInfo,
+    StopBotPayload,
+} from "@/types/bot";
 
 import { toast } from "sonner";
 
@@ -19,7 +24,7 @@ interface BotState {
     deleteBot: (botId: number) => Promise<void>;
     updateBot: (botId: number, payload: Partial<Bot>) => Promise<void>;
     startBot: (botId: number) => Promise<void>;
-    stopBot: (botId: number) => Promise<void>;
+    stopBot: (payload: StopBotPayload) => Promise<void>;
 }
 
 const BYBIT_URL = "https://api.bybit.com";
@@ -56,7 +61,7 @@ export const useBotStore = create<BotState>()(
                         bots
                             .filter(
                                 (bot: any) =>
-                                    bot.status?.toLowerCase() === "running"
+                                    bot.status?.toLowerCase() === "running" || bot.status?.toLowerCase() === "graceful_stopping"
                             )
                             .map(async (bot: any) => {
                                 try {
@@ -162,7 +167,8 @@ export const useBotStore = create<BotState>()(
                 get().fetchBots(); // initial call
 
                 pollingInterval = setInterval(() => {
-                    if (document.visibilityState === "visible") get().fetchBots();
+                    if (document.visibilityState === "visible")
+                        get().fetchBots();
                     // console.log(get().data);
                 }, 5000);
             },
@@ -302,20 +308,44 @@ export const useBotStore = create<BotState>()(
                 }
             },
 
-            stopBot: async (botId) => {
+            stopBot: async (payload) => {
+                const { botId, type } = payload;
                 try {
-                    const res = await fetch(
-                        `${API_BACKEND_URL}/api/bots/stop/${botId}`,
-                        {
-                            method: "POST",
-                        }
-                    );
+                    let res: Response | undefined;
+                    if (type === "graceful") {
+                        toast.info(`🛑 Stopping bot ${botId} gracefully...`);
+                        res = await fetch(
+                            `${API_BACKEND_URL}/api/bots/stop/${botId}`, {
+                                method: "POST",
+                                credentials: "include",
+                                headers: { "Content-Type": "application/json" },
+                                body: JSON.stringify({ type: "graceful" }),
+                            }
+                        );
+                    } else {
+                        toast.info(`🛑 Stopping bot ${botId} immediately...`);
+                        res = await fetch(
+                            `${API_BACKEND_URL}/api/bots/stop/${botId}`, {
+                                method: "POST",
+                                credentials: "include",
+                                headers: { "Content-Type": "application/json" },
+                                body: JSON.stringify({ type: "immediate" }),
+                            }
+                        );
+                    }
+
+                    if (!res) {
+                        toast.error("❌ Failed to stop bot", {
+                            description: "No response from server",
+                        });
+                        return;
+                    }
 
                     if (res.ok) {
                         toast.info(`🛑 Stopping ${botId}...`);
                         get().fetchBots();
                     } else {
-                        const errorData = await res.json();
+                        const errorData = await res.json().catch(() => null);
                         toast.error("❌ Failed to stop bot", {
                             description:
                                 errorData?.detail ||
