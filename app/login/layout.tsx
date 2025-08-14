@@ -11,7 +11,7 @@ export const metadata = {
 export default function Layout({ children }: { children: React.ReactNode }) {
     return (
         <main className="h-screen overflow-hidden relative">
-            <Shadow color="rgba(125, 125, 125, 1)" />
+            {/* <Shadow color="rgba(125, 125, 125, 1)" /> */}
             <div className="relative min-h-screen">
                 {children}
             </div>

@@ -11,7 +11,7 @@ export default function Footer() {
     return (
         <footer className={`${!isCollapsed ? "w-[calc(100%-16rem)]" : "w-[calc(100%-3rem)]"} p-8 pb-4 self-end border rounded-3xl relative overflow-hidden`}>
             <div className="absolute left-0 bottom-0 h-full w-full">
-                <Shadow />
+                {/* <Shadow /> */}
             </div>
             <div className="relative p-2 grid grid-cols-3">
                 <div className="space-y-4 col-span-1">
