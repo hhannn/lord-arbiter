@@ -3,7 +3,7 @@
 "use client";
 
 import * as React from "react";
-import Cookies from "js-cookie";
+import { useCookieConsent } from "@/hooks/useCookieConsent";
 import { useUserData } from "@/store/useUserData";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
@@ -35,18 +35,7 @@ export default function Home() {
     const [apiKey, setApiKey] = useState("");
     const [apiSecret, setApiSecret] = useState("");
     const router = useRouter();
-    const [cookieConsentOpen, setCookieConsentOpen] = useState(false);
-
-    useEffect(() => {
-        if (!Cookies.get("cookie_consent")) {
-            setCookieConsentOpen(true);
-        }
-    }, []);
-
-    const acceptCookies = () => {
-        Cookies.set("cookie_consent", "true", { expires: 365, path: "/" });
-        setCookieConsentOpen(false);
-    };
+    const { consent, checked, acceptConsent } = useCookieConsent();
 
     const API_BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
 
@@ -266,10 +255,10 @@ export default function Home() {
                     </TabsContent>
                 </Tabs>
             </Card>
-            {cookieConsentOpen &&
+            {!checked || consent &&
                 <div className="bg-background border p-4 flex flex-col items-stretch gap-4 rounded-lg">
                     <span className="text-sm">We use cookies to improve your experience on our site. By using our site you consent to our use of cookies.</span>
-                    <Button onClick={() => acceptCookies()}>
+                    <Button onClick={acceptConsent}>
                         Accept cookies
                     </Button>
                 </div>
