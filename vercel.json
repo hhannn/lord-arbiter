@@ -1,8 +1,0 @@
-{
-  "rewrites": [
-    {
-      "source": "/api/(.*)",
-      "destination": "https://lord-arbiter-backend.fly.dev/api/$1"
-    }
-  ]
-}
