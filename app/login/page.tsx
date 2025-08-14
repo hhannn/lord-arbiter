@@ -3,21 +3,20 @@
 "use client";
 
 import * as React from "react";
-
+import Cookies from "js-cookie";
 import { useUserData } from "@/store/useUserData";
-
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage, } from "@/components/ui/form"
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod"
-import { string, z } from "zod"
+import { z } from "zod"
 import Link from "next/link";
 import { Loader2Icon } from "lucide-react";
 
@@ -36,6 +35,18 @@ export default function Home() {
     const [apiKey, setApiKey] = useState("");
     const [apiSecret, setApiSecret] = useState("");
     const router = useRouter();
+    const [cookieConsentOpen, setCookieConsentOpen] = useState(false);
+
+    useEffect(() => {
+        if (!Cookies.get("cookie_consent")) {
+            setCookieConsentOpen(true);
+        }
+    }, []);
+
+    const acceptCookies = () => {
+        Cookies.set("cookie_consent", "true", { expires: 365, path: "/" });
+        setCookieConsentOpen(false);
+    };
 
     const API_BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
 
@@ -162,7 +173,7 @@ export default function Home() {
                                             <FormItem>
                                                 <FormLabel>Username</FormLabel>
                                                 <FormControl>
-                                                    <Input {...field} className="bg-background/20"/>
+                                                    <Input {...field} className="bg-background/20" />
                                                 </FormControl>
                                                 <FormMessage />
                                             </FormItem>
@@ -255,6 +266,14 @@ export default function Home() {
                     </TabsContent>
                 </Tabs>
             </Card>
+            {cookieConsentOpen &&
+                <div className="bg-background border p-4 flex flex-col items-stretch gap-4 rounded-lg">
+                    <span className="text-sm">We use cookies to improve your experience on our site. By using our site you consent to our use of cookies.</span>
+                    <Button onClick={() => acceptCookies()}>
+                        Accept cookies
+                    </Button>
+                </div>
+            }
         </main>
     );
 }
