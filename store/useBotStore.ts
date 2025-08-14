@@ -46,7 +46,7 @@ export const useBotStore = create<BotState>()(
                 try {
                     set({ loading: true });
                     const res = await fetch(
-                        `${API_BACKEND_URL}/api/user/bots`,
+                        `/api/user/bots`,
                         {
                             method: "POST",
                             credentials: "include",
@@ -66,7 +66,7 @@ export const useBotStore = create<BotState>()(
                             .map(async (bot: any) => {
                                 try {
                                     const positionRes = await fetch(
-                                        `${API_BACKEND_URL}/api/bot/position`,
+                                        `/api/bot/position`,
                                         {
                                             method: "POST",
                                             credentials: "include",
@@ -182,7 +182,7 @@ export const useBotStore = create<BotState>()(
             createBot: async (payload) => {
                 try {
                     const res = await fetch(
-                        `${API_BACKEND_URL}/api/bots/create`,
+                        `/api/bots/create`,
                         {
                             method: "POST",
                             credentials: "include",
@@ -221,7 +221,7 @@ export const useBotStore = create<BotState>()(
                 toast(`Deleting bot ${botId}...`);
                 try {
                     const res = await fetch(
-                        `${API_BACKEND_URL}/api/bots/delete/${botId}`,
+                        `/api/bots/delete/${botId}`,
                         {
                             method: "DELETE", // Use DELETE method for deletion
                             credentials: "include",
@@ -250,7 +250,7 @@ export const useBotStore = create<BotState>()(
                 toast(`Updating bot ${botId}...`);
                 try {
                     const res = await fetch(
-                        `${API_BACKEND_URL}/api/bots/edit/${botId}`,
+                        `/api/bots/edit/${botId}`,
                         {
                             method: "PUT", // Or PATCH, depending on your API
                             credentials: "include",
@@ -290,7 +290,7 @@ export const useBotStore = create<BotState>()(
             startBot: async (botId) => {
                 toast(`Starting bot ${botId}.`);
                 const res = await fetch(
-                    `${API_BACKEND_URL}/api/bots/start/${botId}`,
+                    `/api/bots/start/${botId}`,
                     {
                         method: "POST",
                     }
@@ -315,7 +315,7 @@ export const useBotStore = create<BotState>()(
                     if (type === "graceful") {
                         toast.info(`🛑 Stopping bot ${botId} gracefully...`);
                         res = await fetch(
-                            `${API_BACKEND_URL}/api/bots/stop/${botId}`, {
+                            `/api/bots/stop/${botId}`, {
                                 method: "POST",
                                 credentials: "include",
                                 headers: { "Content-Type": "application/json" },
@@ -325,7 +325,7 @@ export const useBotStore = create<BotState>()(
                     } else {
                         toast.info(`🛑 Stopping bot ${botId} immediately...`);
                         res = await fetch(
-                            `${API_BACKEND_URL}/api/bots/stop/${botId}`, {
+                            `/api/bots/stop/${botId}`, {
                                 method: "POST",
                                 credentials: "include",
                                 headers: { "Content-Type": "application/json" },

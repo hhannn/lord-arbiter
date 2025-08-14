@@ -42,7 +42,7 @@ export default function Home() {
     useEffect(() => {
         const checkSession = async () => {
             try {
-                const res = await fetch(`${API_BACKEND_URL}/api/user/data`, {
+                const res = await fetch(`/api/user/data`, {
                     method: "GET",
                     credentials: "include", // so cookies are sent
                 });
@@ -64,7 +64,7 @@ export default function Home() {
     }, [router]);
 
     const handleRegister = async () => {
-        const res = await fetch(`${API_BACKEND_URL}/api/user/register`, {
+        const res = await fetch(`/api/user/register`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
@@ -95,7 +95,7 @@ export default function Home() {
         const { username, password } = values;
 
         try {
-            const res = await fetch(`${API_BACKEND_URL}/api/user/login`, {
+            const res = await fetch(`/api/user/login`, {
                 method: "POST",
                 credentials: "include",
                 headers: { "Content-Type": "application/json" },

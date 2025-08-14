@@ -34,7 +34,7 @@ export const useUserData = create<UserDataStore>()(
                     set({ loading: true });
                     try {
                         const res = await fetch(
-                            `${API_BACKEND_URL}/api/user/data`,
+                            `/api/user/data`,
                             {
                                 method: "GET",
                                 credentials: "include",
@@ -59,7 +59,7 @@ export const useUserData = create<UserDataStore>()(
                 },
                 logout: async () => {
                     try {
-                        await fetch(`${API_BACKEND_URL}/api/user/logout`, {
+                        await fetch(`/api/user/logout`, {
                             method: "POST",
                             credentials: "include",
                         });
