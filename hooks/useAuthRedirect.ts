@@ -12,7 +12,7 @@ export function useAuthRedirect() {
 
     useEffect(() => {
         const checkAuth = async () => {
-            const res = await fetch(`${API_BACKEND_URL}/api/user/data`, {
+            const res = await fetch(`/api/user/data`, {
                 credentials: "include",
             });
             if (res.status === 401) {
