@@ -231,18 +231,17 @@ export default function DashboardContent({ children }: DashboardContentProps) {
                     <CardHeader>
                         <CardTitle className="text-sm text-muted-foreground">Equity</CardTitle>
                         <CardTitle className="flex items-end gap-2">
-                            <span className="text-2xl md:text-3xl">
+                            <span className="text-2xl 2xl:text-3xl">
                                 {dashboardData.equity.toFixed(2)}
                             </span>
                             <span className="text-sm text-muted-foreground">USDT</span>
                         </CardTitle>
                     </CardHeader>
                     <CardFooter className="flex flex-col items-start">
-                        <div
-                            className={`text-sm ${dashboardData && dashboardData.unrealizedPnl >= 0 ?
-                                "text-green-600 dark:text-green-400" :
-                                "text-red-400"
-                                }`}
+                        <div className={`text-sm ${dashboardData && dashboardData.unrealizedPnl >= 0 ?
+                            "text-green-600 dark:text-green-400" :
+                            "text-red-400"
+                            }`}
                         >
                             {dashboardData.unrealizedPnl.toFixed(2)} USDT
                         </div>
@@ -256,7 +255,7 @@ export default function DashboardContent({ children }: DashboardContentProps) {
                     <CardHeader>
                         <CardTitle className="text-sm text-muted-foreground">Total P&L</CardTitle>
                         <CardTitle className="flex items-end gap-2">
-                            <span className="text-2xl md:text-3xl">
+                            <span className="lg:text-2xl 2xl:text-3xl">
                                 {data && dashboardData ? dashboardData.totalPnl.toFixed(2) : "Loading..."}
                             </span>
                             <span className="text-sm text-muted-foreground">USDT</span>
@@ -272,7 +271,7 @@ export default function DashboardContent({ children }: DashboardContentProps) {
                 <Card className="col-span-2 justify-between">
                     <CardHeader className="gap-2">
                         <CardTitle className="text-sm text-muted-foreground">Avg. trade duration</CardTitle>
-                        <CardTitle className="font-medium text-xl md:text-3xl">
+                        <CardTitle className="font-medium lg:text-2xl 2xl:text-3xl">
                             {dashboardData?.averageTradeDuration.hour}<span className="ms-0 text-base text-muted-foreground">h </span>
                             {dashboardData?.averageTradeDuration.minute}<span className="text-base text-muted-foreground">m</span>
                         </CardTitle>
@@ -285,7 +284,7 @@ export default function DashboardContent({ children }: DashboardContentProps) {
                 <Card className="col-span-2 justify-between">
                     <CardHeader>
                         <CardTitle className="text-sm text-muted-foreground">Total closed positions</CardTitle>
-                        <CardTitle className="font-medium text-xl md:text-3xl">{dashboardData?.totalClosedOrders}</CardTitle>
+                        <CardTitle className="font-medium lg:text-2xl 2xl:text-3xl">{dashboardData?.totalClosedOrders}</CardTitle>
                     </CardHeader>
                     <CardFooter className="text-sm text-muted-foreground">
                         {dashboardData?.totalClosedOrders} Long / 0 Short
@@ -311,7 +310,7 @@ export default function DashboardContent({ children }: DashboardContentProps) {
                         <CardTitle className="text-xl">P&L list</CardTitle>
                     </CardHeader>
                     <CardContent className="px-4">
-                        <ScrollArea className="h-[380px] rounded-md">
+                        <ScrollArea className="xl:h-[480px] 2xl:h-[380px] rounded-md">
                             <ul className="space-y-2">
                                 {data.closedPnL?.map((item: any) => {
                                     // console.log(item)
@@ -377,6 +376,6 @@ export default function DashboardContent({ children }: DashboardContentProps) {
                     {children}
                 </div>
             </div>
-        </DashboardContext.Provider>
+        </DashboardContext.Provider >
     );
 }
