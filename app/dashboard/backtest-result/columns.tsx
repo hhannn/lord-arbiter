@@ -2,15 +2,17 @@
 
 import { AvatarFallback } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
 import { Avatar, AvatarImage } from "@radix-ui/react-avatar"
 import { ColumnDef } from "@tanstack/react-table"
-import { ArrowDownRight, ArrowUpRight } from "lucide-react"
+import { ArrowDownRight, ArrowUpDown, ArrowUpRight } from "lucide-react"
 
 export type Backtest = {
     asset: string
     averageBased: boolean
     startSize: string
     takeProfit: number
+    multiplier: number
     rebuy: number
     maxRebuy: number
     drawdown: number
@@ -34,10 +36,20 @@ export const columns: ColumnDef<Backtest>[] = [
     },
     {
         accessorKey: "asset",
-        header: "Asset",
+        header: ({ column }) => {
+            return (
+                <Button className="-ml-2"
+                    variant="ghost"
+                    onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+                >
+                    Asset
+                    <ArrowUpDown className="ml-2 h-4 w-4" />
+                </Button>
+            )
+        },
         cell: ({ row }) => {
             const asset = String(row.getValue("asset"));
-            const baseAsset = asset === "HYPEUSDT" ? "HYPEH" : asset.replace("USDT", "");
+            const baseAsset = asset === "HYPE" ? "HYPEH" : asset.replace("USDT", "");
             const iconUrl = `https://s3-symbol-logo.tradingview.com/crypto/XTVC${baseAsset}.svg`
             const side = String(row.getValue("side"));
             const averageBased = Boolean(row.getValue("averageBased"));
@@ -67,7 +79,17 @@ export const columns: ColumnDef<Backtest>[] = [
     },
     {
         accessorKey: "startSize",
-        header: "Start size",
+        header: ({ column }) => {
+            return (
+                <Button className="-ml-4"
+                    variant="ghost"
+                    onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+                >
+                    Start size
+                    <ArrowUpDown className="ml-2 h-4 w-4" />
+                </Button>
+            )
+        },
         cell: ({ row }) => <div className="text-start">{row.getValue("startSize")}</div>
     },
     {
@@ -76,6 +98,14 @@ export const columns: ColumnDef<Backtest>[] = [
         cell: ({ row }) => {
             const takeProfit = Number(row.getValue("takeProfit"));
             return `${takeProfit}%`;
+        }
+    },
+    {
+        accessorKey: "multiplier",
+        header: () => <div className="text-end">Multiplier</div>,
+        cell: ({ row }) => {
+            const takeProfit = Number(row.getValue("multiplier"));
+            return `${takeProfit}x`;
         }
     },
     {
@@ -91,6 +121,11 @@ export const columns: ColumnDef<Backtest>[] = [
     {
         accessorKey: "maxRebuy",
         header: () => <div className="text-end">Max rebuy</div>,
+        cell: ({ row }) => {
+            const maxRebuy = Number(row.getValue("maxRebuy"));
+
+            return maxRebuy === 0 ? "TBA" : maxRebuy;
+        }
     },
     {
         accessorKey: "drawdown",
@@ -126,7 +161,19 @@ export const columns: ColumnDef<Backtest>[] = [
     },
     {
         accessorKey: "roi",
-        header: () => <div className="text-end">ROI</div>,
+        header: ({ column }) => {
+            return (
+                <div className="flex justify-end">
+                    <Button className="-mr-2"
+                        variant="ghost"
+                        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+                    >
+                        ROI
+                        <ArrowUpDown className="ml-2 h-4 w-4" />
+                    </Button>
+                </div>
+            )
+        },
         cell: ({ row }) => {
             const pnl = Number(row.getValue("pnl"));
             const roi = Number(row.getValue("roi"));
@@ -143,6 +190,18 @@ export const columns: ColumnDef<Backtest>[] = [
     },
     {
         accessorKey: "pdRatio",
-        header: () => <div className="text-end">P/D ratio</div>,
+        header: ({ column }) => {
+            return (
+                <div className="flex justify-end">
+                    <Button className="-mr-2"
+                        variant="ghost"
+                        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+                    >
+                        P/D ratio
+                        <ArrowUpDown className="ml-2 h-4 w-4" />
+                    </Button>
+                </div>
+            )
+        },
     },
 ]

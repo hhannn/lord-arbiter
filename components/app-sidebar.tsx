@@ -45,7 +45,7 @@ export function AppSidebar({ collapsible = "icon" }: AppSidebarProps) {
 
     return (
         <Sidebar collapsible={collapsible} className="border-none">
-            <SidebarContent className="">
+            <SidebarContent className="relative">
                 {/* Logo Section - Always visible */}
                 <div
                     className={`flex items-center gap-4 ${isCollapsed ? "px-3 pt-6 pb-2" : "px-4 pt-6 pb-2"

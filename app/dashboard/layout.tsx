@@ -30,15 +30,20 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                 {/* <DotPattern width={60} height={60} glow={true} cx={1} cy={1} cr={1} className={"-z-10 opacity-40"} /> */}
                 <AppSidebar />
                 <main className="relative my-2 md:ms-0 flex-1 w-full bg-background border rounded-3xl overflow-hidden">
-                    {/* <Shadow /> */}
                     {/* <Image
-                            priority
-                            src="/assets/bg-gradient.svg"
-                            height={472}
-                            width={422}
-                            alt="Background Gradient"
-                            className="-z-10 -translate-x-full pointer-events-none absolute top-[57px] left-1/3 hidden scale-100 dark:block opacity-50"
-                        /> */}
+                        priority
+                        src="/assets/bg-gradient.svg"
+                        height={472}
+                        width={422}
+                        alt="Background Gradient"
+                        className="-z-10 -translate-x-full pointer-events-none absolute top-[57px] left-1/3 hidden scale-100 dark:block opacity-50"
+                    /> */}
+                    <img
+                        src={"https://cdn.wanderer.moe/wuthering-waves/backgrounds/T_RogueBg2.png"}
+                        width={1280}
+                        height={720}
+                        className="w-full h-full object-cover absolute opacity-80"
+                    />
                     <AppNavbar />
                     <div className="px-0 md:px-4">
                         {children}
