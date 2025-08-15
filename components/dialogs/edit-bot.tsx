@@ -151,7 +151,7 @@ export function EditBotDialog({ botId, open, onOpenChange }: EditBotDialogProps)
             resetInstrumentInfo();
             reset();
         }
-    }, [open, bot, fetchInstrumentInfo, resetInstrumentInfo, reset]);
+    }, [open, fetchInstrumentInfo, resetInstrumentInfo, reset]);
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
