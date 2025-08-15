@@ -115,9 +115,6 @@ export function DataTable<TData, TValue>({
                     </div>
                     <div className="flex items-center gap-2">
                         <DataTableViewOptions table={table} />
-                        {/* <Button className="bg-red-800 text-white hover:bg-red-700 h-8" size="sm">
-                            Stop all bots
-                        </Button> */}
                         <CreateBotDialog />
                     </div>
                 </div>

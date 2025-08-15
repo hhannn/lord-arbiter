@@ -24,24 +24,16 @@ import { Checkbox } from "../ui/checkbox";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
 
 interface EditBotDialogProps {
-    bot: Bot;
-    // children: React.ReactNode;
+    botId: number;
     open: boolean;
     onOpenChange: (open: boolean) => void;
 }
 
-export function EditBotDialog({ bot, open, onOpenChange }: EditBotDialogProps) {
+export function EditBotDialog({ botId, open, onOpenChange }: EditBotDialogProps) {
 
-    const { updateBot, instrumentInfo, fetchInstrumentInfo, resetInstrumentInfo } = useBotStore();
+    const { data, updateBot, instrumentInfo, fetchInstrumentInfo, resetInstrumentInfo } = useBotStore();
 
-    useEffect(() => {
-        if (open) {
-            fetchInstrumentInfo(bot.asset);
-        } else {
-            resetInstrumentInfo();
-            reset();
-        }
-    }, [open, bot.asset, fetchInstrumentInfo, resetInstrumentInfo]);
+    const bot = data.find((b) => b.id === botId);
 
     const formSchema = z.object({
         asset: z.string().nonempty("Asset is required"),
@@ -102,16 +94,16 @@ export function EditBotDialog({ bot, open, onOpenChange }: EditBotDialogProps) {
     const form = useForm({
         resolver: zodResolver(formSchema),
         defaultValues: {
-            asset: bot.asset,
-            start_type: bot.start_type,
-            start_size: bot.start_size,
-            leverage: bot.leverage,
-            multiplier: bot.multiplier,
-            take_profit: bot.take_profit,
-            rebuy: bot.rebuy,
-            max_rebuy: bot.max_rebuy,
-            resonance: bot.resonance,
-            average_based: bot.average_based
+            asset: "",
+            start_type: "USDT",
+            start_size: 0,
+            leverage: 0,
+            multiplier: 0,
+            take_profit: 0,
+            rebuy: 0,
+            max_rebuy: 0,
+            resonance: null,
+            average_based: false
         },
         mode: "onBlur",
         reValidateMode: "onBlur"
@@ -122,8 +114,8 @@ export function EditBotDialog({ bot, open, onOpenChange }: EditBotDialogProps) {
     async function onSubmit(values: z.infer<typeof formSchema>) {
         // Do something with the form values.
         // ✅ This will be type-safe and validated.
-        await updateBot(bot.id, {
-            asset: bot.asset,
+        await updateBot(botId, {
+            asset: bot?.asset,
             start_size: values.start_size,
             leverage: values.leverage,
             multiplier: values.multiplier,
@@ -140,12 +132,33 @@ export function EditBotDialog({ bot, open, onOpenChange }: EditBotDialogProps) {
         onOpenChange(false)
     }
 
+    useEffect(() => {
+        if (open && bot) {
+            fetchInstrumentInfo(bot.asset);
+            reset({
+                asset: bot.asset,
+                start_type: bot.start_type,
+                start_size: bot.start_size,
+                leverage: bot.leverage,
+                multiplier: bot.multiplier,
+                take_profit: bot.take_profit,
+                rebuy: bot.rebuy,
+                max_rebuy: bot.max_rebuy,
+                resonance: bot.resonance,
+                average_based: bot.average_based
+            });
+        } else if (!open) {
+            resetInstrumentInfo();
+            reset();
+        }
+    }, [open, bot, fetchInstrumentInfo, resetInstrumentInfo, reset]);
+
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogContent>
                 <DialogHeader className="flex flex-col">
                     <DialogTitle className="text-2xl">
-                        Edit Bot {bot.id}
+                        Edit Bot {botId}
                     </DialogTitle>
                     <DialogDescription className="flex flex-col gap-4">
                         Wisdom is gained from the journey, not the arrival.
@@ -159,7 +172,7 @@ export function EditBotDialog({ bot, open, onOpenChange }: EditBotDialogProps) {
                     aria-expanded={open}
                     className="justify-between w-full"
                 >
-                    {bot.asset}
+                    {bot?.asset}
                     <ChevronsUpDownIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                 </Button>
                 <Form {...form}>

@@ -85,7 +85,7 @@ export function BotActionButtons({
                             </DropdownMenuGroup>
                         </DropdownMenuContent>
                     </DropdownMenu>
-                    <EditBotDialog bot={bot} open={editDialogOpen} onOpenChange={setEditDialogOpen} />
+                    <EditBotDialog botId={id} open={editDialogOpen} onOpenChange={setEditDialogOpen} />
                     <DeleteBotDialog botId={id} open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen} />
                     <BotDetailDialog open={detailDialogOpen} onOpenChange={setDetailDialogOpen} bot={bot} />
                 </>
@@ -126,7 +126,7 @@ export function BotActionButtons({
                             </DropdownMenuItem>
                         </DropdownMenuContent>
                     </DropdownMenu >
-                    <EditBotDialog bot={bot} open={editDialogOpen} onOpenChange={setEditDialogOpen} />
+                    <EditBotDialog botId={id} open={editDialogOpen} onOpenChange={setEditDialogOpen} />
                     <BotDetailDialog open={detailDialogOpen} onOpenChange={setDetailDialogOpen} bot={bot} />
                     <StopBot bot={bot} open={stopDialogOpen} onOpenChange={setStopDialogOpen} />
                 </>
