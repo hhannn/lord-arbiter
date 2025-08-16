@@ -27,6 +27,7 @@ import { Label } from "@/components/ui/label"
 import { Item } from "@radix-ui/react-dropdown-menu"
 import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
+import { set } from "lodash"
 
 interface DataTableProps<TData extends Record<string, unknown>, TValue> {
     columns: ColumnDef<TData, TValue>[]
@@ -41,12 +42,15 @@ export function DataTable<TData extends Record<string, unknown>, TValue>({
         useState<VisibilityState>({
             side: false,
             averageBased: false,
-            pnl: false
+            pnl: false,
+            drawdownRatio: false,
         });
 
     const [sorting, setSorting] = React.useState<SortingState>([])
     const [search, setSearch] = useState("");
     const [selectedAssets, setSelectedAssets] = useState<string[]>([]);
+    const [cumRoi, setCumRoi] = useState(0);
+    const [cumDrawdown, setCumDrawdown] = useState(0);
 
     const toggleAsset = (asset: string) => {
         setSelectedAssets((prev) =>
@@ -78,12 +82,40 @@ export function DataTable<TData extends Record<string, unknown>, TValue>({
             columnVisibility,
             sorting
         },
+        meta: {
+            onSelect: ([pnl, drawdown]: [number, number]) => {
+                setCumRoi(prev => prev + pnl);
+                setCumDrawdown(prev => prev + drawdown);
+            },
+            onDeselect: ([pnl, drawdown]: [number, number]) => {
+                setCumRoi(prev => prev - pnl);
+                setCumDrawdown(prev => prev - drawdown);
+            },
+        },
     })
 
     return (
         <div className="overflow-hidden rounded-xl border bg-background pt-6 pb-4 px-6">
-            <div className="text-2xl font-bold">Backtest list</div>
-            <div className="text-muted-foreground">Backtest list</div>
+            <div className="grid grid-cols-8 gap-4">
+                <div className="border rounded-md px-4 py-2">
+                    <div className="text-sm text-muted-foreground">Total ROI</div>
+                    <div className="font-bold">
+                        {cumRoi > 0 ? `${(cumRoi / 3).toFixed(2)}%` : "-"}
+                    </div>
+                </div>
+                <div className="border rounded-md px-4 py-2">
+                    <div className="text-sm text-muted-foreground">Total drawdown</div>
+                    <div className="font-bold">
+                        {cumDrawdown > 0 ? `${(cumDrawdown / 3).toFixed(2)}%` : "-"}
+                    </div>
+                </div>
+                <div className="border rounded-md px-4 py-2">
+                    <div className="text-sm text-muted-foreground">P/D ratio</div>
+                    <div className="font-bold">
+                        {cumDrawdown > 0 ? `${(cumRoi / cumDrawdown).toFixed(2)}` : "-"}
+                    </div>
+                </div>
+            </div>
             <div className="flex items-center justify-between gap-2 py-4">
                 <div className="flex items-center gap-2">
                     <InputBase className="w-56 h-8">
@@ -143,25 +175,6 @@ export function DataTable<TData extends Record<string, unknown>, TValue>({
                                         );
                                     }
                                 })()}
-                                {/* {selectedAssets.length > 0 && selectedAssets.length < 3 ?
-                                    <>
-                                        <Separator orientation="vertical" className="mx-1" />
-                                        {
-                                            selectedAssets.map((asset) => {
-                                                return (
-                                                    <Badge key={asset} variant="secondary" className="rounded-sm">
-                                                        {asset}
-                                                    </Badge>
-                                                )
-                                            })
-
-                                        }
-                                    </> :
-                                    selectedAssets.length > 2 ?
-                                        <Badge variant="secondary" className="rounded-sm">
-                                            {selectedAssets.length} assets
-                                        </Badge> : null
-                                } */}
                             </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="start">
@@ -239,7 +252,7 @@ export function DataTable<TData extends Record<string, unknown>, TValue>({
                                         <TableCell key={cell.id} className={
                                             `${index === 0 ? "ps-4" :
                                                 index === row.getVisibleCells().length - 1 ? "pe-4" : ""} 
-                                        text-end`
+                                        `
                                         }>
                                             {flexRender(cell.column.columnDef.cell, cell.getContext())}
                                         </TableCell>
