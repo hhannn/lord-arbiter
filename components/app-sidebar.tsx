@@ -44,134 +44,142 @@ export function AppSidebar({ collapsible = "icon" }: AppSidebarProps) {
     const [profileDialogOpen, setProfileDialogOpen] = useState(false);
 
     return (
-        <Sidebar collapsible={collapsible} className="border-none">
-            <SidebarContent className="relative">
-                {/* Logo Section - Always visible */}
-                <div
-                    className={`flex items-center gap-4 ${isCollapsed ? "px-3 pt-6 pb-2" : "px-4 pt-6 pb-2"
-                        }`}
-                >
-                    <img
-                        className={`aspect-square object-contain shrink-0 rounded-sm ${isCollapsed ? "size-6" : "size-8"}`}
-                        src="/assets/logo.png"
-                        alt="logo"
-                    />
-                    {!isCollapsed && (
-                        <span className="text-md font-medium truncate">
-                            Lord Arbiter
-                        </span>
-                    )}
-                </div>
+        <>
+            <img
+                src={"/assets/bg-new.png"}
+                width={1280}
+                height={720}
+                className="w-full h-full object-cover fixed opacity-20 dark:opacity-20 mix-blend-exclusion dark:mix-blend-normal"
+            />
+            <Sidebar collapsible={collapsible} className="border-none">
+                <SidebarContent className="relative">
+                    {/* Logo Section - Always visible */}
+                    <div
+                        className={`flex items-center gap-4 ${isCollapsed ? "px-3 pt-6 pb-2" : "px-4 pt-6 pb-2"
+                            }`}
+                    >
+                        <img
+                            className={`aspect-square object-contain shrink-0 rounded-sm ${isCollapsed ? "size-6" : "size-8"}`}
+                            src="/assets/logo.png"
+                            alt="logo"
+                        />
+                        {!isCollapsed && (
+                            <span className="text-md font-medium truncate">
+                                Lord Arbiter
+                            </span>
+                        )}
+                    </div>
 
-                {/* Navigation Menu */}
-                <SidebarGroup>
-                    <SidebarMenu>
-                        <SidebarMenuItem>
-                            <SidebarMenuButton asChild>
-                                <Link
-                                    href="/dashboard"
-                                    className="flex items-center gap-3"
-                                >
-                                    <LayoutDashboard className="w-5 h-5 flex-shrink-0" />
-                                    {!isCollapsed && (
-                                        <span className="truncate text-sm">
-                                            Dashboard
-                                        </span>
-                                    )}
-                                </Link>
-                            </SidebarMenuButton>
-                        </SidebarMenuItem>
-                    </SidebarMenu>
-                    <SidebarMenu>
-                        <SidebarMenuItem>
-                            <SidebarMenuButton asChild>
-                                <Link
-                                    href="/dashboard/bots"
-                                    className="flex items-center gap-3"
-                                >
-                                    <BotIcon className="w-5 h-5 flex-shrink-0" />
-                                    {!isCollapsed && (
-                                        <span className="truncate text-sm">
-                                            Bots
-                                        </span>
-                                    )}
-                                </Link>
-                            </SidebarMenuButton>
-                        </SidebarMenuItem>
-                    </SidebarMenu>
-                </SidebarGroup>
-                <SidebarGroup>
-                    <SidebarGroupContent>
-                        <SidebarGroupLabel>Analysis</SidebarGroupLabel>
+                    {/* Navigation Menu */}
+                    <SidebarGroup>
                         <SidebarMenu>
-                            <SidebarMenu>
-                                {items.map((item) => (
-                                    <SidebarMenuItem key={item.title}>
-                                        <SidebarMenuButton asChild>
-                                            <Link
-                                                href={item.url}
-                                                className="flex items-center gap-3"
-                                            >
-                                                <item.icon className="w-5 h-5 flex-shrink-0" />
-                                                {!isCollapsed && (
-                                                    <span className="truncate text-sm">
-                                                        {item.title}
-                                                    </span>
-                                                )}
-                                            </Link>
-                                        </SidebarMenuButton>
-                                    </SidebarMenuItem>
-                                ))}
-                            </SidebarMenu>
+                            <SidebarMenuItem>
+                                <SidebarMenuButton asChild>
+                                    <Link
+                                        href="/dashboard"
+                                        className="flex items-center gap-3 hover:bg-accent/20 hover:backdrop-blur-[2px]"
+                                    >
+                                        <LayoutDashboard className="w-5 h-5 flex-shrink-0" />
+                                        {!isCollapsed && (
+                                            <span className="truncate text-sm">
+                                                Dashboard
+                                            </span>
+                                        )}
+                                    </Link>
+                                </SidebarMenuButton>
+                            </SidebarMenuItem>
                         </SidebarMenu>
-                    </SidebarGroupContent>
-                </SidebarGroup>
-            </SidebarContent>
-            <SidebarFooter className="w-full pb-8 px-2">
-                <DropdownMenu>
-                    <DropdownMenuTrigger>
-                        <div className="w-full flex items-center justify-between gap-4 p-2 hover:bg-accent cursor-pointer rounded-md">
-                            <div className={`flex items-center gap-4`}>
-                                <Avatar className={`aspect-square object-contain flex-shrink-0 rounded-sm ${isCollapsed ? "size-4" : "size-8"}`}>
-                                    <AvatarImage
-                                        src={
-                                            "https://oyster.ignimgs.com/mediawiki/apis.ign.com/wuthering-waves/3/30/Rover-havoc-male-icon.png"
-                                        }
-                                        alt="MN"
-                                    />
-                                    <AvatarFallback>MN</AvatarFallback>
-                                </Avatar>
-                                {!isCollapsed && (
-                                    <div className="flex flex-col items-stretch gap-0 overflow-hidden">
-                                        <span className="font-medium truncate text-start">
-                                            {username || "Unknown User"}
-                                        </span>
-                                        <span className="text-xs text-muted-foreground truncate">
-                                            UID: {uid || "N/A"}
-                                        </span>
-                                    </div>
-                                )}
+                        <SidebarMenu>
+                            <SidebarMenuItem>
+                                <SidebarMenuButton asChild>
+                                    <Link
+                                        href="/dashboard/bots"
+                                        className="flex items-center gap-3 hover:bg-accent/20 hover:backdrop-blur-[2px]"
+                                    >
+                                        <BotIcon className="w-5 h-5 flex-shrink-0" />
+                                        {!isCollapsed && (
+                                            <span className="truncate text-sm">
+                                                Bots
+                                            </span>
+                                        )}
+                                    </Link>
+                                </SidebarMenuButton>
+                            </SidebarMenuItem>
+                        </SidebarMenu>
+                    </SidebarGroup>
+                    <SidebarGroup>
+                        <SidebarGroupContent>
+                            <SidebarGroupLabel>Analysis</SidebarGroupLabel>
+                            <SidebarMenu>
+                                <SidebarMenu>
+                                    {items.map((item) => (
+                                        <SidebarMenuItem key={item.title}>
+                                            <SidebarMenuButton asChild>
+                                                <Link
+                                                    href={item.url}
+                                                    className="flex items-center gap-3 hover:bg-accent/20 hover:backdrop-blur-[2px]"
+                                                >
+                                                    <item.icon className="w-5 h-5 flex-shrink-0" />
+                                                    {!isCollapsed && (
+                                                        <span className="truncate text-sm">
+                                                            {item.title}
+                                                        </span>
+                                                    )}
+                                                </Link>
+                                            </SidebarMenuButton>
+                                        </SidebarMenuItem>
+                                    ))}
+                                </SidebarMenu>
+                            </SidebarMenu>
+                        </SidebarGroupContent>
+                    </SidebarGroup>
+                </SidebarContent>
+                <SidebarFooter className="relative w-full pb-8 px-2">
+                    <DropdownMenu>
+                        <DropdownMenuTrigger>
+                            <div className="w-full flex items-center justify-between gap-4 p-2 cursor-pointer rounded-md hover:bg-accent/20 hover:backdrop-blur-[2px]">
+                                <div className={`flex items-center gap-4`}>
+                                    <Avatar className={`aspect-square object-contain flex-shrink-0 rounded-sm ${isCollapsed ? "size-4" : "size-8"}`}>
+                                        <AvatarImage
+                                            src={
+                                                "https://oyster.ignimgs.com/mediawiki/apis.ign.com/wuthering-waves/3/30/Rover-havoc-male-icon.png"
+                                            }
+                                            alt="MN"
+                                        />
+                                        <AvatarFallback>MN</AvatarFallback>
+                                    </Avatar>
+                                    {!isCollapsed && (
+                                        <div className="flex flex-col items-stretch gap-0 overflow-hidden">
+                                            <span className="font-medium truncate text-start">
+                                                {username || "Unknown User"}
+                                            </span>
+                                            <span className="text-xs text-muted-foreground truncate">
+                                                UID: {uid || "N/A"}
+                                            </span>
+                                        </div>
+                                    )}
+                                </div>
+                                <ChevronUp className="size-4" />
                             </div>
-                            <ChevronUp className="size-4" />
-                        </div>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent className="min-w-60">
-                        <DropdownMenuItem onClick={() => setProfileDialogOpen(true)}>
-                            <User />
-                            Profile
-                        </DropdownMenuItem>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem onClick={() => {
-                            logout();
-                            router.push("/login");
-                        }}>
-                            <LogOut className="text-destructive" />
-                            Logout
-                        </DropdownMenuItem>
-                    </DropdownMenuContent>
-                </DropdownMenu>
-            </SidebarFooter>
-            <ProfileDialog open={profileDialogOpen} onOpenChange={setProfileDialogOpen} />
-        </Sidebar>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent className="min-w-60">
+                            <DropdownMenuItem onClick={() => setProfileDialogOpen(true)}>
+                                <User />
+                                Profile
+                            </DropdownMenuItem>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem onClick={() => {
+                                logout();
+                                router.push("/login");
+                            }}>
+                                <LogOut className="text-destructive" />
+                                Logout
+                            </DropdownMenuItem>
+                        </DropdownMenuContent>
+                    </DropdownMenu>
+                </SidebarFooter>
+                <ProfileDialog open={profileDialogOpen} onOpenChange={setProfileDialogOpen} />
+            </Sidebar>
+        </>
     );
 }

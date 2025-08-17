@@ -136,11 +136,12 @@ export const columns: ColumnDef<ClosedPnl>[] = [
         cell: ({ row }) => {
             const val = row.getValue("createdTime");
             const date = new Date(Number(val))
+            // .toLocaleTimeString("en-CA", { timeZone: "Asia/Bangkok" });
 
             return (
                 <div className="text-end">
                     {
-                        date.toLocaleTimeString([], {
+                        date.toLocaleTimeString(["en-GB"], {
                             day: "2-digit",
                             month: "2-digit",
                             year: "numeric",

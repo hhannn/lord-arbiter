@@ -255,14 +255,6 @@ export default function Home() {
                     </TabsContent>
                 </Tabs>
             </Card>
-            {(!checked || consent) &&
-                <div className="bg-background border p-4 flex flex-col items-stretch gap-4 rounded-lg">
-                    <span className="text-sm">We use cookies to improve your experience on our site. By using our site you consent to our use of cookies.</span>
-                    <Button onClick={acceptConsent}>
-                        Accept cookies
-                    </Button>
-                </div>
-            }
         </main>
     );
 }

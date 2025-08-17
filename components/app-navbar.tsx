@@ -23,7 +23,7 @@ export function AppNavbar() {
 
     return (
         // <div className={`z-10 px-8 py-4 ${open ? "w-[calc(100%-16rem-8px)]" : "w-[calc(100%-3rem-8px)]"}`}>
-        <div className='relative z-10 px-8 py-3 border-b'>
+        <div className='sticky top-0 z-10 px-8 py-3 border-b bg-background/80 rounded-t-3xl backdrop-blur-sm'>
             <ul className="w-full flex justify-between items-center">
                 <li className="flex items-center justify-between gap-2 min-w-0">
                     <SidebarTrigger />

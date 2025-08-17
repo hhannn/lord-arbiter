@@ -11,7 +11,7 @@ interface PnlCardItemProps {
 export function PnlCardItem({ data, item }: PnlCardItemProps) {
     return (
         <>
-            <li className="flex flex-col gap-2 justify-between py-4 bg-background rounded-md border">
+            <li className="flex flex-col gap-2 justify-between py-2 bg-background rounded-md border">
                 <div className="flex justify-between px-4">
                     <div className="flex gap-2 items-center">
                         <Avatar className="size-4">
@@ -36,7 +36,7 @@ export function PnlCardItem({ data, item }: PnlCardItemProps) {
                     </span>
                 </div>
                 <Separator />
-                <div className="grid grid-cols-1 xl:grid-cols-2 2xl:grid-cols-3 text-sm text-muted-foreground px-4 py-2 space-y-2">
+                <div className="grid grid-cols-1 xl:grid-cols-2 2xl:grid-cols-3 text-sm text-muted-foreground px-4 space-y-2">
                     <div className="space-y-1">
                         <div className="font-medium">Entry price</div>
                         <div className="text-foreground">{Number(item.avgEntryPrice).toFixed(4)}</div>

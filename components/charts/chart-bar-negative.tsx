@@ -23,6 +23,8 @@ import {
 import { Skeleton } from "../ui/skeleton";
 import { cn } from "@/lib/utils";
 import { Tabs, TabsList, TabsTrigger } from "../ui/tabs";
+import { DateRange } from "react-day-picker";
+import { boolean } from "zod";
 
 interface ChartBarNegativeProps {
     className?: string;
@@ -31,18 +33,17 @@ interface ChartBarNegativeProps {
         pnl: number;
     }[];
     initialLoading: boolean;
-    monthly: boolean;
 }
 
 export const description = "A bar chart with negative values";
 
-export function ChartBarNegative({ className, data, initialLoading, monthly }: ChartBarNegativeProps) {
+export function ChartBarNegative({ className, data, initialLoading}: ChartBarNegativeProps) {
 
-    if (!monthly) {
-        data = data.slice(-7)
-    } else {
-        data = data.slice(-30)
-    }
+    // if (!monthly) {
+    //     data = data.slice(-7)
+    // } else {
+    //     data = data.slice(-30)
+    // }
 
     const CustomTooltipContent = ({ active, payload, label }: any) => {
         if (active && payload && payload.length) {
@@ -71,13 +72,17 @@ export function ChartBarNegative({ className, data, initialLoading, monthly }: C
     };
 
     const chartData = useMemo(() => {
-        return data.map((item) => {
-            const [year, month, day] = item.date.split("-");
-            return {
-                ...item,
-                formattedDate: `${day}-${month}`,
-            };
-        });
+        return data
+            .map((item) => {
+                const rowDate = new Date(item.date + "T00:00:00");
+                return {
+                    ...item,
+                    formattedDate: rowDate.toLocaleDateString("en-GB", {
+                        day: "2-digit",
+                        month: "2-digit",
+                    }), // e.g. "17-08"
+                };
+            });
     }, [data]);
 
     if (initialLoading) {
@@ -97,7 +102,7 @@ export function ChartBarNegative({ className, data, initialLoading, monthly }: C
             day: '2-digit'
         }).format(date);
     }
-    
+
     if (data.length === 0) {
         return (
             <Card className={cn("", className)}>
@@ -105,7 +110,7 @@ export function ChartBarNegative({ className, data, initialLoading, monthly }: C
                     <CardTitle>
                         Daily P&L
                     </CardTitle>
-                    <CardDescription>{monthly ? "This month" : "Last 7 days"}</CardDescription>
+                    <CardDescription>Test</CardDescription>
                 </CardHeader>
                 <CardContent className="h-full text-sm flex items-center justify-center">
                     <div>No data available.</div>
@@ -120,12 +125,12 @@ export function ChartBarNegative({ className, data, initialLoading, monthly }: C
                 <CardTitle>
                     Daily P&L
                 </CardTitle>
-                <CardDescription>{monthly ? "This month" : "Last 7 days"}</CardDescription>
+                <CardDescription>Test</CardDescription>
             </CardHeader>
             <CardContent className="h-full">
                 <ChartContainer
                     config={chartConfig}
-                    className="h-full w-full max-h-[100px] md:max-h-[180px]"
+                    className="h-full w-full max-h-[100px] md:max-h-[200px]"
                 >
                     <BarChart accessibilityLayer data={chartData}>
                         <CartesianGrid vertical={false} />

@@ -28,15 +28,11 @@ interface ChartLineDefaultProps {
         pnl: number;
     }[];
     initialLoading: boolean;
-    monthly: boolean;
 }
 
 export const description = "A line chart";
 
-export function ChartLineDefault({ className, data, initialLoading, monthly }: ChartLineDefaultProps) {
-
-    data = monthly ? data.slice(-30) : data.slice(-7);
-    const lastData = data.slice(-7, -14);
+export function ChartLineDefault({ className, data, initialLoading }: ChartLineDefaultProps) {
 
     const chartData = useMemo(() => {
         const dailyMap: Record<string, number> = {};
@@ -120,7 +116,7 @@ export function ChartLineDefault({ className, data, initialLoading, monthly }: C
                     <CardTitle>
                         Daily P&L
                     </CardTitle>
-                    <CardDescription>{monthly ? "This month" : "Last 7 days"}</CardDescription>
+                    <CardDescription>Test</CardDescription>
                 </CardHeader>
                 <CardContent className="h-full text-sm flex items-center justify-center">
                     <div>No data available.</div>
@@ -133,14 +129,10 @@ export function ChartLineDefault({ className, data, initialLoading, monthly }: C
         <Card className={cn("", className)}>
             <CardHeader>
                 <CardTitle>Cumulative P&L</CardTitle>
-                <CardDescription>
-                    {
-                        monthly ? "This month" : "Last 7 days"
-                    }
-                </CardDescription>
+                <CardDescription>Test </CardDescription>
             </CardHeader>
             <CardContent className="h-full">
-                <ChartContainer config={chartConfig} className="h-full w-full max-h-[100px] md:max-h-[180px]">
+                <ChartContainer config={chartConfig} className="h-full w-full max-h-[100px] md:max-h-[200px]">
                     <AreaChart
                         data={chartData}
                     >
