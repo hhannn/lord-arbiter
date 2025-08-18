@@ -174,7 +174,7 @@ export default function DashboardContent({ children }: DashboardContentProps) {
             <div className="relative flex flex-col gap-4 w-full px-4 py-6">
                 <Skeleton className="h-12" />
                 <Skeleton className="h-4" />
-                <div className="grid grid-cols-3 gap-4 h-full w-full">
+                <div className="flex flex-col md:grid md:grid-cols-3 gap-4 h-full w-full">
                     <div className="flex flex-col gap-4">
                         <div className="flex gap-4 w-full">
                             <Skeleton className="h-48 w-full" />
@@ -198,7 +198,7 @@ export default function DashboardContent({ children }: DashboardContentProps) {
 
     return (
         <DashboardContext.Provider value={dashboardData}>
-            <div className="relative flex flex-col gap-4 items-stretch min-h-screen w-full py-6">
+            <div className="relative flex flex-col gap-4 items-stretch min-h-screen w-full py-6 px-4 md:px-0">
                 <div className="flex items-end">
                     <div className="flex flex-col items-center sm:items-start">
                         <h1 className="text-3xl font-bold mb-2">Welcome to Lord Arbiter</h1>
@@ -215,8 +215,8 @@ export default function DashboardContent({ children }: DashboardContentProps) {
                         />
                     </div>
                 </div>
-                <div className="grid grid-cols-3 gap-4">
-                    <div className="col-span-2 grid grid-cols-6 gap-4">
+                <div className="flex flex-col md:grid md:grid-cols-3 gap-4">
+                    <div className="flex flex-col col-span-2 md:grid md:grid-cols-6 gap-4">
                         <Card className="col-span-2 justify-between gap-2">
                             <CardHeader>
                                 <CardTitle className="text-sm text-muted-foreground">Equity</CardTitle>
@@ -280,48 +280,8 @@ export default function DashboardContent({ children }: DashboardContentProps) {
                             <CardTitle>P&L list</CardTitle>
                         </CardHeader>
                         <CardContent className="px-4">
-                            <ScrollArea className="xl:h-[450px] rounded-md">
-                                <ul className="space-y-2">
-                                    {data.closedPnL?.map((item: any) => {
-                                        // console.log(item)
-                                        const symbol = String(item.symbol).replace("USDT", "");
-                                        const createdDate = new Date(Number(item.createdTime));
-                                        const updatedDate = new Date(Number(item.updatedTime));
-                                        const timeDiff = Number(updatedDate) - Number(createdDate);
-                                        const totalMinutes = Math.floor(timeDiff / 1000 / 60);
-
-                                        const duration = {
-                                            hour: Math.floor(totalMinutes / 60),
-                                            minute: totalMinutes % 60
-                                        }
-
-                                        // const formattedDate = createdDate.toDateString().slice(3) + ", " + createdDate.toTimeString().slice(0, 8)
-                                        const formattedDate = createdDate.toLocaleString("en-GB", {
-                                            timeZone: "Asia/Jakarta", // or "Asia/Bangkok"
-                                            year: "numeric",
-                                            month: "short",
-                                            day: "2-digit",
-                                            hour: "2-digit",
-                                            minute: "2-digit",
-                                            second: "2-digit",
-                                        });
-
-                                        const itemData = {
-                                            symbol: symbol,
-                                            pair: item.symbol,
-                                            side: item.side,
-                                            createdDate: createdDate,
-                                            updatedDate: updatedDate,
-                                            duration: duration,
-                                            date: formattedDate,
-                                        }
-
-                                        return (
-                                            <PnlCardItem data={itemData} item={item} />
-                                        )
-
-                                    })}
-                                </ul>
+                            <ScrollArea className="h-[200px] xl:h-[450px] rounded-md">
+                                <PnlCardItem data={data.closedPnL} />
                             </ScrollArea>
                         </CardContent>
                     </Card>

@@ -47,9 +47,7 @@ export function AppSidebar({ collapsible = "icon" }: AppSidebarProps) {
         <>
             <img
                 src={"/assets/bg-new.png"}
-                width={1280}
-                height={720}
-                className="w-full h-full object-cover fixed opacity-20 dark:opacity-20 mix-blend-exclusion dark:mix-blend-normal"
+                className="w-screen h-full object-cover fixed opacity-20 dark:opacity-10 mix-blend-exclusion dark:mix-blend-lighten"
             />
             <Sidebar collapsible={collapsible} className="border-none">
                 <SidebarContent className="relative">

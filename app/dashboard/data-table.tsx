@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Bot } from "@/types/bot";
 
 import {
@@ -32,6 +32,7 @@ import { DropdownMenuContent, DropdownMenuTrigger, DropdownMenu, DropdownMenuIte
 import { cn } from "@/lib/utils";
 import { CreateBotDialog } from "@/components/dialogs/create-bot";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { useSidebar } from "@/components/ui/sidebar";
 
 interface DataTableProps<TData, TValue> {
     columns: ColumnDef<TData, TValue>[];
@@ -49,7 +50,14 @@ export function DataTable<TData, TValue>({
             side: false,
             resonance: false,
             average_based: false,
+            current_price: false,
+            liq_price: false,
+            leverage: false,
+            start_size: false,
         });
+
+    // const { state } = useSidebar();
+    // const isCollapsed = useMemo(() => state === "collapsed", [state]);
 
     const [isAlertVisible, setIsAlertVisible] = useState(() => {
         // load from localStorage on init
@@ -78,9 +86,9 @@ export function DataTable<TData, TValue>({
     return (
         <Card className="border flex flex-col items-stretch gap-4 bg-card overflow-hidden">
             <CardHeader>
-                <CardTitle className="text-2xl">Running Bot</CardTitle>
+                <CardTitle>Bots list</CardTitle>
                 <CardDescription>A gem cannot be polished without friction, nor a man perfected without trials.</CardDescription>
-                <div className="flex items-center justify-between gap-2 mt-4">
+                <div className="flex flex-col md:flex-row items-center justify-between gap-2 mt-4">
                     <div className="flex items-center gap-2">
                         <Input className="max-w-md h-8"
                             placeholder="Search bot"
@@ -118,9 +126,12 @@ export function DataTable<TData, TValue>({
                         </Button>
                     </Alert>
                 }
-                <div className="border-y overflow-hidden">
+                <div className={cn(
+                    "border-y 2xl:max-w-none",
+                    // !isCollapsed ? "xl:max-w-[1020px]" : "xl:max-w-[1226px]"
+                )}>
                     <Table>
-                        <TableHeader>
+                        <TableHeader className="relative">
                             {table.getHeaderGroups().map((headerGroup) => (
                                 <TableRow key={headerGroup.id}>
                                     {headerGroup.headers.map((header, index) => {

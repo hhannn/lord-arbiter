@@ -3,7 +3,6 @@ import { Noto_Sans, Noto_Sans_Mono, Inter, Azeret_Mono } from "next/font/google"
 import "./globals.css";
 import { Toaster } from "@/components/ui/sonner";
 import { ThemeProvider } from "@/components/theme-provider";
-import Footer from "@/components/footer";
 
 const notoSans = Noto_Sans({
   variable: "--font-noto-sans",
@@ -35,24 +34,25 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+
   return (
-      <html lang="en">
-        <body
-          className={`${inter.variable} ${azeretMono.variable} antialiased`}
+    <html lang="en">
+      <body
+        className={`${inter.variable} ${azeretMono.variable} antialiased`}
+      >
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="dark"
+          enableSystem
+          disableTransitionOnChange
         >
-          <ThemeProvider
-            attribute="class"
-            defaultTheme="dark"
-            enableSystem
-            disableTransitionOnChange
-          >
-            {/* <video autoPlay loop muted playsInline className="mix-blend-lighten fixed bottom-0 -z-10 opacity-40">
+          {/* <video autoPlay loop muted playsInline className="mix-blend-lighten fixed bottom-0 -z-10 opacity-40">
           <source src="https://wutheringwaves.kurogames.com/static4.0/assets/bg-wave-4a496675.mp4" />
         </video> */}
-            {children}
-            <Toaster position="top-center" />
-          </ThemeProvider>
-        </body>
-      </html>
+          {children}
+          <Toaster position="top-center" />
+        </ThemeProvider>
+      </body>
+    </html>
   );
 }

@@ -15,32 +15,26 @@ export const metadata = {
 };
 
 export default function Layout({ children }: { children: React.ReactNode }) {
-    
+
     return (
-        <SidebarProvider className="static flex flex-col pe-2 pb-2">
+        <SidebarProvider className="flex flex-col md:pe-2 pb-2">
             {/* dark:bg-[radial-gradient(#fcfcfc12_1px,transparent_1px)] dark:[background-size:32px_32px] */}
             <div className="flex min-h-screen w-full font-inter">
-                {/* <DotPattern width={60} height={60} glow={true} cx={1} cy={1} cr={1} className={"-z-10 opacity-40"} /> */}
                 <AppSidebar />
-                <div className="relative w-full bg-background my-2 md:ms-0 flex-1 border rounded-3xl">
-                    <AppNavbar />
-                    <main className="relative">
-                        {/* <Image
-                        priority
-                        src="/assets/bg-gradient.svg"
-                        height={472}
-                        width={422}
-                        alt="Background Gradient"
-                        className="-z-10 -translate-x-full pointer-events-none absolute top-[57px] left-1/3 hidden scale-100 dark:block opacity-50"
-                    /> */}
-                        <div className="px-0 md:px-6">
-                            {children}
+                <div className="w-full md:my-2 md:ms-0 md:rounded-3xl overflow-hidden">
+                    <div className="relative">
+                        <AppNavbar />
+                        <div className="bg-background w-full rounded-b-3xl">
+                            <main className="w-full pt-12 md:pt-0 md:px-6">
+                                {children}
+                            </main>
                         </div>
-                    </main>
+                        <div className="w-full h-full absolute top-0 left-0 md:border rounded-3xl z-10 pointer-events-none" />
+                    </div>
+                    <Footer />
                 </div>
                 <Toaster richColors position="top-center" />
             </div>
-            <Footer />
         </SidebarProvider >
     );
 }

@@ -32,12 +32,12 @@ export default function Performance() {
     }, []);
 
     return (
-        <div className="pt-6 px-4 flex flex-col gap-4">
+        <div className="pt-6 px-4 flex flex-col gap-4 w-full">
             <div className="relative space-y-2 mb-4">
                 <h1 className="text-4xl font-bold">The Morning Tally</h1>
                 <span>Those who sow with tears will reap with songs of joy.</span>
             </div>
-            <div className="relative grid grid-cols-4 gap-4">
+            <div className="relative grid grid-cols-4 gap-4 w-full">
                 <Card>
                     <CardHeader>
                         <CardTitle>P&L ranking</CardTitle>

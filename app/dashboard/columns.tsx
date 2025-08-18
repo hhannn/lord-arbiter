@@ -33,7 +33,7 @@ export const columns: ColumnDef<Bot>[] = [
         enableHiding: false,
         header: ({ column }) => {
             return (
-                <Button
+                <Button className="-ms-2"
                     variant="ghost"
                     onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
                 >
@@ -47,9 +47,12 @@ export const columns: ColumnDef<Bot>[] = [
             const baseAsset = asset === "HYPEUSDT" ? "HYPEH" : asset.replace("USDT", "");
             const iconUrl = `https://s3-symbol-logo.tradingview.com/crypto/XTVC${baseAsset}.svg`
             const side = String(row.getValue("side"));
+            const startSize = String(row.getValue("start_size"));
+            let start_type = String(row.getValue("start_type"));
+            start_type = start_type === "percent_equity" ? "% of equity" : start_type === "qty" ? " quantity" : " USDT";
 
             return (
-                <div className="flex items-center font-medium gap-2">
+                <div className="flex items-center font-medium gap-3">
                     <Avatar className="size-6 items-center">
                         <AvatarImage
                             src={iconUrl}
@@ -57,14 +60,19 @@ export const columns: ColumnDef<Bot>[] = [
                         />
                         <AvatarFallback>{asset.substring(0, 2)}</AvatarFallback>
                     </Avatar>
-                    {asset}
-                    <Badge variant="outline" className="pl-1.5">
+                    <div className="flex flex-col gap-0">
+                        <div>{asset}</div>
+                        <div className="text-muted-foreground text-xs">
+                            {startSize}{start_type}
+                        </div>
+                    </div>
+                    {/* <Badge variant="outline" className="pl-1.5">
                         {
                             side === "Buy" ? <><ArrowUpRight className="text-green-500" /> Long</> :
                                 side === "Sell" ? <><ArrowDownRight className="text-destructive" /> Short</> :
                                     "-"
                         }
-                    </Badge>
+                    </Badge> */}
                 </div>
             );
         }
@@ -77,6 +85,7 @@ export const columns: ColumnDef<Bot>[] = [
     {
         accessorKey: "start_size",
         header: "Start size",
+        enableHiding: false,
         cell: ({ row }) => {
             const size = String(row.getValue("start_size"));
             const start_type = String(row.getValue("start_type"));

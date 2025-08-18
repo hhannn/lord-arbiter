@@ -5,11 +5,11 @@ import { Separator } from "./ui/separator";
 import { useSidebar } from "./ui/sidebar";
 
 export default function Footer() {
-    const { state } = useSidebar();
-    const isCollapsed = state === "collapsed";
+    // const { state } = useSidebar();
+    // const isCollapsed = state === "collapsed";
 
     return (
-        <footer className={`${!isCollapsed ? "w-[calc(100%-16rem)]" : "w-[calc(100%-3rem)]"} bg-background backdrop-blur-xs p-8 pb-4 self-end border rounded-3xl relative overflow-hidden`}>
+        <footer className={`mt-2 bg-background backdrop-blur-xs p-8 pb-4 self-end border rounded-3xl relative overflow-hidden`}>
             <div className="absolute left-0 bottom-0 h-full w-full">
                 {/* <Shadow /> */}
             </div>
