@@ -80,25 +80,7 @@ export function DataTable<TData, TValue>({
             <CardHeader>
                 <CardTitle className="text-2xl">Running Bot</CardTitle>
                 <CardDescription>A gem cannot be polished without friction, nor a man perfected without trials.</CardDescription>
-            </CardHeader>
-            <CardContent className="flex flex-col gap-4">
-                {isAlertVisible &&
-                    <Alert className="border-amber-500/50 text-amber-600 dark:text-amber-500 flex items-center py-1 pe-1">
-                        <AlertCircle />
-                        <div className="w-full">
-                            <AlertTitle className="-mb-0.5">Make sure that your setup will be safe in a black swan event</AlertTitle>
-                        </div>
-                        <Button
-                            size="icon"
-                            variant="ghost"
-                            className="!pl-0 hover:text-amber-400 hover:bg-amber-500/20 dark:hover:text-amber-400"
-                            onClick={() => setIsAlertVisible(false)}
-                        >
-                            <XIcon className="h-5 w-5" />
-                        </Button>
-                    </Alert>
-                }
-                <div className="flex items-center justify-between gap-2">
+                <div className="flex items-center justify-between gap-2 mt-4">
                     <div className="flex items-center gap-2">
                         <Input className="max-w-md h-8"
                             placeholder="Search bot"
@@ -118,9 +100,27 @@ export function DataTable<TData, TValue>({
                         <CreateBotDialog />
                     </div>
                 </div>
-                <div className="border rounded-md overflow-hidden">
+            </CardHeader>
+            <CardContent className="flex flex-col gap-4 px-0">
+                {isAlertVisible &&
+                    <Alert className="border-amber-500/50 text-amber-600 dark:text-amber-500 flex items-center py-1 pe-1">
+                        <AlertCircle />
+                        <div className="w-full">
+                            <AlertTitle className="-mb-0.5">Make sure that your setup will be safe in a black swan event</AlertTitle>
+                        </div>
+                        <Button
+                            size="icon"
+                            variant="ghost"
+                            className="!pl-0 hover:text-amber-400 hover:bg-amber-500/20 dark:hover:text-amber-400"
+                            onClick={() => setIsAlertVisible(false)}
+                        >
+                            <XIcon className="h-5 w-5" />
+                        </Button>
+                    </Alert>
+                }
+                <div className="border-y overflow-hidden">
                     <Table>
-                        <TableHeader className="">
+                        <TableHeader>
                             {table.getHeaderGroups().map((headerGroup) => (
                                 <TableRow key={headerGroup.id}>
                                     {headerGroup.headers.map((header, index) => {
@@ -145,6 +145,7 @@ export function DataTable<TData, TValue>({
                                             </TableHead>
                                         );
                                     })}
+                                    <TableHead />
                                 </TableRow>
                             ))}
                         </TableHeader>
@@ -192,7 +193,7 @@ export function DataTable<TData, TValue>({
                         </TableBody>
                     </Table>
                 </div>
-                <div className="flex justify-end items-center gap-8">
+                <div className="flex justify-end items-center gap-8 mx-6">
                     <DropdownMenu>
                         <span className="text-sm font-medium">Rows per page</span>
                         <DropdownMenuTrigger className="flex items-center gap-4">

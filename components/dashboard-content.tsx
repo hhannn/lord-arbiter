@@ -28,7 +28,7 @@ import { useAuthRedirect } from "@/hooks/useAuthRedirect";
 import { PnlCardItem } from "./pnl-card-item";
 import { DateRangePicker } from "./date-range-picker";
 import { DateRange } from "react-day-picker";
-import { addDays, startOfWeek } from "date-fns";
+import { add, addDays, startOfWeek } from "date-fns";
 
 // ----- Types -----
 interface DashboardData {
@@ -58,8 +58,7 @@ interface DashboardContentProps {
 }
 
 const today = new Date()
-const monday = startOfWeek(today, { weekStartsOn: 1 }) // Monday as start
-const thisWeek: DateRange = { from: monday, to: addDays(monday, 6) }
+const last7Days: DateRange = { from: addDays(today, -6), to: today }
 
 // ----- Component -----
 export default function DashboardContent({ children }: DashboardContentProps) {
@@ -69,7 +68,7 @@ export default function DashboardContent({ children }: DashboardContentProps) {
 
     const [initialLoading, setInitialLoading] = useState(true);
     const [monthly, setMonthly] = useState(false);
-    const [dateRange, setDateRange] = useState<DateRange | undefined>(thisWeek);
+    const [dateRange, setDateRange] = useState<DateRange | undefined>(last7Days);
 
     useEffect(() => {
         const store = useUserData.getState();
@@ -216,90 +215,72 @@ export default function DashboardContent({ children }: DashboardContentProps) {
                         />
                     </div>
                 </div>
-
-                <div className="grid grid-cols-4 gap-4">
-                    <Card className="flex-1 justify-between">
-                        <CardHeader>
-                            <CardTitle className="text-sm text-muted-foreground">Equity</CardTitle>
-                            <CardTitle className="flex items-end gap-2">
-                                <span className="text-2xl 2xl:text-3xl">
-                                    {dashboardData.equity.toFixed(2)}
-                                </span>
-                                <span className="text-sm text-muted-foreground">USDT</span>
-                            </CardTitle>
-                        </CardHeader>
-                        <CardFooter className="flex flex-col items-start">
-                            <div className={`text-sm ${dashboardData && dashboardData.unrealizedPnl >= 0 ?
-                                "text-green-600 dark:text-green-400" :
-                                "text-red-400"
-                                }`}
-                            >
-                                {dashboardData.unrealizedPnl.toFixed(2)} USDT
-                            </div>
-                            <p className="text-sm text-muted-foreground">
-                                Total unrealized P&L
-                            </p>
-                        </CardFooter>
-                    </Card>
-
-                    <Card className="justify-between">
-                        <CardHeader>
-                            <CardTitle className="text-sm text-muted-foreground">Total P&L</CardTitle>
-                            <CardTitle className="flex items-end gap-2">
-                                <span className="lg:text-2xl 2xl:text-3xl">
-                                    {data && dashboardData ? dashboardData.totalPnl.toFixed(2) : "Loading..."}
-                                </span>
-                                <span className="text-sm text-muted-foreground">USDT</span>
-                            </CardTitle>
-                        </CardHeader>
-                        <CardFooter className="text-sm text-muted-foreground">
-                            {monthly
-                                ? "Total closed P&L this month."
-                                : "Total closed P&L this week."}
-                        </CardFooter>
-                    </Card>
-
-                    <Card className="justify-between">
-                        <CardHeader className="gap-2">
-                            <CardTitle className="text-sm text-muted-foreground">Avg. trade duration</CardTitle>
-                            <CardTitle className="font-medium lg:text-2xl 2xl:text-3xl">
-                                {dashboardData?.averageTradeDuration.hour}<span className="ms-0 text-base text-muted-foreground">h </span>
-                                {dashboardData?.averageTradeDuration.minute}<span className="text-base text-muted-foreground">m</span>
-                            </CardTitle>
-                        </CardHeader>
-                        <CardFooter className="text-sm text-muted-foreground">
-                            Avg. trade duration
-                        </CardFooter>
-                    </Card>
-
-                    <Card className="justify-between">
-                        <CardHeader>
-                            <CardTitle className="text-sm text-muted-foreground">Total closed positions</CardTitle>
-                            <CardTitle className="font-medium lg:text-2xl 2xl:text-3xl">{dashboardData?.totalClosedOrders}</CardTitle>
-                        </CardHeader>
-                        <CardFooter className="text-sm text-muted-foreground">
-                            {dashboardData?.totalClosedOrders} Long / 0 Short
-                        </CardFooter>
-                    </Card>
-                </div>
-
                 <div className="grid grid-cols-3 gap-4">
-                    <ChartBarNegative
-                        data={dashboardData?.dailyPnl || []}
-                        initialLoading={initialLoading}
-                    />
+                    <div className="col-span-2 grid grid-cols-6 gap-4">
+                        <Card className="col-span-2 justify-between gap-2">
+                            <CardHeader>
+                                <CardTitle className="text-sm text-muted-foreground">Equity</CardTitle>
+                                <CardTitle className="flex items-end gap-2">
+                                    <span className="text-2xl 2xl:text-3xl">
+                                        {dashboardData.equity.toFixed(2)}
+                                    </span>
+                                    <span className="text-sm text-muted-foreground">USDT</span>
+                                </CardTitle>
+                            </CardHeader>
+                            <CardFooter className="flex flex-col items-start">
+                                <div className={`text-sm ${dashboardData && dashboardData.unrealizedPnl >= 0 ?
+                                    "text-green-600 dark:text-green-400" :
+                                    "text-red-400"
+                                    }`}
+                                >
+                                    {dashboardData.unrealizedPnl.toFixed(2)} USDT
+                                </div>
+                                <p className="text-sm text-muted-foreground">
+                                    Total unrealized P&L
+                                </p>
+                            </CardFooter>
+                        </Card>
 
-                    <ChartLineDefault
-                        data={dashboardData?.dailyPnl || []}
-                        initialLoading={initialLoading}
-                    />
+                        <Card className="col-span-2 justify-between gap-2">
+                            <CardHeader className="gap-2">
+                                <CardTitle className="text-sm text-muted-foreground">Avg. trade duration</CardTitle>
+                                <CardTitle className="font-medium lg:text-2xl 2xl:text-3xl">
+                                    {dashboardData?.averageTradeDuration.hour}<span className="ms-0 text-base text-muted-foreground">h </span>
+                                    {dashboardData?.averageTradeDuration.minute}<span className="text-base text-muted-foreground">m</span>
+                                </CardTitle>
+                            </CardHeader>
+                            <CardFooter className="text-sm text-muted-foreground">
+                                Avg. trade duration
+                            </CardFooter>
+                        </Card>
 
+                        <Card className="col-span-2 justify-between gap-2">
+                            <CardHeader>
+                                <CardTitle className="text-sm text-muted-foreground">Total closed positions</CardTitle>
+                                <CardTitle className="font-medium lg:text-2xl 2xl:text-3xl">{dashboardData?.totalClosedOrders}</CardTitle>
+                            </CardHeader>
+                            <CardFooter className="text-sm text-muted-foreground">
+                                {dashboardData?.totalClosedOrders} Long / 0 Short
+                            </CardFooter>
+                        </Card>
+                        <div className="col-span-full grid grid-cols-2 gap-4">
+                            <ChartBarNegative
+                                data={dashboardData?.dailyPnl || []}
+                                initialLoading={initialLoading}
+                            />
+
+                            <ChartLineDefault
+                                data={dashboardData?.dailyPnl || []}
+                                initialLoading={initialLoading}
+                            />
+                        </div>
+                    </div>
                     <Card className="gap-2">
                         <CardHeader>
-                            <CardTitle className="text-xl">P&L list</CardTitle>
+                            <CardTitle>P&L list</CardTitle>
                         </CardHeader>
                         <CardContent className="px-4">
-                            <ScrollArea className="xl:h-[480px] 2xl:h-[200px] rounded-md">
+                            <ScrollArea className="xl:h-[450px] rounded-md">
                                 <ul className="space-y-2">
                                     {data.closedPnL?.map((item: any) => {
                                         // console.log(item)
@@ -345,24 +326,6 @@ export default function DashboardContent({ children }: DashboardContentProps) {
                         </CardContent>
                     </Card>
                 </div>
-
-
-
-                {/* <Card className="col-span-4">
-                        <CardHeader>
-                            <CardTitle className="text-xl">Activity Log</CardTitle>
-                            <CardDescription>
-                                Recent activities on your account
-                            </CardDescription>
-                            <CardContent className="text-sm ps-0">
-                                <ul className="space-y-2">
-                                    <li className="flex gap-2">Logged in</li>
-                                    <li className="flex gap-2">Updated profile</li>
-                                    <li className="flex gap-2">Changed password</li>
-                                </ul>
-                            </CardContent>
-                        </CardHeader>
-                    </Card> */}
 
                 <div className="col-span-full">
                     {children}

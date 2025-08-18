@@ -2,7 +2,7 @@
 
 import * as React from "react"
 import { CalendarIcon } from "lucide-react"
-import { addDays, format, startOfDay } from "date-fns"
+import { addDays, format, startOfDay, startOfWeek } from "date-fns"
 import { DateRange } from "react-day-picker"
 
 import { cn } from "@/lib/utils"
@@ -26,7 +26,7 @@ export function DateRangePicker({ className, onChange, value }: DatePickerProps)
     //     from: new Date(),
     //     to: addDays(new Date(), -7),
     // })
-    const [rangeName, setRangeName] = React.useState("This week")
+    const [rangeName, setRangeName] = React.useState("Last 7 days")
 
     function setRange(range: DateRange | undefined, label?: string) {
         if (onChange) onChange(range, label)
@@ -44,9 +44,11 @@ export function DateRangePicker({ className, onChange, value }: DatePickerProps)
 
         switch (range) {
             case "thisWeek":
+                const monday = startOfWeek(today, { weekStartsOn: 1 }) // Monday as start
+
                 return {
-                    from: startOfDay(addDays(today, -6)),
-                    to: startOfDay(today),
+                    from: monday,
+                    to: addDays(monday, 6),
                 };
             case "thisMonth":
                 const lastDayOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
