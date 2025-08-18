@@ -74,7 +74,7 @@ export function PnlCardItem({ data }: PnlCardItemProps) {
                             </span>
                         </div>
                         <Separator />
-                        <div className="grid grid-cols-3 xl:grid-cols-2 2xl:grid-cols-3 text-sm text-muted-foreground px-4 space-y-2">
+                        <div className="grid grid-cols-3 xl:grid-cols-3 text-sm text-muted-foreground px-4 space-y-2">
                             <div className="space-y-1">
                                 <div className="font-medium">Entry price</div>
                                 <div className="text-foreground">{Number(item.avgEntryPrice).toFixed(4)}</div>

@@ -141,9 +141,9 @@ export function ChartLineDefault({ className, data, initialLoading }: ChartLineD
                 <CardDescription>Trend of total P&L within the selected time period.</CardDescription>
             </CardHeader>
             <Separator className="mt-3" />
-            <CardContent className="h-full px-0 overflow-hidden">
+            <CardContent className="h-full px-0">
                 <ChartContainer config={chartConfig}
-                    className="h-[calc(100%+8px)] w-[calc(100%+12px)] aspect-[527/235] -mx-1.5 -my-1"
+                    className="h-[calc(100%+8px)] w-[calc(100%+12px)] max-h-[100px] md:max-h-[235px] lg:max-h-[150px] 2xl:max-h-[235px] aspect-[527/235] -mx-1.5 -my-1"
                 >
                     <AreaChart className="chart-area"
                         data={chartData}

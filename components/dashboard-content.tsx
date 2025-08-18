@@ -279,8 +279,8 @@ export default function DashboardContent({ children }: DashboardContentProps) {
                         <CardHeader>
                             <CardTitle>P&L list</CardTitle>
                         </CardHeader>
-                        <CardContent className="px-4">
-                            <ScrollArea className="h-[200px] xl:h-[450px] rounded-md">
+                        <CardContent className="px-4 overflow-hidden">
+                            <ScrollArea className="h-[200px] xl:h-[360px] 2xl:h-[440px] rounded-md">
                                 <PnlCardItem data={data.closedPnL} />
                             </ScrollArea>
                         </CardContent>

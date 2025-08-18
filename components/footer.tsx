@@ -9,11 +9,11 @@ export default function Footer() {
     // const isCollapsed = state === "collapsed";
 
     return (
-        <footer className={`mt-2 bg-background backdrop-blur-xs p-8 pb-4 self-end border rounded-3xl relative overflow-hidden`}>
+        <footer className={`mt-2 bg-background backdrop-blur-xs p-4 2xl:p-8 pb-4 self-end border rounded-3xl relative overflow-hidden`}>
             <div className="absolute left-0 bottom-0 h-full w-full">
                 {/* <Shadow /> */}
             </div>
-            <div className="relative p-2 grid grid-cols-3">
+            <div className="relative p-2 flex flex-col md:grid md:grid-cols-3 gap-4">
                 <div className="space-y-4 col-span-1">
                     <div className="flex gap-4 items-center">
                         <img className="size-12 rounded-full" src="/assets/logo.png" alt="logo" />

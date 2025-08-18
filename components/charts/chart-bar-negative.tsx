@@ -136,7 +136,7 @@ export function ChartBarNegative({ className, data, initialLoading }: ChartBarNe
             <CardContent className="h-full px-0 overflow-hidden">
                 <ChartContainer
                     config={chartConfig}
-                    className="h-[calc(100%)] w-[calc(100%+8px)] max-h-[100px] md:max-h-[235px] -mx-1 -my-1"
+                    className="h-[calc(100%)] w-[calc(100%+8px)] max-h-[100px] md:max-h-[235px] lg:max-h-[150px] 2xl:max-h-[235px] -mx-1 -my-1"
                 >
                     <BarChart accessibilityLayer data={chartData}>
                         <CartesianGrid
