@@ -5,29 +5,12 @@ import { SidebarTrigger, useSidebar } from "@/components/ui/sidebar";
 import { Button } from "./ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "./ui/dropdown-menu";
 import { Sun, Moon } from "lucide-react";
-import { useRef } from "react";
-import gsap from "gsap";
-import { useGSAP } from "@gsap/react";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
-
-gsap.registerPlugin(ScrollTrigger);
 
 export function AppNavbar() {
     const { setTheme } = useTheme();
 
     const pathname = usePathname();
     const pageName = pathname.split("/").pop()?.replace("-", " ");
-
-    // const container = useRef<HTMLDivElement>(null);
-    // useGSAP(() => {
-    //     ScrollTrigger.create({
-    //         trigger: container.current,
-    //         start: "top top",
-    //         end: "max",
-    //         pin: true,
-    //         pinSpacing: false
-    //     })
-    // }, { scope: container })
 
     return (
         <div className='fixed md:relative z-10 px-8 py-3 border-b bg-background/80 rounded-t-3xl backdrop-blur-sm w-full'>
