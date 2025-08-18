@@ -66,8 +66,6 @@ export function PnlRankingChart({ data }: PnlRankingChartProps) {
         color: "var(--foreground)", // you can define your own P&L color
     };
 
-    console.log(chartConfig)
-
     return (
         <ChartContainer config={chartConfig} className="max-h-32">
             <BarChart

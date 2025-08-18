@@ -25,7 +25,7 @@ import { DashboardContext } from "@/context/dashboardContext";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useAuthRedirect } from "@/hooks/useAuthRedirect";
-import { PnlCardItem } from "./pnl-card-item";
+import { PnlCardContent } from "./pnl-card-content";
 import { DateRangePicker } from "./date-range-picker";
 import { DateRange } from "react-day-picker";
 import { add, addDays, startOfWeek } from "date-fns";
@@ -280,9 +280,7 @@ export default function DashboardContent({ children }: DashboardContentProps) {
                             <CardTitle>P&L list</CardTitle>
                         </CardHeader>
                         <CardContent className="px-4 overflow-hidden">
-                            <ScrollArea className="h-[200px] xl:h-[360px] 2xl:h-[440px] rounded-md">
-                                <PnlCardItem data={data.closedPnL} />
-                            </ScrollArea>
+                            <PnlCardContent data={data.closedPnL} />
                         </CardContent>
                     </Card>
                 </div>
