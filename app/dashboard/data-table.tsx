@@ -135,12 +135,14 @@ export function DataTable<TData, TValue>({
                                 <TableRow key={headerGroup.id}>
                                     {headerGroup.headers.map((header, index) => {
                                         const isAssetHeader = header.id === "asset";
+                                        const isIdHeader = header.id === "id";
 
                                         return (
                                             <TableHead
                                                 key={header.id}
                                                 className={cn(
                                                     "py-2",
+                                                    isIdHeader && "w-[1%]",
                                                     isAssetHeader && "sticky left-0 bg-background",
                                                 )}
                                             >

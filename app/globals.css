@@ -170,6 +170,10 @@
     margin-left: 16px;
   }
 
+  html {
+    scroll-behavior: smooth;
+  }
+  
   ::-webkit-scrollbar {
       @apply w-2.5 h-2.5;
     

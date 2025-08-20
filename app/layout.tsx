@@ -50,9 +50,9 @@ export default function RootLayout({
           {/* <video autoPlay loop muted playsInline className="mix-blend-lighten fixed bottom-0 -z-10 opacity-40">
           <source src="https://wutheringwaves.kurogames.com/static4.0/assets/bg-wave-4a496675.mp4" />
         </video> */}
-          <LenisProvider>
+          {/* <LenisProvider> */}
             {children}
-          </LenisProvider>
+          {/* </LenisProvider> */}
           <Toaster position="top-center" />
         </ThemeProvider>
       </body>
