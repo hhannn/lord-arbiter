@@ -229,7 +229,7 @@ export default function DashboardContent({ children }: DashboardContentProps) {
                             </CardHeader>
                             <CardFooter className="flex flex-col items-start">
                                 <div className={`text-sm ${dashboardData && dashboardData.unrealizedPnl >= 0 ?
-                                    "text-green-600 dark:text-green-400" :
+                                    "text-success" :
                                     "text-red-400"
                                     }`}
                                 >

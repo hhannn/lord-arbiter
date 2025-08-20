@@ -127,24 +127,21 @@ export function DataTable<TData, TValue>({
                     </Alert>
                 }
                 <div className={cn(
-                    "border-y 2xl:max-w-none",
-                    // !isCollapsed ? "xl:max-w-[1020px]" : "xl:max-w-[1226px]"
+                    "border-y 2xl:max-w-none scroll",
                 )}>
                     <Table>
                         <TableHeader className="relative">
                             {table.getHeaderGroups().map((headerGroup) => (
                                 <TableRow key={headerGroup.id}>
                                     {headerGroup.headers.map((header, index) => {
-                                        const isFirstHeader = index === 0;
-                                        const isLastHeader = index === headerGroup.headers.length - 1;
+                                        const isAssetHeader = header.id === "asset";
 
                                         return (
                                             <TableHead
                                                 key={header.id}
                                                 className={cn(
                                                     "py-2",
-                                                    isFirstHeader && "px-2",
-                                                    isLastHeader && "px-2"
+                                                    isAssetHeader && "sticky left-0 bg-background",
                                                 )}
                                             >
                                                 {header.isPlaceholder
@@ -160,22 +157,22 @@ export function DataTable<TData, TValue>({
                                 </TableRow>
                             ))}
                         </TableHeader>
-                        <TableBody className="bg-background">
+                        <TableBody className="bg-none">
                             {table.getRowModel().rows?.length ? (
                                 table.getRowModel().rows.map((row) => (
-                                    <TableRow className="space-x-0"
+                                    <TableRow className="space-x-0 bg-background"
                                         key={row.id}
                                         data-state={row.getIsSelected() && "selected"}
                                     >
                                         {row.getVisibleCells().map((cell, index) => {
-                                            const isFirstDataCell = index === 0;
+                                            const isAssetCell = cell.column.id === "asset";
 
                                             return (
                                                 <TableCell
                                                     key={cell.id}
                                                     className={cn(
                                                         "py-2",
-                                                        isFirstDataCell && "pl-6",
+                                                        isAssetCell && "sticky left-0 bg-background",
                                                     )}
                                                 >
                                                     {flexRender(
@@ -186,7 +183,7 @@ export function DataTable<TData, TValue>({
                                             );
                                         })}
                                         {/* Action column */}
-                                        <TableCell className="py-2 pr-6">
+                                        <TableCell className="w-[1%] py-2 pr-4 sticky right-0 bg-background">
                                             <BotActionButtons bot={row.original as Bot} />
                                         </TableCell>
                                     </TableRow>
@@ -237,6 +234,6 @@ export function DataTable<TData, TValue>({
                     </div>
                 </div>
             </CardContent>
-        </Card>
+        </Card >
     );
 }

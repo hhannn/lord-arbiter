@@ -57,7 +57,10 @@ export const columns: ColumnDef<Backtest>[] = [
         },
         cell: ({ row, table }) => {
             const asset = String(row.getValue("asset"));
-            const baseAsset = asset === "HYPE" ? "HYPEH" : asset.replace("USDT", "");
+            const baseAsset =
+                asset === "HYPE" ? "HYPEH" :
+                    asset === "RFC" ? "RFCR"
+                        : asset.replace("USDT", "");
             const iconUrl = `https://s3-symbol-logo.tradingview.com/crypto/XTVC${baseAsset}.svg`
             const side = String(row.getValue("side"));
             const averageBased = Boolean(row.getValue("averageBased"));

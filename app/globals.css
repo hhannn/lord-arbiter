@@ -1,6 +1,11 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
+@plugin 'tailwind-scrollbar' {
+    nocompatible: true;
+    preferredStrategy: 'pseudoelements';
+}
+
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
@@ -24,6 +29,7 @@
   --color-ring: var(--ring);
   --color-input: var(--input);
   --color-border: var(--border);
+  --color-success: var(--success);
   --color-destructive: var(--destructive);
   --color-accent-foreground: var(--accent-foreground);
   --color-accent: var(--accent);
@@ -45,7 +51,6 @@
   --font-noto-sans-mono: var(--font-noto-sans-mono); */
   --font-inter: var(--font-inter);
   --font-mono: var(--font-azeret-mono);
-
 }
 
 @layer base {
@@ -88,6 +93,7 @@
   --muted-foreground: oklch(0.556 0 0);
   --accent: oklch(0.97 0 0);
   --accent-foreground: oklch(0.205 0 0);
+  --success: oklch(72.3% 0.219 149.579);
   --destructive: oklch(0.577 0.245 27.325);
   --border: oklch(0.922 0 0);
   --input: oklch(0.922 0 0);
@@ -123,6 +129,7 @@
   --muted-foreground: oklch(0.708 0 0);
   --accent: oklch(0.235 0 0);
   --accent-foreground: oklch(0.985 0 0);
+  --success: oklch(72.3% 0.219 149.579);
   --destructive: oklch(0.704 0.191 22.216);
   --border: oklch(1 0 0 / 10%);
   --input: oklch(1 0 0 / 15%);
@@ -161,5 +168,18 @@
 
   .chart-area .recharts-cartesian-axis-tick:first-child {
     margin-left: 16px;
+  }
+
+  ::-webkit-scrollbar {
+      @apply w-2.5 h-2.5;
+    
+  }
+
+  ::-webkit-scrollbar-track {
+      @apply bg-transparent
+  }
+  
+  ::-webkit-scrollbar-thumb {
+      @apply rounded-full bg-border border-[1px] border-transparent border-solid bg-clip-padding;
   }
 }

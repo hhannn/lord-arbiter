@@ -18,7 +18,7 @@ import { cn } from "@/lib/utils"
 import { Input } from "@/components/ui/input"
 import { ControlGroup, ControlGroupItem } from "@/components/ui/control-group"
 import { InputBase, InputBaseAdornment, InputBaseInput } from "@/components/ui/input-base"
-import { ArrowDownRight, ArrowUpRight, PlusCircle, Search, X } from "lucide-react"
+import { ArrowDownRight, ArrowUpRight, Copy, PlusCircle, Search, X } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { DataTableViewOptions } from "@/components/column-visibility"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
@@ -28,6 +28,8 @@ import { Item } from "@radix-ui/react-dropdown-menu"
 import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
 import { set } from "lodash"
+import { IconCopy } from "@tabler/icons-react"
+import { CreateBotDialog } from "@/components/dialogs/create-bot"
 
 interface DataTableProps<TData extends Record<string, unknown>, TValue> {
     columns: ColumnDef<TData, TValue>[]
@@ -95,8 +97,8 @@ export function DataTable<TData extends Record<string, unknown>, TValue>({
     })
 
     return (
-        <div className="overflow-hidden rounded-xl border bg-background pt-6 pb-4 px-6">
-            <div className="grid grid-cols-8 gap-4">
+        <div className="overflow-hidden rounded-xl border bg-background pt-6 pb-4">
+            <div className="grid grid-cols-8 gap-4 px-6">
                 <div className="border rounded-md px-4 py-2">
                     <div className="text-sm text-muted-foreground">Total ROI</div>
                     <div className="font-bold">
@@ -116,7 +118,7 @@ export function DataTable<TData extends Record<string, unknown>, TValue>({
                     </div>
                 </div>
             </div>
-            <div className="flex items-center justify-between gap-2 py-4">
+            <div className="flex items-center justify-between gap-2 py-4 px-6">
                 <div className="flex items-center gap-2">
                     <InputBase className="w-56 h-8">
                         <InputBaseAdornment>
@@ -216,7 +218,7 @@ export function DataTable<TData extends Record<string, unknown>, TValue>({
                     <DataTableViewOptions table={table} />
                 </div>
             </div>
-            <div className="border rounded-lg">
+            <div className="border-t">
                 <Table>
                     <TableHeader>
                         {table.getHeaderGroups().map((headerGroup) => (
@@ -244,7 +246,7 @@ export function DataTable<TData extends Record<string, unknown>, TValue>({
                     <TableBody className="">
                         {table.getRowModel().rows?.length ? (
                             table.getRowModel().rows.map((row) => (
-                                <TableRow
+                                <TableRow className="hover:bg-accent/50"
                                     key={row.id}
                                     data-state={row.getIsSelected() && "selected"}
                                 >
@@ -257,6 +259,21 @@ export function DataTable<TData extends Record<string, unknown>, TValue>({
                                             {flexRender(cell.column.columnDef.cell, cell.getContext())}
                                         </TableCell>
                                     ))}
+                                    <TableCell className="w-[1%] size-8">
+                                        <CreateBotDialog
+                                            asset={`${row.getValue("asset")}USDT`}
+                                            startSize={Number(String(row.getValue("startSize")).replace(" USDT", ""))}
+                                            startType="USDT"
+                                            takeProfit={row.getValue("takeProfit")}
+                                            rebuy={row.getValue("rebuy")}
+                                            maxRebuy={row.getValue("maxRebuy")}
+                                            averageBased={row.getValue("averageBased")}
+                                        >
+                                            <Button variant="ghost" size="icon">
+                                                <IconCopy />
+                                            </Button>
+                                        </CreateBotDialog>
+                                    </TableCell>
                                 </TableRow>
                             ))
                         ) : (

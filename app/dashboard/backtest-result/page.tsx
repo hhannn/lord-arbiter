@@ -20,7 +20,7 @@ export default function Performance() {
     }, []);
 
     return (
-        <div className="relative py-6 px-4 flex flex-col gap-4 mx-auto">
+        <div className="relative flex flex-col gap-4 mx-auto py-6">
             <div className="bg-background rounded-xl border p-4 grid grid-cols-4 gap-2">
                 {/* <div className="col-span-full font-medium mb-2">Backtest detail</div> */}
                 <div className="rounded-sm text-sm">

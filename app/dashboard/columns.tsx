@@ -27,10 +27,19 @@ export const columns: ColumnDef<Bot>[] = [
                 </Button>
             )
         },
+        cell: ({ row }) => {
+            const id = String(row.getValue("id"));
+            return (
+                <div className="font-medium ps-4">
+                    {id}
+                </div>
+            )
+        }
     },
     {
         accessorKey: "asset",
         enableHiding: false,
+
         header: ({ column }) => {
             return (
                 <Button className="-ms-2"

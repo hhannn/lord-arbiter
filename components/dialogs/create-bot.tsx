@@ -1,12 +1,8 @@
-import { use, useEffect, useState } from "react";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "../ui/dialog";
+import { useState } from "react";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "../ui/dialog";
 import { Button } from "../ui/button";
 import { AssetsCombobox } from "../assets-combobox";
 import { Input } from "../ui/input";
-import { toast } from "sonner";
-import { ChevronDown, CirclePlus, Info, Plus } from "lucide-react";
-
-import { cn } from "@/lib/utils";
 
 import { useBotStore } from "@/store/useBotStore";
 import {
@@ -26,19 +22,33 @@ import {
     InputBaseControl,
     InputBaseInput,
 } from "@/components/ui/input-base";
-import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "../ui/form";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "../ui/form";
 import z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Controller, useForm } from "react-hook-form";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "../ui/dropdown-menu";
 import { Switch } from "../ui/switch";
 import { Shadow } from "../shadow";
 import { Checkbox } from "../ui/checkbox";
 import { Slider } from "../ui/slider";
 import { Separator } from "../ui/separator";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
+import { Info, Plus } from "lucide-react";
+import { start } from "repl";
 
-export function CreateBotDialog() {
+interface CreateBotDialogProps {
+    asset?: string
+    startType?: "USDT" | "percent_equity" | "qty"
+    startSize?: number
+    multiplier?: number
+    takeProfit?: number
+    rebuy?: number
+    maxRebuy?: number
+    resonance?: string
+    averageBased?: boolean
+    children?: React.ReactNode
+}
+
+export function CreateBotDialog({ asset, startType, startSize, multiplier, takeProfit, rebuy, maxRebuy, averageBased, children }: CreateBotDialogProps) {
 
     const { createBot, instrumentInfo, fetchInstrumentInfo } = useBotStore();
     const [switched, setSwitched] = useState(false);
@@ -99,22 +109,21 @@ export function CreateBotDialog() {
             }
         });
 
-
-    const [openForm, setOpenForm] = useState(false);
+    const [openForm, setOpenForm] = useState(asset ? true : false);
     const [createDialogOpen, setCreateDialogOpen] = useState(false);
 
     const form = useForm({
         resolver: zodResolver(formSchema),
         defaultValues: {
-            asset: "",
-            start_type: "percent_equity",
-            start_size: instrumentInfo?.minQty ?? 1,
+            asset: asset ? asset : "",
+            start_type: startType ? startType : "percent_equity",
+            start_size: startSize ? startSize : instrumentInfo?.minQty ?? 1,
             leverage: 1,
-            multiplier: 1,
-            take_profit: 1,
-            rebuy: 1,
-            max_rebuy: 10,
-            average_based: false
+            multiplier: multiplier || 1,
+            take_profit: takeProfit || 1,
+            rebuy: rebuy || 1,
+            max_rebuy: maxRebuy || 1,
+            average_based: averageBased || false
         },
         mode: "onBlur",
         reValidateMode: "onBlur"
@@ -163,17 +172,19 @@ export function CreateBotDialog() {
     return (
         <Dialog open={createDialogOpen} onOpenChange={setCreateDialogOpen} >
             <DialogTrigger asChild>
-                <Button
-                    className="ml-auto h-8"
-                    size="sm"
-                    onClick={() => {
-                        // resetCreateForm(); // Reset form when opening
-                        setCreateDialogOpen(true);
-                    }}
-                >
-                    <Plus />
-                    Create new bot
-                </Button>
+                {children ? children :
+                    <Button
+                        className="ml-auto h-8"
+                        size="sm"
+                        onClick={() => {
+                            // resetCreateForm(); // Reset form when opening
+                            setCreateDialogOpen(true);
+                        }}
+                    >
+                        <Plus />
+                        Create new bot
+                    </Button>
+                }
             </DialogTrigger>
             <DialogContent>
                 <DialogHeader className="flex flex-col">

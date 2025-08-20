@@ -104,7 +104,7 @@ export function PnlCardContent({ data }: PnlCardContentProps) {
                             }
                         </Badge> */}
                                 </div>
-                                <span className={`font-medium text-${item.closedPnl > 0 ? "green-400" : "destructive"}`}>
+                                <span className={`font-medium text-${item.closedPnl > 0 ? "success" : "destructive"}`}>
                                     {item.closedPnl > 0 ? `+${Number(item.closedPnl).toFixed(4)}` : Number(item.closedPnl).toFixed(4)}
                                 </span>
                             </div>

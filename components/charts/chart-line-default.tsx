@@ -198,7 +198,7 @@ export function ChartLineDefault({ className, data, initialLoading }: ChartLineD
                         return (
                             <div className={cn(
                                 "font-medium",
-                                totalPnl > 0 ? "text-green-500" : "text-destructive"
+                                totalPnl > 0 ? "text-success" : "text-destructive"
                             )}>
                                 <span>
                                     {totalPnl > 0 ? "+" : "-"}{Number(totalPnl).toFixed(2)}
