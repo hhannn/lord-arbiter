@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "../ui/dialog";
 import { Button } from "../ui/button";
 import { AssetsCombobox } from "../assets-combobox";
@@ -50,7 +50,7 @@ interface CreateBotDialogProps {
 
 export function CreateBotDialog({ asset, startType, startSize, multiplier, takeProfit, rebuy, maxRebuy, averageBased, children }: CreateBotDialogProps) {
 
-    const { createBot, instrumentInfo, fetchInstrumentInfo } = useBotStore();
+    const { createBot, instrumentInfo, fetchInstrumentInfo, resetInstrumentInfo } = useBotStore();
     const [switched, setSwitched] = useState(false);
 
     const formSchema = z.object({
@@ -111,6 +111,15 @@ export function CreateBotDialog({ asset, startType, startSize, multiplier, takeP
 
     const [openForm, setOpenForm] = useState(asset ? true : false);
     const [createDialogOpen, setCreateDialogOpen] = useState(false);
+
+    useEffect(() => {
+        if (createDialogOpen) {
+            if (asset) fetchInstrumentInfo(asset);
+        } else {
+            resetInstrumentInfo();
+            reset();
+        }
+    }, [createDialogOpen]);
 
     const form = useForm({
         resolver: zodResolver(formSchema),
