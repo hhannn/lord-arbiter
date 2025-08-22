@@ -9,6 +9,7 @@ export interface Bot {
     multiplier: number;
     take_profit: number;
     rebuy: number;
+    avg_price: number;
     current_position: number;
     current_price: number;
     unrealized_pnl: number;

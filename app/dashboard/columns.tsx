@@ -192,17 +192,32 @@ export const columns: ColumnDef<Bot>[] = [
         },
     },
     {
+        accessorKey: "avg_price",
+        header: "Position average price",
+        enableHiding: false,
+    },
+    {
         accessorKey: "current_position",
         header: "Current position",
         cell: ({ row }) => {
-            const symbol = String(row.getValue("asset"));
-            const baseAsset = symbol.replace("USDT", "");
+            const symbol = row.getValue("asset");
+            const baseAsset = String(symbol).replace("USDT", "");
+            const avg_price = Number(row.getValue("avg_price"));
+            const position_value = avg_price * Number(row.getValue("current_position"));
+
             let position =
                 row.getValue("current_position") !== undefined
                     ? `${String(row.getValue("current_position"))} ${baseAsset}`
                     : "-";
 
-            return `${position}`;
+            return position === "-" ? position : (
+                <div>
+                    {position}
+                    <div className="text-xs text-muted-foreground">
+                        {position_value.toFixed(2)} USDT
+                    </div>
+                </div>
+            );
         },
     },
     {

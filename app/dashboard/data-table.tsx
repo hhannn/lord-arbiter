@@ -54,6 +54,7 @@ export function DataTable<TData, TValue>({
             liq_price: false,
             leverage: false,
             start_size: false,
+            avg_price: false
         });
 
     // const { state } = useSidebar();

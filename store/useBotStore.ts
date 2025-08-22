@@ -85,23 +85,14 @@ export const useBotStore = create<BotState>()(
 
                                     return {
                                         id: bot.id,
-                                        current_position: Number(
-                                            data.size || 0
-                                        ),
-                                        unrealized_pnl: Number(
-                                            data.unrealizedPnL || 0
-                                        ),
+                                        current_position: Number(data.size || 0),
+                                        unrealized_pnl: Number(data.unrealizedPnL || 0),
                                         liq_price: Number(data.liqPrice || 0),
-                                        current_price: Number(
-                                            data.markPrice || 0
-                                        ),
-                                        take_profit_price: Number(
-                                            data.takeProfit || 0
-                                        ),
+                                        current_price: Number(data.markPrice || 0),
+                                        take_profit_price: Number(data.takeProfit || 0),
                                         side: String(data.side || 0),
-                                        position_value: Number(
-                                            data.positionValue || 0
-                                        ),
+                                        avg_price: Number(data.avgPrice || 0),
+                                        position_value: Number(data.positionValue || 0),
                                     };
                                 } catch (err) {
                                     console.error("Position fetch error", err);
