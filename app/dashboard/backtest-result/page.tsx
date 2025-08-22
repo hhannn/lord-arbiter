@@ -1,8 +1,5 @@
 "use client";
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { PnlRankingChart } from "@/components/charts/pnl-ranking-chart";
-import { useUserData } from "@/store/useUserData";
 import { useEffect, useState } from "react";
 import { DataTable } from "./data-table";
 import { columns } from "./columns";
@@ -12,14 +9,25 @@ import { ArrowUpRight } from "lucide-react";
 
 export default function Performance() {
     const [sheet, setSheet] = useState([]);
+    const [loading, setLoading] = useState(false);
 
-    useEffect(() => {
-        (async () => {
+    const fetchSheet = async () => {
+        try {
+            setLoading(true);
             const res = await fetch("/api/sheet");
             const result = await res.json();
-            console.log(result)
             setSheet(result);
-        })();
+            console.log("Sheet fetched")
+        } catch (err) {
+            console.error("Failed to fetch sheet", err);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    // fetch once on mount
+    useEffect(() => {
+        fetchSheet();
     }, []);
 
     return (
@@ -47,7 +55,7 @@ export default function Performance() {
                     <div>300 USDT</div>
                 </div>
             </div>
-            <DataTable data={sheet} columns={columns} />
+            <DataTable data={sheet} columns={columns} refetch={fetchSheet} loading={loading} />
         </div>
     )
 }

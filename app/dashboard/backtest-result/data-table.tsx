@@ -15,30 +15,30 @@ import {
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow, } from "@/components/ui/table"
 import { useState } from "react"
 import { cn } from "@/lib/utils"
-import { Input } from "@/components/ui/input"
-import { ControlGroup, ControlGroupItem } from "@/components/ui/control-group"
 import { InputBase, InputBaseAdornment, InputBaseInput } from "@/components/ui/input-base"
-import { ArrowDownRight, ArrowUpRight, Copy, PlusCircle, Search, X } from "lucide-react"
+import { ArrowDownRight, ArrowUpRight, Copy, Loader2, PlusCircle, RefreshCcw, Search, X } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { DataTableViewOptions } from "@/components/column-visibility"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { Checkbox } from "@/components/ui/checkbox"
-import { Label } from "@/components/ui/label"
-import { Item } from "@radix-ui/react-dropdown-menu"
 import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
-import { set } from "lodash"
 import { IconCopy } from "@tabler/icons-react"
 import { CreateBotDialog } from "@/components/dialogs/create-bot"
+import { Skeleton } from "@/components/ui/skeleton"
 
 interface DataTableProps<TData extends Record<string, unknown>, TValue> {
     columns: ColumnDef<TData, TValue>[]
     data: TData[]
+    refetch: () => void
+    loading?: boolean
 }
 
 export function DataTable<TData extends Record<string, unknown>, TValue>({
     columns,
     data,
+    refetch,
+    loading
 }: DataTableProps<TData, TValue>) {
     const [columnVisibility, setColumnVisibility] =
         useState<VisibilityState>({
@@ -216,6 +216,10 @@ export function DataTable<TData extends Record<string, unknown>, TValue>({
                 </div>
                 <div className="flex items-center gap-2">
                     <DataTableViewOptions table={table} />
+                    <Button size="sm" variant="outline" disabled={loading} onClick={refetch}>
+                        {loading ? <Loader2 className="animate-spin" /> : <RefreshCcw />
+                        }
+                    </Button>
                 </div>
             </div>
             <div className="border-t">
@@ -244,45 +248,72 @@ export function DataTable<TData extends Record<string, unknown>, TValue>({
                         ))}
                     </TableHeader>
                     <TableBody className="">
-                        {table.getRowModel().rows?.length ? (
-                            table.getRowModel().rows.map((row) => (
-                                <TableRow className="hover:bg-accent/50"
-                                    key={row.id}
-                                    data-state={row.getIsSelected() && "selected"}
-                                >
-                                    {row.getVisibleCells().map((cell, index) => (
-                                        <TableCell key={cell.id} className={
-                                            `${index === 0 ? "ps-4" :
-                                                index === row.getVisibleCells().length - 1 ? "pe-4" : ""} 
-                                        `
-                                        }>
-                                            {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                                        </TableCell>
-                                    ))}
-                                    <TableCell className="w-[1%] size-8">
-                                        <CreateBotDialog
-                                            asset={`${row.getValue("asset")}USDT`}
-                                            startSize={Number(String(row.getValue("startSize")).replace(" USDT", ""))}
-                                            startType="USDT"
-                                            takeProfit={row.getValue("takeProfit")}
-                                            rebuy={row.getValue("rebuy")}
-                                            maxRebuy={row.getValue("maxRebuy")}
-                                            averageBased={row.getValue("averageBased")}
-                                        >
-                                            <Button variant="ghost" size="icon">
-                                                <IconCopy />
-                                            </Button>
-                                        </CreateBotDialog>
+                        {loading ?
+                            <>
+                                <TableRow>
+                                    <TableCell colSpan={columns.length} className="text-center">
+                                        <Skeleton className="h-8 w-full" />
                                     </TableCell>
                                 </TableRow>
-                            ))
-                        ) : (
-                            <TableRow>
-                                <TableCell colSpan={columns.length} className="h-24 text-center">
-                                    No results.
-                                </TableCell>
-                            </TableRow>
-                        )}
+                                <TableRow>
+                                    <TableCell colSpan={columns.length} className="text-center">
+                                        <Skeleton className="h-8 w-full" />
+                                    </TableCell>
+                                </TableRow>
+                                <TableRow>
+                                    <TableCell colSpan={columns.length} className="text-center">
+                                        <Skeleton className="h-8 w-full" />
+                                    </TableCell>
+                                </TableRow>
+                                <TableRow>
+                                    <TableCell colSpan={columns.length} className="text-center">
+                                        <Skeleton className="h-8 w-full" />
+                                    </TableCell>
+                                </TableRow>
+                            </>
+                            :
+                            <>
+                                {table.getRowModel().rows?.length ? (
+                                    table.getRowModel().rows.map((row) => (
+                                        <TableRow className="hover:bg-accent/50"
+                                            key={row.id}
+                                            data-state={row.getIsSelected() && "selected"}
+                                        >
+                                            {row.getVisibleCells().map((cell, index) => (
+                                                <TableCell key={cell.id} className={
+                                                    `${index === 0 ? "ps-4" :
+                                                        index === row.getVisibleCells().length - 1 ? "pe-4" : ""} 
+                                        `
+                                                }>
+                                                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                                                </TableCell>
+                                            ))}
+                                            <TableCell className="w-[1%] size-8">
+                                                <CreateBotDialog
+                                                    asset={`${row.getValue("asset")}USDT`}
+                                                    startSize={Number(String(row.getValue("startSize")).replace(" USDT", ""))}
+                                                    startType="USDT"
+                                                    takeProfit={row.getValue("takeProfit")}
+                                                    rebuy={row.getValue("rebuy")}
+                                                    maxRebuy={row.getValue("maxRebuy")}
+                                                    averageBased={row.getValue("averageBased")}
+                                                >
+                                                    <Button variant="ghost" size="icon">
+                                                        <IconCopy />
+                                                    </Button>
+                                                </CreateBotDialog>
+                                            </TableCell>
+                                        </TableRow>
+                                    ))
+                                ) : (
+                                    <TableRow>
+                                        <TableCell colSpan={columns.length} className="h-24 text-center">
+                                            No results.
+                                        </TableCell>
+                                    </TableRow>
+                                )}
+                            </>
+                        }
                     </TableBody>
                 </Table>
             </div>
