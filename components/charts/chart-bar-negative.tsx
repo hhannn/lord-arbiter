@@ -189,7 +189,7 @@ export function ChartBarNegative({ className, data, initialLoading }: ChartBarNe
                                 totalPnl > 0 ? "text-success" : "text-destructive"
                             )}>
                                 <span>
-                                    {totalPnl > 0 ? "+" : "-"}{Number(totalPnl).toFixed(2)}
+                                    {totalPnl > 0 && "+"}{Number(totalPnl).toFixed(2)}
                                 </span>
                                 <span className="ms-1 text-sm font-normal">
                                     USDT

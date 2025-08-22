@@ -91,13 +91,13 @@ export const columns: ColumnDef<Backtest>[] = [
                         <AvatarFallback className="w-4 h-4">{asset.substring(0, 2)}</AvatarFallback>
                     </Avatar>
                     {asset}
-                    <Badge variant="outline" className="pl-1.5">
+                    {/* <Badge variant="outline" className="pl-1.5">
                         {
                             side === "long" ? <><ArrowUpRight className="text-green-500" /> Long</> :
                                 side === "short" ? <><ArrowDownRight className="text-destructive" /> Short</> :
                                     "-"
                         }
-                    </Badge>
+                    </Badge> */}
                     {averageBased && <Badge variant="outline" className="mr-2">Avg</Badge>}
                 </div>
             )

@@ -222,26 +222,26 @@ export function BotDetailDialog({ bot, open, onOpenChange }: BotDetailDialogProp
                     </Badge>
                 </SheetDescription>
                 <div className="grid grid-cols-2 space-y-6">
-                    <div className="flex flex-col gap-2">
+                    <div className="flex flex-col gap-0.5">
                         <span className="text-sm text-muted-foreground font-medium">Start size</span>
                         <span>{bot.start_size}{
                             bot.start_type === "percent_equity" ? "% of equity" :
                                 " USDT"
                         }</span>
                     </div>
-                    <div className="flex flex-col gap-2">
+                    <div className="flex flex-col gap-0.5">
                         <span className="text-sm text-muted-foreground font-medium">Leverage</span>
                         <span>{bot.leverage}x</span>
                     </div>
-                    <div className="flex flex-col gap-2">
+                    <div className="flex flex-col gap-0.5">
                         <span className="text-sm text-muted-foreground font-medium">Position multiplier</span>
                         <span>{bot.multiplier}x</span>
                     </div>
-                    <div className="flex flex-col gap-2">
+                    <div className="flex flex-col gap-0.5">
                         <span className="text-sm text-muted-foreground font-medium">Take profit</span>
                         <span>{bot.take_profit}%</span>
                     </div>
-                    <div className="flex flex-col gap-2">
+                    <div className="flex flex-col gap-0.5">
                         <span className="text-sm text-muted-foreground font-medium">Rebuy percentage</span>
                         <span>{bot.rebuy}%</span>
                     </div>
@@ -249,42 +249,47 @@ export function BotDetailDialog({ bot, open, onOpenChange }: BotDetailDialogProp
                         bot.status.toLowerCase() === "running" ?
                             <>
                                 <Separator className="col-span-full"></Separator>
-                                <div className="flex flex-col gap-2">
+                                <div className="flex flex-col gap-0.5">
                                     <span className="text-sm text-muted-foreground font-medium">Current position</span>
                                     <span>{bot.current_position}</span>
                                 </div>
-                                <div className="flex flex-col gap-2">
+                                <div className="flex flex-col gap-0.5">
                                     <span className="text-sm text-muted-foreground font-medium">Position value</span>
                                     <span>{`${bot.position_value?.toFixed(2)} USDT`}</span>
                                 </div>
-                                <div className="flex flex-col gap-2">
+                                <div className="flex flex-col gap-0.5">
                                     <span className="text-sm text-muted-foreground font-medium">Unrealized PnL</span>
                                     <span>{`${bot.unrealized_pnl?.toFixed(2)} USDT`}</span>
                                 </div>
-                                <div className="flex flex-col gap-2">
+                                <div className="flex flex-col gap-0.5">
                                     <span className="text-sm text-muted-foreground font-medium">Current market price</span>
                                     <span>{bot.current_price}</span>
                                 </div>
-                                <div className="flex flex-col gap-2">
+                                <div className="flex flex-col gap-0.5">
                                     <span className="text-sm text-muted-foreground font-medium">Take profit price</span>
-                                    <span>{bot.take_profit_price}</span>
+                                    <div className="flex flex-col">
+                                        <span>{bot.take_profit_price}</span>
+                                        <span className="text-sm text-muted-foreground">
+                                            {(bot.position_value * (bot.take_profit / 100)).toFixed(3)} USDT
+                                        </span>
+                                    </div>
                                 </div>
-                                <div className="flex flex-col gap-2">
+                                <div className="flex flex-col gap-0.5">
                                     <span className="text-sm text-muted-foreground font-medium">Liq. price</span>
                                     <span>{bot.liq_price}</span>
                                 </div>
                             </> : <></>
                     }
                     <Separator className="col-span-full" />
-                    <div className="flex flex-col gap-2">
+                    <div className="flex flex-col gap-0.5">
                         <span className="text-sm text-muted-foreground font-medium">Total bot P&L</span>
                         <span>{`${botClosedPnL} USDT`}</span>
                     </div>
-                    <div className="flex flex-col gap-2">
+                    <div className="flex flex-col gap-0.5">
                         <span className="text-sm text-muted-foreground font-medium">Average P&L</span>
                         <span>{`${botAveragePnL} USDT`}</span>
                     </div>
-                    <Card className="col-span-full px-4 gap-2">
+                    <Card className="col-span-full px-4 gap-0.5">
                         <CardTitle>Daily bot P&L</CardTitle>
                         <CardDescription>Last 7 days</CardDescription>
                         <BotDailyChart className="max-h-[100px]" dailyPnl={dailyPnlChartData} />
