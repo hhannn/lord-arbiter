@@ -21,7 +21,7 @@ export default function Performance() {
     const { data, startPolling, stopPolling } = useUserData();
     let closedPnl = data?.closedPnL ?? [];
 
-    closedPnl = closedPnl.map((item: any) =>
+    closedPnl = closedPnl.map((item: {}) =>
         renameKeys(item, { symbol: "asset" })
     );
 

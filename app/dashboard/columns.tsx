@@ -207,7 +207,7 @@ export const columns: ColumnDef<Bot>[] = [
             const avg_price = Number(row.getValue("avg_price"));
             const position_value = avg_price * Number(row.getValue("current_position"));
 
-            let position =
+            const position =
                 row.getValue("current_position") !== undefined
                     ? `${String(row.getValue("current_position"))} ${baseAsset}`
                     : "-";
@@ -226,7 +226,7 @@ export const columns: ColumnDef<Bot>[] = [
         accessorKey: "current_price",
         header: "Current price",
         cell: ({ row }) => {
-            let price =
+            const price =
                 row.getValue("current_price") !== undefined
                     ? String(row.getValue("current_price"))
                     : "-";
@@ -238,7 +238,7 @@ export const columns: ColumnDef<Bot>[] = [
         accessorKey: "liq_price",
         header: "Liq. price",
         cell: ({ row }) => {
-            let price = isNaN(parseFloat(row.getValue("liq_price"))) || row.getValue("liq_price") === 0 ? "-" :
+            const price = isNaN(parseFloat(row.getValue("liq_price"))) || row.getValue("liq_price") === 0 ? "-" :
                 String(row.getValue("liq_price"));
 
             return `${price}`;
