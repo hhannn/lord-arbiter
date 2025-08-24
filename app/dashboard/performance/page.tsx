@@ -7,6 +7,7 @@ import { useUserData } from "@/store/useUserData";
 import { useEffect } from "react";
 import { DataTable } from "./data-table";
 import { columns } from "./columns";
+import { ClosedPnl } from "@/types/bot";
 
 function renameKeys(obj: Record<string, any>, keyMap: Record<string, string>) {
     return Object.fromEntries(
@@ -21,7 +22,7 @@ export default function Performance() {
     const { data, startPolling, stopPolling } = useUserData();
     let closedPnl = data?.closedPnL ?? [];
 
-    closedPnl = closedPnl.map((item: {}) =>
+    closedPnl = closedPnl.map((item: ClosedPnl) =>
         renameKeys(item, { symbol: "asset" })
     );
 

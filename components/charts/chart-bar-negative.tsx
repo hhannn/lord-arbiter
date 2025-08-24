@@ -36,6 +36,12 @@ interface ChartBarNegativeProps {
     initialLoading: boolean;
 }
 
+interface CustomTooltipContent {
+    active?: boolean;
+    payload?: any[];
+    label?: string;
+}
+
 export const description = "A bar chart with negative values";
 
 export function ChartBarNegative({ className, data, initialLoading }: ChartBarNegativeProps) {
@@ -46,7 +52,7 @@ export function ChartBarNegative({ className, data, initialLoading }: ChartBarNe
     //     data = data.slice(-30)
     // }
 
-    const CustomTooltipContent = ({ active, payload, label }: any) => {
+    const CustomTooltipContent = ({ active, payload, label }: CustomTooltipContent) => {
         if (active && payload && payload.length) {
             const dataPoint = payload[0].payload;
             const date = new Date(dataPoint.date).toLocaleDateString("en-GB", {

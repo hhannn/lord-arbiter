@@ -189,7 +189,4 @@ export function DateRangePicker({ className, onChange, value }: DatePickerProps)
         </div>
     )
 }
-function utcToZonedTime(now: Date, TZ: any) {
-    throw new Error("Function not implemented.")
-}
 

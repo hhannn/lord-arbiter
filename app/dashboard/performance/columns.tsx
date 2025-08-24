@@ -62,17 +62,17 @@ export const columns: ColumnDef<ClosedPnl>[] = [
     },
     {
         accessorKey: "qty",
-        header: () => <div className="text-end">Qty</div>,
-        cell: ({ row }) => <div className="text-end">{row.getValue("qty")}</div>
+        header: () => <div>Qty</div>,
+        cell: ({ row }) => <div>{row.getValue("qty")}</div>
     },
     {
         accessorKey: "avgEntryPrice",
-        header: () => <div className="text-end">Entry price</div>,
+        header: () => <div>Entry price</div>,
         cell: ({ row }) => {
             const val = row.getValue("avgEntryPrice")
 
             return (
-                <div className="text-end">
+                <div>
                     {formatNumber(Number(val))}
                 </div>
             )
@@ -80,12 +80,12 @@ export const columns: ColumnDef<ClosedPnl>[] = [
     },
     {
         accessorKey: "avgExitPrice",
-        header: () => <div className="text-end">Exit price</div>,
+        header: () => <div>Exit price</div>,
         cell: ({ row }) => {
             const val = row.getValue("avgExitPrice")
 
             return (
-                <div className="text-end">
+                <div>
                     {formatNumber(Number(val))}
                 </div>
             )
@@ -93,12 +93,12 @@ export const columns: ColumnDef<ClosedPnl>[] = [
     },
     {
         accessorKey: "closedPnl",
-        header: () => <div className="text-end">P&L</div>,
+        header: () => <div>P&L</div>,
         cell: ({ row }) => {
             const val = row.getValue("closedPnl")
 
             return (
-                <div className={cn(Number(val) < 0 ? 'text-destructive' : 'text-green-600 dark:text-green-400', "text-end")}>
+                <div className={cn(Number(val) < 0 ? 'text-destructive' : 'text-green-600 dark:text-green-400', "")}>
                     {formatNumber(Number(val))}
                 </div>
             )
@@ -106,12 +106,12 @@ export const columns: ColumnDef<ClosedPnl>[] = [
     },
     {
         accessorKey: "openFee",
-        header: () => <div className="text-end">Opening fee</div>,
+        header: () => <div>Opening fee</div>,
         cell: ({ row }) => {
             const val = row.getValue("openFee")
 
             return (
-                <div className="text-end">
+                <div>
                     {formatNumber(Number(val))}
                 </div>
             )
@@ -119,12 +119,12 @@ export const columns: ColumnDef<ClosedPnl>[] = [
     },
     {
         accessorKey: "closeFee",
-        header: () => <div className="text-end">Closing fee</div>,
+        header: () => <div>Closing fee</div>,
         cell: ({ row }) => {
             const val = row.getValue("closeFee")
 
             return (
-                <div className="text-end">
+                <div>
                     {formatNumber(Number(val))}
                 </div>
             )
@@ -132,14 +132,14 @@ export const columns: ColumnDef<ClosedPnl>[] = [
     },
     {
         accessorKey: "createdTime",
-        header: () => <div className="text-end">Open time</div>,
+        header: () => <div>Open time</div>,
         cell: ({ row }) => {
             const val = row.getValue("createdTime");
             const date = new Date(Number(val))
             // .toLocaleTimeString("en-CA", { timeZone: "Asia/Bangkok" });
 
             return (
-                <div className="text-end">
+                <div>
                     {
                         date.toLocaleTimeString(["en-GB"], {
                             day: "2-digit",
@@ -156,13 +156,13 @@ export const columns: ColumnDef<ClosedPnl>[] = [
     },
     {
         accessorKey: "updatedTime",
-        header: () => <div className="text-end">Close time</div>,
+        header: () => <div>Close time</div>,
         cell: ({ row }) => {
             const val = row.getValue("updatedTime");
             const date = new Date(Number(val))
 
             return (
-                <div className="text-end">
+                <div>
                     {
                         date.toLocaleTimeString([], {
                             day: "2-digit",

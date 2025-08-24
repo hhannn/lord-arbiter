@@ -13,7 +13,13 @@ export interface Bot {
     current_position: number;
     current_price: number;
     unrealized_pnl: number;
-    status: "Running" | "Stopped" | "Idle" | "Stopping" | "Error" | "Graceful Stopping";
+    status:
+        | "Running"
+        | "Stopped"
+        | "Idle"
+        | "Stopping"
+        | "Error"
+        | "Graceful Stopping";
     created_at: string;
     liq_price: number;
     take_profit_price: number;
@@ -39,6 +45,28 @@ export interface TrxEntries {
     change: string;
     cash_balance: string;
     transactionTime: string;
+}
+
+export interface TransactionLog {
+    symbol: string;
+    change: string;
+    transactionTime: string;
+    cashBalance: string;
+}
+
+export interface ClosedPnl {
+    symbol: string;
+    cumEntryValue(cumEntryValue: any): unknown;
+    updatedTime(updatedTime: any): string | number | Date;
+    createdTime(createdTime: any): string | number | Date;
+    asset: string;
+    qty: number;
+    entryPrice: number;
+    exitPrice: number;
+    closedPnl: number;
+    openingFee: number;
+    closingFee: number;
+    tradeTime: string;
 }
 
 export interface CreateBotPayload {

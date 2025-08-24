@@ -4,7 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardDescription, CardTitle } from "../ui/card";
 import { Separator } from "../ui/separator";
 import { useEffect, useMemo } from "react";
-import { Bot } from "@/types/bot";
+import { Bot, ClosedPnl, TransactionLog } from "@/types/bot";
 import { useUserData } from "@/store/useUserData";
 import { useDashboardData } from "@/context/dashboardContext";
 import { BotDailyChart } from "../charts/bot-daily-pnl-chart";
@@ -58,7 +58,7 @@ export function BotDetailDialog({ bot, open, onOpenChange }: BotDetailDialogProp
             return [];
         }
 
-        const filteredPnL = closedPnL.filter((item: { symbol: string; createdTime: any; }) => {
+        const filteredPnL = closedPnL.filter((item: { symbol: string; createdTime: string; }) => {
             const assetFilter = item.symbol === bot.asset;
             const botCreatedAtTimestamp = bot.created_at ? new Date(bot.created_at).getTime() : 0;
             const timeFilter = Number(item.createdTime) > botCreatedAtTimestamp;
@@ -74,7 +74,7 @@ export function BotDetailDialog({ bot, open, onOpenChange }: BotDetailDialogProp
         if (botPnLValues.length === 0) {
             return "0.00";
         }
-        const totalBotPnl = botPnLValues.reduce((a: any, b: any) => a + b, 0);
+        const totalBotPnl = botPnLValues.reduce((a: number, b: number) => a + b, 0);
         return totalBotPnl.toFixed(2);
     }, [botPnLValues]);
 
@@ -82,7 +82,7 @@ export function BotDetailDialog({ bot, open, onOpenChange }: BotDetailDialogProp
         if (botPnLValues.length === 0) {
             return "0.00";
         }
-        const totalBotPnl = botPnLValues.reduce((a: any, b: any) => a + b, 0);
+        const totalBotPnl = botPnLValues.reduce((a: number, b: number) => a + b, 0);
         const averagePnL = totalBotPnl / botPnLValues.length;
         return averagePnL.toFixed(2);
     }, [botPnLValues]);
@@ -96,7 +96,7 @@ export function BotDetailDialog({ bot, open, onOpenChange }: BotDetailDialogProp
         // Convert bot's created_at to a timestamp for filtering
         const botCreatedAtTimestamp = bot.created_at ? new Date(bot.created_at).getTime() : 0;
 
-        userData?.closedPnL?.forEach((item: any) => {
+        userData?.closedPnL?.forEach((item: ClosedPnl) => {
 
             const itemTimestamp = Number(item.updatedTime);
             const timeFilter = itemTimestamp >= botCreatedAtTimestamp
@@ -113,14 +113,14 @@ export function BotDetailDialog({ bot, open, onOpenChange }: BotDetailDialogProp
                     }
                 }
 
-                dailyROIMap[dateKey].totalValue += parseFloat(item.cumEntryValue);
+                dailyROIMap[dateKey].totalValue += parseFloat(String(item.cumEntryValue));
                 dailyROIMap[dateKey].count += 1;
 
             }
         })
 
         // Process transaction logs for ROE calculation
-        dashboardData.transactionLog?.forEach((item: any) => {
+        dashboardData.transactionLog?.forEach((item: TransactionLog) => {
             const itemTimestamp = Number(item.transactionTime);
             const timeFilter = itemTimestamp >= botCreatedAtTimestamp;
             const assetFilter = item.symbol === bot.asset;
@@ -292,7 +292,7 @@ export function BotDetailDialog({ bot, open, onOpenChange }: BotDetailDialogProp
                     <Card className="col-span-full px-4 gap-0.5">
                         <CardTitle>Daily bot P&L</CardTitle>
                         <CardDescription>Last 7 days</CardDescription>
-                        <BotDailyChart className="max-h-[100px]" dailyPnl={dailyPnlChartData} />
+                        <BotDailyChart dailyPnl={dailyPnlChartData} />
                     </Card>
                 </div>
             </SheetContent>

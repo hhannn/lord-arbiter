@@ -8,7 +8,17 @@ import { Separator } from "./ui/separator"
 import { ScrollArea, } from "./ui/scroll-area";
 
 interface PnlCardContentProps {
-    data: any;
+    data: PnlItem[];
+}
+
+interface PnlItem {
+    symbol: string;
+    createdTime: number;
+    updatedTime: number;
+    side: string;
+    closedPnl: number;
+    avgEntryPrice: number;
+    cumEntryValue: number;
 }
 
 export function PnlCardContent({ data }: PnlCardContentProps) {
@@ -39,7 +49,7 @@ export function PnlCardContent({ data }: PnlCardContentProps) {
     return (
         <ScrollArea ref={rootRef} className="h-[200px] xl:h-[360px] 2xl:h-[400px]">
             <ul className="space-y-2 my-4">
-                {data?.map((item: any) => {
+                {data?.map((item: PnlItem) => {
                     // console.log(item)
                     const symbol = String(item.symbol).replace("USDT", "");
                     const createdDate = new Date(Number(item.createdTime));

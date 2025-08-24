@@ -30,11 +30,18 @@ interface AssetsComboboxProps {
     initialValue?: string;
 }
 
-export function AssetsCombobox({ value, onChange, onBlur, error, initialValue }: AssetsComboboxProps) {
+interface InstrumentInfo {
+    symbol: string;
+    minQty: number;
+    qtyStep: number;
+    minValue: number;
+    minLeverage: number;
+    maxLeverage: number;
+}
+
+export function AssetsCombobox({ value, onChange, error, initialValue }: AssetsComboboxProps) {
     const [symbols, setSymbols] = useState<string[]>([]);
     const [loading, setLoading] = useState(true);
-
-    const [storeValue, setStoreValue] = useState(initialValue || "");
     const [open, setOpen] = useState(false);
 
     useEffect(() => {
@@ -45,7 +52,7 @@ export function AssetsCombobox({ value, onChange, onBlur, error, initialValue }:
                 );
                 const data = await res.json();
                 const perpetualSymbols = data.result.list.map(
-                    (item: any) => item.symbol
+                    (item: InstrumentInfo) => item.symbol
                 ).filter((symbol: string | null | undefined) => typeof symbol === 'string' && symbol) as string[];
 
                 const filteredSymbols = perpetualSymbols.filter((symbol: string) => symbol.endsWith('USDT'));

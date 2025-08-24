@@ -28,6 +28,11 @@ interface ChartLineDefaultProps {
     initialLoading: boolean;
 }
 
+interface DailyPnlItem {
+    date: string;
+    pnl: number;
+}
+
 export const description = "A line chart";
 
 export function ChartLineDefault({ className, data, initialLoading }: ChartLineDefaultProps) {
@@ -35,8 +40,8 @@ export function ChartLineDefault({ className, data, initialLoading }: ChartLineD
     const chartData = useMemo(() => {
         const dailyMap: Record<string, number> = {};
 
-        data.forEach((item: any) => {
-            const pnl = parseFloat(item.pnl);
+        data.forEach((item: DailyPnlItem) => {
+            const pnl = item.pnl;
             const date = item.date;
 
             if (!dailyMap[date]) dailyMap[date] = 0;
@@ -128,11 +133,6 @@ export function ChartLineDefault({ className, data, initialLoading }: ChartLineD
             </Card>
         )
     }
-
-    const visibleTicks = useMemo(() => {
-        const raw = chartData.map(d => d.date);
-        return raw.slice(1, -1);
-    }, [chartData]);
 
     return (
         <Card className={cn("py-4 gap-0", className)}>

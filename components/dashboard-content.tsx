@@ -35,6 +35,7 @@ import { IconTransfer } from "@tabler/icons-react";
 import { Progress } from "./ui/progress";
 import { MarginCard } from "./cards/margin";
 import { TransferDialog } from "./dialogs/transfer";
+import { ClosedPnl } from "@/types/bot";
 
 // ----- Types -----
 interface DashboardData {
@@ -136,8 +137,8 @@ export default function DashboardContent({ children }: DashboardContentProps) {
 
         // Average trade time
 
-        const diffs: any[] = []
-        data?.closedPnL?.forEach((item: any) => {
+        const diffs: number[]= []
+        data?.closedPnL?.forEach((item: ClosedPnl) => {
             const diff = new Date(Number(item.updatedTime)).getTime() - new Date(Number(item.createdTime)).getTime();
 
             diffs.push(diff)
