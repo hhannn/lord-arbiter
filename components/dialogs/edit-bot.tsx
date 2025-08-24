@@ -1,20 +1,14 @@
 "use client";
 
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "../ui/dialog";
-import { AssetsCombobox } from "../assets-combobox";
-import { Separator } from "../ui/separator";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "../ui/dialog";
 import { Input } from "../ui/input";
-import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
-import { useEffect, useState } from "react";
-import { Bot } from "@/types/bot";
-
-import { cn } from "@/lib/utils";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
+import { useEffect } from "react";
 import { Button } from "../ui/button";
-import { toast } from "sonner";
 import { useBotStore } from "@/store/useBotStore";
 import { InputBase, InputBaseAdornment, InputBaseControl, InputBaseInput } from "../ui/input-base";
 import z from "zod";
-import { Controller, useForm } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "../ui/form";
 import { ControlGroup, ControlGroupItem } from "../ui/control-group";

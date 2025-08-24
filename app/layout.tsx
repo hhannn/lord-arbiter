@@ -1,19 +1,8 @@
 import type { Metadata } from "next";
-import { Noto_Sans, Noto_Sans_Mono, Inter, Azeret_Mono } from "next/font/google";
+import { Inter, Azeret_Mono } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "@/components/ui/sonner";
 import { ThemeProvider } from "@/components/theme-provider";
-import { LenisProvider } from "@/components/lenis-provider";
-
-const notoSans = Noto_Sans({
-  variable: "--font-noto-sans",
-  subsets: ["latin"]
-})
-
-const notoMono = Noto_Sans_Mono({
-  variable: "--font-noto-sans-mono",
-  subsets: ["latin"]
-})
 
 const inter = Inter({
   variable: "--font-inter",

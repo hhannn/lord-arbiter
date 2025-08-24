@@ -6,6 +6,7 @@ import { columns } from "./columns";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { ArrowUpRight } from "lucide-react";
+import Image from "next/image";
 
 export default function Performance() {
     const [sheet, setSheet] = useState([]);
@@ -33,8 +34,9 @@ export default function Performance() {
     return (
         <div className="relative flex flex-col gap-4 mx-auto pb-6">
             <Alert className="relative flex self-center items-center justify-between overflow-hidden w-[calc(100%+48px)] rounded-none border-x-0 border-t-0 px-6">
-                <img className="absolute right-0 top-0"
+                <Image className="absolute right-0 top-0" width={0} height={0}
                     src="https://skowt.cc/_next/image?url=https%3A%2F%2Fpack.skowt.cc%2Fasset%2F01983920-6f6a-771a-b42d-da6da3a32218.png&w=1920&q=75"
+                    alt="Banner"
                 />
                 <div className="relative flex flex-col gap-1">
                     <AlertTitle>Want to do your own backtest?</AlertTitle>

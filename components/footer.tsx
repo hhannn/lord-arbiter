@@ -1,8 +1,7 @@
 "use client"
 
-import { Shadow } from "./shadow";
+import Image from "next/image";
 import { Separator } from "./ui/separator";
-import { useSidebar } from "./ui/sidebar";
 
 export default function Footer() {
     // const { state } = useSidebar();
@@ -16,7 +15,7 @@ export default function Footer() {
             <div className="relative p-2 flex flex-col md:grid md:grid-cols-3 gap-4">
                 <div className="space-y-4 col-span-1">
                     <div className="flex gap-4 items-center">
-                        <img className="size-12 rounded-full" src="/assets/logo.png" alt="logo" />
+                        <Image width={32} height={32} className="size-12 rounded-full" src="/assets/logo.png" alt="logo" />
                         <div className="text-2xl font-semibold">Lord arbiter</div>
                     </div>
                     <div className="text-muted-foreground text-sm">

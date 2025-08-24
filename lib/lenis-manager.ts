@@ -1,7 +1,7 @@
 // lib/lenis-manager.ts
 import Lenis from "lenis"
 
-let lenisInstances: Set<Lenis> = new Set()
+const lenisInstances: Set<Lenis> = new Set()
 let rafId: number | null = null
 
 function raf(time: number) {

@@ -67,6 +67,16 @@ export function DateRangePicker({ className, onChange, value }: DatePickerProps)
                     from: startOfDay(addDays(today, -29)),
                     to: today,
                 };
+            case "last60Days":
+                return {
+                    from: startOfDay(addDays(today, -59)),
+                    to: today,
+                }
+            case "last90Days":
+                return {
+                    from: startOfDay(addDays(today, -89)),
+                    to: today,
+                };
             default:
                 return {
                     from: today,
@@ -146,6 +156,22 @@ export function DateRangePicker({ className, onChange, value }: DatePickerProps)
                             onClick={() => setRange(getRange("last30Days"), "Last 30 days")}
                         >
                             Last 30 days
+                        </Button>
+
+                        <Button
+                            className="justify-start"
+                            variant="ghost"
+                            onClick={() => setRange(getRange("last60Days"), "Last 60 days")}
+                        >
+                            Last 60 days
+                        </Button>
+
+                        <Button
+                            className="justify-start"
+                            variant="ghost"
+                            onClick={() => setRange(getRange("last90Days"), "Last 90 days")}
+                        >
+                            Last 90 days
                         </Button>
                     </div>
                     <div>

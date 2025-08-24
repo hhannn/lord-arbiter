@@ -3,14 +3,14 @@
 import { ColumnDef } from "@tanstack/react-table";
 
 import { IconCircleCheckFilled, IconMoonFilled } from "@tabler/icons-react"
-import { ArrowDownRight, ArrowUpDown, ArrowUpRight, Clock } from "lucide-react"
+import { ArrowUpDown, Clock } from "lucide-react"
 
 import { Badge } from "@/components/ui/badge";
 import { Bot } from "@/types/bot";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { string } from "zod";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import Image from "next/image";
 
 export const columns: ColumnDef<Bot>[] = [
     {
@@ -136,7 +136,9 @@ export const columns: ColumnDef<Bot>[] = [
             return (
                 resonance !== "A018123" ?
                     `${multiplier}x` :
-                    <img className="size-4"
+                    <Image className="size-4"
+                        width={16}
+                        height={16}
                         src="https://cdn.wanderer.moe/wuthering-waves/elements/T_IconElementLight_UI.png"
                         alt="Resonance"
                     />

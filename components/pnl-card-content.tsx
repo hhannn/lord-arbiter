@@ -1,13 +1,10 @@
 "use client";
 
-import React, { useEffect } from "react"
+import React from "react"
 import Lenis from "lenis"
 import { registerLenis, unregisterLenis } from "@/lib/lenis-manager"
-
-import { ArrowUpRight, ArrowDownRight } from "lucide-react"
 import { Avatar, AvatarImage, AvatarFallback } from "./ui/avatar"
 import { Separator } from "./ui/separator"
-import { Badge } from "./ui/badge"
 import { ScrollArea, } from "./ui/scroll-area";
 
 interface PnlCardContentProps {
@@ -15,17 +12,14 @@ interface PnlCardContentProps {
 }
 
 export function PnlCardContent({ data }: PnlCardContentProps) {
-    // 1) put the ref on the ScrollArea root
     const rootRef = React.useRef<HTMLDivElement | null>(null)
 
     React.useEffect(() => {
-        // 2) find the Radix viewport inside the ScrollArea root
         const wrapper = rootRef.current?.querySelector(
             '[data-radix-scroll-area-viewport]'
         ) as HTMLElement | null
         if (!wrapper) return
 
-        // 3) your <ul> is the content (first child of the viewport)
         const content = wrapper.firstElementChild as HTMLElement | null
         if (!content) return
 
@@ -40,11 +34,11 @@ export function PnlCardContent({ data }: PnlCardContentProps) {
             unregisterLenis(lenis)
             lenis.destroy()
         }
-    }, [])
+    }, [data])
 
     return (
-        <ScrollArea ref={rootRef} className="h-[200px] xl:h-[360px] 2xl:h-[440px] rounded-md">
-            <ul className="space-y-2">
+        <ScrollArea ref={rootRef} className="h-[200px] xl:h-[360px] 2xl:h-[400px]">
+            <ul className="space-y-2 my-4">
                 {data?.map((item: any) => {
                     // console.log(item)
                     const symbol = String(item.symbol).replace("USDT", "");
@@ -91,7 +85,7 @@ export function PnlCardContent({ data }: PnlCardContentProps) {
                                         <AvatarImage src={`https://app.hyperliquid.xyz/coins/${itemData.symbol}.svg`} className="" />
                                         <AvatarFallback>{itemData.symbol.slice(0, 2)}</AvatarFallback>
                                     </Avatar>
-                                    <span className="">{itemData.symbol}</span>
+                                    <span className="" key={itemData.symbol}>{itemData.symbol}</span>
                                     {/* <Badge variant="outline">
                             {item.side === "Sell" ?
                                 <>

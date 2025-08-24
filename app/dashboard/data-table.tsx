@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { Bot } from "@/types/bot";
 
 import {
@@ -13,7 +13,7 @@ import {
     VisibilityState,
 } from "@tanstack/react-table";
 
-import { AlertCircle, ChevronDown, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, PlusCircle, Terminal, XIcon } from "lucide-react";
+import { AlertCircle, ChevronDown, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, PlusCircle, XIcon } from "lucide-react";
 
 import {
     Table,
@@ -28,11 +28,10 @@ import { Input } from "@/components/ui/input";
 import { DataTableViewOptions } from "@/components/column-visibility";
 import { BotActionButtons } from "@/components/table/bot-action-button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { DropdownMenuContent, DropdownMenuTrigger, DropdownMenu, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
+import { DropdownMenuContent, DropdownMenuTrigger, DropdownMenu, DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
 import { CreateBotDialog } from "@/components/dialogs/create-bot";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { useSidebar } from "@/components/ui/sidebar";
+import { Alert, AlertTitle } from "@/components/ui/alert";
 
 interface DataTableProps<TData, TValue> {
     columns: ColumnDef<TData, TValue>[];
@@ -56,9 +55,6 @@ export function DataTable<TData, TValue>({
             start_size: false,
             avg_price: false
         });
-
-    // const { state } = useSidebar();
-    // const isCollapsed = useMemo(() => state === "collapsed", [state]);
 
     const [isAlertVisible, setIsAlertVisible] = useState(() => {
         // load from localStorage on init
@@ -134,7 +130,7 @@ export function DataTable<TData, TValue>({
                         <TableHeader className="relative">
                             {table.getHeaderGroups().map((headerGroup) => (
                                 <TableRow key={headerGroup.id}>
-                                    {headerGroup.headers.map((header, index) => {
+                                    {headerGroup.headers.map((header) => {
                                         const isAssetHeader = header.id === "asset";
                                         const isIdHeader = header.id === "id";
 
@@ -167,7 +163,7 @@ export function DataTable<TData, TValue>({
                                         key={row.id}
                                         data-state={row.getIsSelected() && "selected"}
                                     >
-                                        {row.getVisibleCells().map((cell, index) => {
+                                        {row.getVisibleCells().map((cell) => {
                                             const isAssetCell = cell.column.id === "asset";
 
                                             return (

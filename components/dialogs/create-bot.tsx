@@ -33,7 +33,6 @@ import { Slider } from "../ui/slider";
 import { Separator } from "../ui/separator";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
 import { Info, Plus } from "lucide-react";
-import { start } from "repl";
 
 interface CreateBotDialogProps {
     asset?: string
@@ -119,7 +118,7 @@ export function CreateBotDialog({ asset, startType, startSize, multiplier, takeP
             resetInstrumentInfo();
             reset();
         }
-    }, [createDialogOpen]);
+    }, [createDialogOpen, asset, fetchInstrumentInfo, resetInstrumentInfo]);
 
     const form = useForm({
         resolver: zodResolver(formSchema),

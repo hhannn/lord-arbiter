@@ -5,8 +5,8 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Avatar, AvatarImage } from "@radix-ui/react-avatar"
-import { ColumnDef, TableMeta } from "@tanstack/react-table"
-import { ArrowDownRight, ArrowUpDown, ArrowUpRight } from "lucide-react"
+import { ColumnDef } from "@tanstack/react-table"
+import { ArrowUpDown } from "lucide-react"
 
 export type Backtest = {
     asset: string
@@ -62,7 +62,7 @@ export const columns: ColumnDef<Backtest>[] = [
                     asset === "RFC" ? "RFCR"
                         : asset.replace("USDT", "");
             const iconUrl = `https://s3-symbol-logo.tradingview.com/crypto/XTVC${baseAsset}.svg`
-            const side = String(row.getValue("side"));
+            // const side = String(row.getValue("side"));
             const averageBased = Boolean(row.getValue("averageBased"));
 
             const pnl = Number(row.getValue("pnl"));
@@ -139,7 +139,7 @@ export const columns: ColumnDef<Backtest>[] = [
         header: () => <div className="">Rebuy</div>,
         cell: ({ row }) => {
             const rebuy = Number(row.getValue("rebuy"));
-            const averageBased = Boolean(row.getValue("averageBased"));
+            // const averageBased = Boolean(row.getValue("averageBased"));
 
             return `${rebuy}%`;
         }

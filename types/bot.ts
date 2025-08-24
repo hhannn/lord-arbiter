@@ -58,3 +58,9 @@ export interface StopBotPayload {
     botId: number;
     type: "immediate" | "graceful";
 }
+
+export interface TransferPayload {
+    amount: number;
+    fromAccount: string;
+    toAccount: string;
+}

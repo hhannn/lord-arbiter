@@ -29,6 +29,12 @@ import { PnlCardContent } from "./pnl-card-content";
 import { DateRangePicker } from "./date-range-picker";
 import { DateRange } from "react-day-picker";
 import { add, addDays, startOfWeek } from "date-fns";
+import { Separator } from "./ui/separator";
+import { Button } from "./ui/button";
+import { IconTransfer } from "@tabler/icons-react";
+import { Progress } from "./ui/progress";
+import { MarginCard } from "./cards/margin";
+import { TransferDialog } from "./dialogs/transfer";
 
 // ----- Types -----
 interface DashboardData {
@@ -69,6 +75,7 @@ export default function DashboardContent({ children }: DashboardContentProps) {
     const [initialLoading, setInitialLoading] = useState(true);
     const [monthly, setMonthly] = useState(false);
     const [dateRange, setDateRange] = useState<DateRange | undefined>(last7Days);
+    const [transferOpen, setTransferOpen] = useState(false);
 
     useEffect(() => {
         const store = useUserData.getState();
@@ -216,53 +223,51 @@ export default function DashboardContent({ children }: DashboardContentProps) {
                     </div>
                 </div>
                 <div className="flex flex-col md:grid md:grid-cols-3 gap-4">
-                    <div className="flex flex-col col-span-2 md:grid md:grid-cols-6 gap-4">
-                        <Card className="col-span-2 justify-between gap-2">
-                            <CardHeader>
-                                <CardTitle className="text-sm text-muted-foreground">Equity</CardTitle>
-                                <CardTitle className="flex items-end gap-2">
-                                    <span className="text-2xl 2xl:text-3xl">
-                                        {dashboardData.equity.toFixed(2)}
-                                    </span>
-                                    <span className="text-sm text-muted-foreground">USDT</span>
-                                </CardTitle>
-                            </CardHeader>
-                            <CardFooter className="flex flex-col items-start">
-                                <div className={`text-sm ${dashboardData && dashboardData.unrealizedPnl >= 0 ?
-                                    "text-success" :
-                                    "text-red-400"
-                                    }`}
-                                >
-                                    {dashboardData.unrealizedPnl.toFixed(2)} USDT
-                                </div>
-                                <p className="text-sm text-muted-foreground">
-                                    Total unrealized P&L
-                                </p>
-                            </CardFooter>
+                    <div className="flex flex-col col-span-2 md:grid md:grid-cols-4 gap-4">
+                        <Card className="col-span-2 px-0 py-0 flex-row items-center justify-between gap-2 overflow-hidden">
+                            <div className="flex flex-col gap-2">
+                                <CardHeader className="pt-4">
+                                    <CardTitle className="text-sm text-muted-foreground font-medium">Equity</CardTitle>
+                                    <CardDescription className="text-foreground flex items-end gap-2">
+                                        <span className="text-2xl 2xl:text-3xl font-semibold">
+                                            {dashboardData.equity.toFixed(2)}
+                                        </span>
+                                        <span className="text-sm text-muted-foreground">USDT</span>
+                                    </CardDescription>
+                                </CardHeader>
+                                <CardFooter className="flex flex-col items-start pb-4">
+                                    <div className={`text-sm ${dashboardData && dashboardData.unrealizedPnl >= 0 ?
+                                        "text-success" :
+                                        "text-red-400"
+                                        }`}
+                                    >
+                                        {dashboardData.unrealizedPnl.toFixed(2)} USDT
+                                    </div>
+                                    <p className="text-sm text-muted-foreground">
+                                        Unrealized P&L
+                                    </p>
+                                </CardFooter>
+                            </div>
+                            <CardContent className="h-full px-0 flex">
+                                <Separator orientation="vertical" />
+                                <Button className="h-full rounded-none" variant="ghost" onClick={() => setTransferOpen(true)}>
+                                    <IconTransfer /> Transfer
+                                </Button>
+                            </CardContent>
+                            <TransferDialog open={transferOpen} onOpenChange={setTransferOpen} />
                         </Card>
 
-                        <Card className="col-span-2 justify-between gap-2">
+                        <Card className="col-span-1 justify-between gap-2">
                             <CardHeader className="gap-2">
-                                <CardTitle className="text-sm text-muted-foreground">Avg. trade duration</CardTitle>
+                                <CardDescription className="font-medium">Avg. trade duration</CardDescription>
                                 <CardTitle className="font-medium lg:text-2xl 2xl:text-3xl">
                                     {dashboardData?.averageTradeDuration.hour}<span className="ms-0 text-base text-muted-foreground">h </span>
                                     {dashboardData?.averageTradeDuration.minute}<span className="text-base text-muted-foreground">m</span>
                                 </CardTitle>
                             </CardHeader>
-                            <CardFooter className="text-sm text-muted-foreground">
-                                Avg. trade duration
-                            </CardFooter>
                         </Card>
 
-                        <Card className="col-span-2 justify-between gap-2">
-                            <CardHeader>
-                                <CardTitle className="text-sm text-muted-foreground">Total closed positions</CardTitle>
-                                <CardTitle className="font-medium lg:text-2xl 2xl:text-3xl">{dashboardData?.totalClosedOrders}</CardTitle>
-                            </CardHeader>
-                            <CardFooter className="text-sm text-muted-foreground">
-                                {dashboardData?.totalClosedOrders} Long / 0 Short
-                            </CardFooter>
-                        </Card>
+                        <MarginCard />
                         <div className="col-span-full grid grid-cols-2 gap-4">
                             <ChartBarNegative
                                 data={dashboardData?.dailyPnl || []}
@@ -275,13 +280,23 @@ export default function DashboardContent({ children }: DashboardContentProps) {
                             />
                         </div>
                     </div>
-                    <Card className="gap-2">
+                    <Card className="gap-0 py-4 justify-between">
                         <CardHeader>
                             <CardTitle>P&L list</CardTitle>
                         </CardHeader>
-                        <CardContent className="px-4 overflow-hidden">
+                        <Separator className="mt-3" />
+                        <CardContent className="px-4 overflow-hidden flex-1">
                             <PnlCardContent data={data.closedPnL} />
                         </CardContent>
+                        <Separator className="mb-3" />
+                        <CardFooter className="text-sm flex items-center justify-between">
+                            <div className="font-medium">
+                                Total closed orders
+                            </div>
+                            <div className="font-medium">
+                                {dashboardData?.totalClosedOrders}
+                            </div>
+                        </CardFooter>
                     </Card>
                 </div>
 

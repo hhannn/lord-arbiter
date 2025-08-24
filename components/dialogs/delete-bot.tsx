@@ -7,7 +7,6 @@ import {
     AlertDialogFooter,
     AlertDialogHeader,
     AlertDialogTitle,
-    AlertDialogTrigger
 } from "@/components/ui/alert-dialog";
 import { useBotStore } from "@/store/useBotStore";
 import React from "react";

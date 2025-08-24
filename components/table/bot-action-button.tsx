@@ -20,7 +20,6 @@ import { BotDetailDialog } from "../dialogs/bot-detail";
 import { EditBotDialog } from "../dialogs/edit-bot";
 import { useBotStore } from "@/store/useBotStore";
 import { StopBot } from "../dialogs/stop-bot";
-import { set } from "lodash";
 
 interface BotActionButtonsProps {
     bot: Bot;

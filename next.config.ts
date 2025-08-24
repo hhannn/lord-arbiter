@@ -1,4 +1,5 @@
 import type { NextConfig } from "next";
+import { hostname } from "os";
 
 const nextConfig: NextConfig = {
     async rewrites() {
@@ -9,6 +10,9 @@ const nextConfig: NextConfig = {
             },
         ];
     },
+    images: {
+        domains: ['skowt.cc'],
+    }
 };
 
 export default nextConfig;
