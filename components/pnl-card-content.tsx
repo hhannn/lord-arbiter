@@ -46,6 +46,10 @@ export function PnlCardContent({ data }: PnlCardContentProps) {
         }
     }, [data])
 
+    data = data.sort((a: PnlItem, b: PnlItem) => {
+        return Number(b.updatedTime) - Number(a.updatedTime)
+    })
+
     return (
         <ScrollArea ref={rootRef} className="h-[200px] xl:h-[360px] 2xl:h-[400px]">
             <ul className="space-y-2 my-4">

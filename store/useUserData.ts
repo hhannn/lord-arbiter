@@ -44,6 +44,7 @@ export const useUserData = create<UserDataStore>()(
 
                         const json = await res.json();
                         set({ data: { ...json }, loading: false });
+                        console.log(json)
                     } catch (err) {
                         console.error("❌ Error fetching user data", err);
                         set({ loading: false });

@@ -19,9 +19,8 @@ export function TableContainer() {
     const { data, startPolling, stopPolling } = useUserData();
     let closedPnl = data?.closedPnL?.result.list ?? [];
 
-    closedPnl = closedPnl.map((item: ClosedPnl) =>
-        renameKeys(item, { symbol: "asset" })
-    );
+    closedPnl = closedPnl.map((item: ClosedPnl) => renameKeys(item, { symbol: "asset" }))
+        .sort((a: ClosedPnl, b: ClosedPnl) => Number(b.updatedTime) - Number(a.updatedTime))
 
     useEffect(() => {
         startPolling();
