@@ -1,7 +1,6 @@
 "use client";
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { TableContainer } from "./table-container";
 import { PnlRankingChart } from "@/components/charts/pnl-ranking-chart";
 import { useUserData } from "@/store/useUserData";
 import { useEffect } from "react";
@@ -24,7 +23,7 @@ export default function Performance() {
 
     closedPnl = closedPnl.map((item: ClosedPnl) =>
         renameKeys(item, { symbol: "asset" })
-    );
+    ).sort((a: ClosedPnl, b: ClosedPnl) => Number(b.updatedTime) - Number(a.updatedTime));
 
     useEffect(() => {
         startPolling();
