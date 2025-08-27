@@ -21,6 +21,7 @@ import {
     PopoverTrigger,
 } from "@/components/ui/popover";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
+import { toast } from "sonner";
 
 interface AssetsComboboxProps {
     value?: string;
@@ -31,6 +32,7 @@ interface AssetsComboboxProps {
 }
 
 interface InstrumentInfo {
+    category: string;
     symbol: string;
     minQty: number;
     qtyStep: number;
@@ -52,13 +54,13 @@ export function AssetsCombobox({ value, onChange, error, initialValue }: AssetsC
                 );
                 const data = await res.json();
                 const perpetualSymbols = data.result.list.map(
-                    (item: InstrumentInfo) => item.symbol
+                    (item: any) => item.symbol
                 ).filter((symbol: string | null | undefined) => typeof symbol === 'string' && symbol) as string[];
 
                 const filteredSymbols = perpetualSymbols.filter((symbol: string) => symbol.endsWith('USDT'));
                 setSymbols(filteredSymbols);
             } catch (error) {
-                console.error("Failed to fetch symbols:", error);
+                toast.error("Failed to fetch symbols");
             } finally {
                 setLoading(false);
             }

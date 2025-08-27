@@ -41,7 +41,7 @@ export function PnlRankingChart({ data }: PnlRankingChartProps) {
         return acc;
     }, {});
 
-    const chartData = Object.values(aggregatedMap).sort((a, b) => a.closedPnl < b.closedPnl ? 1 : a.closedPnl > b.closedPnl ? -1 : 0).slice(0, 5);
+    const chartData = Object.values(aggregatedMap).sort((a, b) => b.closedPnl - a.closedPnl).slice(0, 5);
 
     const colors = [
         "var(--foreground)",

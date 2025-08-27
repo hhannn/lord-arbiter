@@ -119,19 +119,19 @@ export const columns: ColumnDef<Backtest>[] = [
         cell: ({ row }) => <div className="text-start">{row.getValue("startSize")}</div>
     },
     {
-        accessorKey: "takeProfit",
-        header: () => <div className="">Take profit</div>,
-        cell: ({ row }) => {
-            const takeProfit = Number(row.getValue("takeProfit"));
-            return `${takeProfit}%`;
-        }
-    },
-    {
         accessorKey: "multiplier",
         header: () => <div className="">Multiplier</div>,
         cell: ({ row }) => {
             const takeProfit = Number(row.getValue("multiplier"));
             return `${takeProfit}x`;
+        }
+    },
+    {
+        accessorKey: "takeProfit",
+        header: () => <div className="">Take profit</div>,
+        cell: ({ row }) => {
+            const takeProfit = Number(row.getValue("takeProfit"));
+            return `${takeProfit}%`;
         }
     },
     {

@@ -26,6 +26,8 @@ import { Separator } from "@/components/ui/separator"
 import { IconCopy } from "@tabler/icons-react"
 import { CreateBotDialog } from "@/components/dialogs/create-bot"
 import { Skeleton } from "@/components/ui/skeleton"
+import { Command, CommandEmpty, CommandInput, CommandItem, CommandList, CommandGroup } from "@/components/ui/command"
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 
 interface DataTableProps<TData extends Record<string, unknown>, TValue> {
     columns: ColumnDef<TData, TValue>[]
@@ -48,11 +50,14 @@ export function DataTable<TData extends Record<string, unknown>, TValue>({
             drawdownRatio: false,
         });
 
-    const [sorting, setSorting] = React.useState<SortingState>([])
+    const [sorting, setSorting] = useState<SortingState>([])
     const [search, setSearch] = useState("");
     const [selectedAssets, setSelectedAssets] = useState<string[]>([]);
+    const [avgRebuy, setAvgRebuy] = useState(true);
+    const [normalRebuy, setNormalRebuy] = useState(true);
     const [cumRoi, setCumRoi] = useState(0);
     const [cumDrawdown, setCumDrawdown] = useState(0);
+    const [searchFilled, setSearchFilled] = useState("");
 
     const toggleAsset = (asset: string) => {
         setSelectedAssets((prev) =>
@@ -66,12 +71,18 @@ export function DataTable<TData extends Record<string, unknown>, TValue>({
                 .toLowerCase()
                 .includes(search.toLowerCase());
 
-            const matchesAsset =
-                selectedAssets.length === 0 || selectedAssets.includes(String(row.asset));
+            const matchesAsset = selectedAssets.length === 0 || selectedAssets.includes(String(row.asset));
 
-            return matchesSearch && matchesAsset;
+            const matchesAvgRebuy = avgRebuy && !normalRebuy ? row.averageBased : true;
+            const matchesNormalRebuy = !avgRebuy && normalRebuy ? !row.averageBased : true;
+
+            if (!avgRebuy && !normalRebuy) {
+                return false;
+            }
+
+            return matchesSearch && matchesAsset && matchesAvgRebuy && matchesNormalRebuy;
         });
-    }, [data, search, selectedAssets]);
+    }, [data, search, selectedAssets, avgRebuy, normalRebuy]);
 
     const table = useReactTable({
         data: filteredData,
@@ -147,8 +158,8 @@ export function DataTable<TData extends Record<string, unknown>, TValue>({
                             </DropdownMenuItem>
                         </DropdownMenuContent>
                     </DropdownMenu>
-                    <DropdownMenu>
-                        <DropdownMenuTrigger>
+                    <Popover>
+                        <PopoverTrigger asChild>
                             <Button variant="outline" className="border-dashed h-8" size="sm">
                                 <PlusCircle />
                                 Assets
@@ -178,37 +189,100 @@ export function DataTable<TData extends Record<string, unknown>, TValue>({
                                     }
                                 })()}
                             </Button>
+                        </PopoverTrigger>
+                        <PopoverContent align="start" className="p-0">
+                            <Command className="bg-none backdrop-blur-none">
+                                <div className="relative">
+                                    <CommandInput placeholder="Search asset"
+                                        value={searchFilled}
+                                        onValueChange={setSearchFilled}
+                                    />
+                                    {searchFilled &&
+                                        <Button className="absolute top-1/2 right-0 -translate-y-1/2"
+                                            variant="ghost"
+                                            size="icon"
+                                            onClick={() => setSearchFilled("")}
+                                        >
+                                            <X className="h-4 w-4" />
+                                        </Button>
+                                    }
+                                </div>
+                                <CommandList>
+                                    <CommandEmpty>No asset found.</CommandEmpty>
+                                    <CommandGroup>
+                                        {(() => {
+                                            const counts = data.reduce((acc, item) => {
+                                                acc[String(item.asset)] = (acc[String(item.asset)] || 0) + 1;
+                                                return acc;
+                                            }, {} as Record<string, number>);
+
+                                            return Object.keys(counts).map((asset) => {
+                                                const checked = selectedAssets.includes(asset);
+                                                return (
+                                                    <CommandItem
+                                                        key={asset}
+                                                        value={asset}
+                                                        onSelect={() => {
+                                                            toggleAsset(asset);
+                                                            console.log(selectedAssets);
+                                                        }}
+                                                    >
+                                                        <Checkbox checked={checked} />
+                                                        {asset} ({counts[asset]})
+                                                    </CommandItem>
+                                                );
+                                            });
+                                        })()}
+                                    </CommandGroup>
+                                </CommandList>
+                            </Command>
+                        </PopoverContent>
+                    </Popover>
+                    <DropdownMenu>
+                        <DropdownMenuTrigger>
+                            <Button variant="outline" className="border-dashed h-8" size="sm">
+                                <PlusCircle />
+                                Rebuy type
+                            </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="start">
                             {(() => {
-                                const counts = data.reduce((acc, item) => {
-                                    acc[String(item.asset)] = (acc[String(item.asset)] || 0) + 1;
-                                    return acc;
-                                }, {} as Record<string, number>);
-
-                                return Object.keys(counts).map((asset) => {
-                                    const checked = selectedAssets.includes(asset);
-                                    return (
+                                const avgChecked = avgRebuy;
+                                const normalChecked = normalRebuy;
+                                return (
+                                    <>
                                         <DropdownMenuItem
-                                            key={asset}
                                             onClick={(e) => {
-                                                e.preventDefault(); // keep menu open
-                                                toggleAsset(asset);
+                                                e.preventDefault();
+                                                setAvgRebuy(!avgChecked);
                                             }}
                                         >
-                                            <Checkbox checked={checked} />
-                                            {asset} ({counts[asset]})
+                                            <Checkbox checked={avgChecked} />
+                                            Average based
                                         </DropdownMenuItem>
-                                    );
-                                });
+                                        <DropdownMenuItem
+                                            onClick={(e) => {
+                                                e.preventDefault();
+                                                setNormalRebuy(!normalChecked);
+                                            }}
+                                        >
+                                            <Checkbox checked={normalChecked} />
+                                            Normal rebuy
+                                        </DropdownMenuItem>
+                                    </>
+                                )
                             })()}
                         </DropdownMenuContent>
                     </DropdownMenu>
-                    {selectedAssets.length > 0 &&
+                    {(selectedAssets.length > 0 || !avgRebuy || !normalRebuy) &&
                         <Button className="h-8 border-dashed"
                             variant="outline"
                             size="sm"
-                            onClick={() => setSelectedAssets([])}
+                            onClick={() => {
+                                setSelectedAssets([]);
+                                setAvgRebuy(true);
+                                setNormalRebuy(true);
+                            }}
                         >
                             <X className="size-4" /> Reset
                         </Button>
@@ -293,6 +367,7 @@ export function DataTable<TData extends Record<string, unknown>, TValue>({
                                                     asset={`${row.getValue("asset")}USDT`}
                                                     startSize={Number(String(row.getValue("startSize")).replace(" USDT", ""))}
                                                     startType="USDT"
+                                                    multiplier={row.getValue("multiplier")}
                                                     takeProfit={row.getValue("takeProfit")}
                                                     rebuy={row.getValue("rebuy")}
                                                     maxRebuy={row.getValue("maxRebuy")}
