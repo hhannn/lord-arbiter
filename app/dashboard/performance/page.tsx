@@ -37,7 +37,7 @@ export default function Performance() {
                 <h1 className="text-4xl font-bold">The Morning Tally</h1>
                 <span>Those who sow with tears will reap with songs of joy.</span>
             </div>
-            <div className="relative grid grid-cols-4 gap-4 w-full">
+            <div className="relative flex flex-col lg:grid lg:grid-cols-4 gap-4 w-full">
                 <Card>
                     <CardHeader>
                         <CardTitle>P&L ranking</CardTitle>

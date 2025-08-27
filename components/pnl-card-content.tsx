@@ -96,7 +96,7 @@ export function PnlCardContent({ data }: PnlCardContentProps) {
                             <div className="flex justify-between px-4 text-sm">
                                 <div className="flex gap-2 items-center">
                                     <Avatar className="size-4">
-                                        <AvatarImage src={`https://app.hyperliquid.xyz/coins/${itemData.symbol}.svg`} className="" />
+                                        <AvatarImage src={`https://s3-symbol-logo.tradingview.com/crypto/XTVC${itemData.symbol}.svg`} className="" />
                                         <AvatarFallback>{itemData.symbol.slice(0, 2)}</AvatarFallback>
                                     </Avatar>
                                     <span className="" key={itemData.symbol}>{itemData.symbol}</span>

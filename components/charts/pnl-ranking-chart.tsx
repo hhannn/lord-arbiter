@@ -1,16 +1,13 @@
 "use client"
 
-import { TrendingUp } from "lucide-react"
 import { Bar, BarChart, CartesianGrid, Cell, LabelList, XAxis, YAxis } from "recharts"
 
 import {
-    ChartConfig,
     ChartContainer,
     ChartTooltip,
     ChartTooltipContent,
 } from "@/components/ui/chart"
-import { Item } from "@radix-ui/react-dropdown-menu"
-import { id } from "zod/v4/locales"
+import { useEffect, useState } from "react"
 
 export const description = "A bar chart with a custom label"
 
@@ -24,8 +21,7 @@ type RankData = {
 }
 
 export function PnlRankingChart({ data }: PnlRankingChartProps) {
-
-    // console.log(data)
+    const [chartMargin, setChartMargin] = useState(0)
 
     const rankData = data.map(({ asset, closedPnl }) => ({
         asset,
@@ -42,6 +38,11 @@ export function PnlRankingChart({ data }: PnlRankingChartProps) {
     }, {});
 
     const chartData = Object.values(aggregatedMap).sort((a, b) => b.closedPnl - a.closedPnl).slice(0, 5);
+
+    useEffect(() => {
+        const maxLabelLength = chartData.reduce((max, item) => Math.max(max, item.asset.length), 0);
+        setChartMargin(maxLabelLength * 4)
+    }, [chartData])
 
     const colors = [
         "var(--foreground)",
@@ -73,7 +74,7 @@ export function PnlRankingChart({ data }: PnlRankingChartProps) {
                 data={chartData}
                 layout="vertical"
                 margin={{
-                    left: 20,
+                    left: chartMargin,
                 }}
             >
                 <YAxis
