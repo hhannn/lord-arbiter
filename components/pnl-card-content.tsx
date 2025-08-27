@@ -77,9 +77,12 @@ export function PnlCardContent({ data }: PnlCardContentProps) {
                         second: "2-digit",
                     });
 
+                    const icons = symbol === "HYPE" ? "HYPEH" : symbol;
+
                     const itemData = {
                         symbol: symbol,
                         pair: item.symbol,
+                        icon: `https://s3-symbol-logo.tradingview.com/crypto/XTVC${icons}.svg`,
                         side: item.side,
                         createdDate: createdDate,
                         updatedDate: updatedDate,
@@ -96,7 +99,7 @@ export function PnlCardContent({ data }: PnlCardContentProps) {
                             <div className="flex justify-between px-4 text-sm">
                                 <div className="flex gap-2 items-center">
                                     <Avatar className="size-4">
-                                        <AvatarImage src={`https://s3-symbol-logo.tradingview.com/crypto/XTVC${itemData.symbol}.svg`} className="" />
+                                        <AvatarImage src={itemData.icon} className="" />
                                         <AvatarFallback>{itemData.symbol.slice(0, 2)}</AvatarFallback>
                                     </Avatar>
                                     <span className="" key={itemData.symbol}>{itemData.symbol}</span>

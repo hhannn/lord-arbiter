@@ -34,13 +34,14 @@ export const columns: ColumnDef<ClosedPnl>[] = [
         accessorKey: "asset",
         header: "Asset",
         cell: ({ row }) => {
-            const val = String(row.getValue("asset"));
-            const iconUrl = `https://app.hyperliquid.xyz/coins/${val.replace("USDT", "")}.svg`
+            let val = String(row.getValue("asset"));
+            val = val === "HYPEUSDT" ? "HYPEH" : val.replace("USDT", "");
+            const iconUrl = `https://s3-symbol-logo.tradingview.com/crypto/XTVC${val}.svg`
             const side = String(row.getValue("side"));
 
             return (
                 <div className="flex items-center font-medium gap-2">
-                    <Avatar className="items-center">
+                    <Avatar className="items-center rounded-full overflow-hidden">
                         <AvatarImage
                             src={iconUrl}
                             alt={`${val} icon`}
