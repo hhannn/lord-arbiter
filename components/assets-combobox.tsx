@@ -49,9 +49,10 @@ export function AssetsCombobox({ value, onChange, error, initialValue }: AssetsC
     useEffect(() => {
         async function fetchSymbols() {
             try {
-                const res = await fetch(
-                    "https://api.bybit.com/v5/market/instruments-info?category=linear&limit=1000"
-                );
+                const res = await fetch("/api/market/instrument-info", {
+                    method: "GET",
+                    credentials: "include",
+                });
                 const data = await res.json();
                 const perpetualSymbols = data.result.list.map(
                     (item: any) => item.symbol
@@ -82,8 +83,6 @@ export function AssetsCombobox({ value, onChange, error, initialValue }: AssetsC
                         const selectedSymbol = symbols.find((s) => s === value) ?? (initialValue ? symbols.find((s) => s === initialValue) : null);
 
                         if (!selectedSymbol) return "Select asset";
-
-                        // Helper for logo suffix
                         const getLogoSuffix = (sym: string) => sym === "HYPEUSDT" ? "HYPEH" : sym.replace("USDT", "");
 
                         return (

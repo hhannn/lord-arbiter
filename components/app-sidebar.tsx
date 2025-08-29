@@ -22,6 +22,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSepara
 import { ProfileDialog } from "./dialogs/profile-dialog";
 import { use, useState } from "react";
 import Link from "next/link";
+import { Margin } from "./cards/dashboard/margin";
 
 const items = [
     // { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
@@ -132,32 +133,35 @@ export function AppSidebar({ collapsible = "icon" }: AppSidebarProps) {
                         </SidebarGroupContent>
                     </SidebarGroup>
                 </SidebarContent>
-                <SidebarFooter className="relative w-full pb-8 px-2">
+                <SidebarFooter className="relative w-full pb-8 px-2 text-start">
+                    <div className="px-2">
+                    </div>
                     <DropdownMenu>
                         <DropdownMenuTrigger>
                             <div className="w-full flex items-center justify-between gap-4 p-2 cursor-pointer rounded-md hover:bg-accent/20 hover:backdrop-blur-[2px]">
-                                <div className={`flex items-center gap-4`}>
+                                <div className={`w-full flex items-center gap-4`}>
                                     <Avatar className={`aspect-square object-contain flex-shrink-0 rounded-sm ${isCollapsed ? "size-4" : "size-8"}`}>
                                         <AvatarImage
-                                            src={
-                                                "https://oyster.ignimgs.com/mediawiki/apis.ign.com/wuthering-waves/3/30/Rover-havoc-male-icon.png"
-                                            }
+                                            src="https://oyster.ignimgs.com/mediawiki/apis.ign.com/wuthering-waves/3/30/Rover-havoc-male-icon.png"
                                             alt="MN"
                                         />
                                         <AvatarFallback>MN</AvatarFallback>
                                     </Avatar>
                                     {!isCollapsed && (
-                                        <div className="flex flex-col items-stretch gap-0 overflow-hidden">
+                                        <div className="w-full flex flex-col items-stretch gap-0 overflow-hidden">
                                             <span className="font-medium truncate text-start">
                                                 {username || "Unknown User"}
                                             </span>
-                                            <span className="text-xs text-muted-foreground truncate">
+                                            <span className="text-xs text-muted-foreground truncate text-start">
                                                 UID: {uid || "N/A"}
                                             </span>
                                         </div>
                                     )}
                                 </div>
-                                <ChevronUp className="size-4" />
+                                <ChevronUp className="w-auto size-4" />
+                            </div>
+                            <div className="px-2">
+                                <Margin/>
                             </div>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent className="min-w-60">

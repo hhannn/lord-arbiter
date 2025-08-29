@@ -12,29 +12,17 @@ import { useUserData } from "@/store/useUserData";
 
 import { ChartBarNegative } from "@/components/charts/chart-bar-negative";
 import { ChartLineDefault } from "@/components/charts/chart-line-default";
-import {
-    Card,
-    CardHeader,
-    CardTitle,
-    CardContent,
-    CardDescription,
-    CardFooter,
-} from "@/components/ui/card";
 
 import { DashboardContext } from "@/context/dashboardContext";
 import { Skeleton } from "@/components/ui/skeleton";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { useAuthRedirect } from "@/hooks/useAuthRedirect";
-import { PnlCardContent } from "./pnl-card-content";
+import { PnlListCard } from "./cards/dashboard/pnl-list";
 import { DateRangePicker } from "./date-range-picker";
 import { DateRange } from "react-day-picker";
-import { add, addDays, startOfWeek } from "date-fns";
-import { Separator } from "./ui/separator";
-import { Button } from "./ui/button";
-import { IconTransfer } from "@tabler/icons-react";
-import { Progress } from "./ui/progress";
-import { MarginCard } from "./cards/margin";
-import { TransferDialog } from "./dialogs/transfer";
+import { add, addDays, startOfDay, startOfWeek } from "date-fns";
+import { EquityCard } from "./cards/dashboard/equity";
+import { AllTimePnlCard } from "./cards/dashboard/all-time-pnl";
+import { AvgTradeDurationCard } from "./cards/dashboard/avg-trade-duration";
 import { ClosedPnl } from "@/types/bot";
 
 // ----- Types -----
@@ -46,121 +34,101 @@ interface DashboardData {
         date: string;
         pnl: number;
     }[];
-    totalPnl: number;
     transactionLog: {
         symbol: string;
         change: string;
         transactionTime: string;
         cashBalance: string
     }[];
-    averageTradeDuration: {
-        hour: number;
-        minute: number;
-    };
-    totalClosedOrders: string;
 }
+
+type Transaction = {
+    symbol: string;
+    side: string;
+    change: string;
+    transactionTime: string;
+    cashBalance: string;
+};
 
 interface DashboardContentProps {
     children: ReactNode;
 }
 
 const today = new Date()
-const last7Days: DateRange = { from: addDays(today, -6), to: today }
+const last7Days: DateRange = { from: startOfDay(addDays(today, -6)), to: today }
 
 // ----- Component -----
 export default function DashboardContent({ children }: DashboardContentProps) {
     useAuthRedirect();
 
-    const { data } = useUserData();
+    const { data, joinDate, startPolling, stopPolling } = useUserData();
 
     const [initialLoading, setInitialLoading] = useState(true);
-    const [monthly, setMonthly] = useState(false);
     const [dateRange, setDateRange] = useState<DateRange | undefined>(last7Days);
-    const [transferOpen, setTransferOpen] = useState(false);
 
     useEffect(() => {
-        const store = useUserData.getState();
-        store.startPolling();
+        startPolling();
         setInitialLoading(false)
 
-        return () => store.stopPolling();
+        return () => stopPolling();
     }, []);
 
-    type Transaction = {
-        symbol: string;
-        side: string;
-        change: string;
-        transactionTime: string;
-        cashBalance: string;
-    };
-
     const dashboardData: DashboardData | null = useMemo(() => {
-        const walletBalance = data?.balance?.result?.list?.[0];
-        if (!walletBalance) return null;
+        if (!data) return null;
 
-        const calculateDailyPnl = (transactions: Transaction[]) => {
-            if (!dateRange?.from) return [];
+        const walletBalance = data.balance.result.list[0];
 
-            const map: Record<string, number> = {};
+        const calculateDailyPnl = (closedPnL: ClosedPnl[], transaction: Transaction[]) => {
+            if (!dateRange) return [];
 
-            transactions.forEach((trx) => {
-                const date = new Date(Number(trx.transactionTime))
-                    .toLocaleDateString("en-CA", { timeZone: "Asia/Bangkok" });
-                map[date] = (map[date] || 0) + parseFloat(trx.change);
+            const map: Record<string, { pnl: number, cashBalance: number, roe: number }> = {};
+
+            closedPnL.forEach((row) => {
+                const date = new Date(Number(row.updatedTime));
+                // shift into UTC+7 midnight
+                const bangkokDate = new Date(
+                    date.toLocaleDateString("en-CA", { timeZone: "Asia/Bangkok" })
+                );
+
+                const key = bangkokDate.getTime(); // number key
+                if (!map[key]) map[key] = { pnl: 0, cashBalance: 0, roe: 0 };
+                map[key].pnl = (map[key]?.pnl || 0) + parseFloat(String(row.closedPnl));
             });
 
+            transaction
+                .sort((a, b) => Number(a.transactionTime) - Number(b.transactionTime))
+                .forEach((trx) => {
+                    const date = new Date(Number(trx.transactionTime));
+                    // shift into UTC+7 midnight
+                    const bangkokDate = new Date(
+                        date.toLocaleDateString("en-CA", { timeZone: "Asia/Bangkok" })
+                    );
+
+                    const key = bangkokDate.getTime(); // number key
+                    if (!map[key]) map[key] = { pnl: 0, cashBalance: 0, roe: 0 };
+                    // console.log(key, trx.cashBalance)
+                    map[key].cashBalance = Number(trx.cashBalance);
+                });
+
             return Object.entries(map)
-                .sort(([a], [b]) => a.localeCompare(b))
-                .map(([date, pnl]) => ({ date, pnl }))
+                .sort(([a], [b]) => Number(a) - Number(b))
+                .map(([time, { pnl, cashBalance }]) => ({
+                    date: String(new Date(Number(time))), // actual Date object in +7
+                    pnl,
+                    cashBalance,
+                    roe: cashBalance === 0 ? 0 : pnl / (cashBalance - pnl) * 100
+                }))
                 .filter((item) => {
-                    const rowDate = new Date(item.date + "T00:00:00"); // safe local parse
-                    return rowDate >= (dateRange.from ?? new Date(0)) && rowDate <= (dateRange.to ?? new Date());
-                })
+                    const rowDate = new Date(item.date).getTime();
+                    const from = dateRange.from?.getTime() ?? 0;
+                    const to = dateRange.to?.getTime() ?? Date.now();
+                    return rowDate >= from && rowDate <= to;
+                });
         };
 
-        const calculateTotalPnl = (dailyPnl: { date: string; pnl: number }[]) => {
-            return dailyPnl.reduce((sum, item) => sum + item.pnl, 0);
-        };
+        const dailyPnl = calculateDailyPnl(data.closedPnL || [], data.transactionLogs || []);
 
-        const calculateTotalTrades = (transactions: Transaction[]) => {
-            if (!dateRange?.from) return 0;
-            return transactions.filter((item) => {
-                const rowDate = new Date(Number(item.transactionTime))
-                    .toLocaleDateString("en-CA", { timeZone: "Asia/Bangkok" });
-                return new Date(rowDate) >= (dateRange.from ?? new Date()) && new Date(rowDate) <= (dateRange.to ?? new Date());
-            }).length
-        }
-
-        const dailyPnl = calculateDailyPnl(data?.transactionLogs || []);
-        const totalPnl = calculateTotalPnl(dailyPnl || []);
-        const totalClosedOrders = calculateTotalTrades(data?.transactionLogs || [])
-
-        // Average trade time
-
-        const diffs: number[]= []
-        data?.closedPnL?.forEach((item: ClosedPnl) => {
-            const diff = new Date(Number(item.updatedTime)).getTime() - new Date(Number(item.createdTime)).getTime();
-
-            diffs.push(diff)
-        })
-
-        let averageTradeDuration = {
-            hour: 0,
-            minute: 0
-        }
-
-        if (diffs.length > 0) {
-            const totalDiff = diffs.reduce((acc, val) => acc + val)
-            const diffMs = Number(totalDiff) / Number(diffs.length)
-            const diffMinutes = Math.floor(diffMs / 1000 / 60);
-            const hours = Math.floor(diffMinutes / 60);
-            const minutes = diffMinutes % 60;
-            averageTradeDuration = {
-                hour: Number(hours),
-                minute: Number(minutes)
-            }
-        }
-        // `${hours}h ${minutes}m` //
+        console.log(dailyPnl)
 
         return {
             equity: parseFloat(walletBalance.totalEquity) || 0,
@@ -169,12 +137,9 @@ export default function DashboardContent({ children }: DashboardContentProps) {
                 ? new Date(data.balance.time).toLocaleString()
                 : "",
             dailyPnl,
-            totalPnl,
-            averageTradeDuration,
-            totalClosedOrders: totalClosedOrders.toString(),
             transactionLog: data.transactionLogs || [],
         };
-    }, [data, monthly, dateRange]);
+    }, [data, dateRange]);
 
     if (!dashboardData || initialLoading) {
         console.log("loading")
@@ -201,7 +166,7 @@ export default function DashboardContent({ children }: DashboardContentProps) {
                 </div>
                 <Skeleton className="h-64" />
             </div>
-        )// prevent context from being null
+        )
     }
 
     return (
@@ -215,60 +180,18 @@ export default function DashboardContent({ children }: DashboardContentProps) {
                         </p>
                     </div>
                     <div className="text-sm text-neutral-500 ms-auto">
-                        {/* {data ? dashboardData?.time : "Loading..."} */}
                         <DateRangePicker
                             value={dateRange}
                             onChange={setDateRange}
-                        // rangeName="This week"
                         />
                     </div>
                 </div>
                 <div className="flex flex-col md:grid md:grid-cols-3 gap-4">
                     <div className="flex flex-col col-span-2 md:grid md:grid-cols-4 gap-4">
-                        <Card className="col-span-2 px-0 py-0 flex-row items-center justify-between gap-2 overflow-hidden">
-                            <div className="flex flex-col gap-2">
-                                <CardHeader className="pt-4">
-                                    <CardTitle className="text-sm text-muted-foreground font-medium">Equity</CardTitle>
-                                    <CardDescription className="text-foreground flex items-end gap-2">
-                                        <span className="text-2xl 2xl:text-3xl font-semibold">
-                                            {dashboardData.equity.toFixed(2)}
-                                        </span>
-                                        <span className="text-sm text-muted-foreground">USDT</span>
-                                    </CardDescription>
-                                </CardHeader>
-                                <CardFooter className="flex flex-col items-start pb-4">
-                                    <div className={`text-sm ${dashboardData && dashboardData.unrealizedPnl >= 0 ?
-                                        "text-success" :
-                                        "text-red-400"
-                                        }`}
-                                    >
-                                        {dashboardData.unrealizedPnl.toFixed(2)} USDT
-                                    </div>
-                                    <p className="text-sm text-muted-foreground">
-                                        Unrealized P&L
-                                    </p>
-                                </CardFooter>
-                            </div>
-                            <CardContent className="h-full px-0 flex">
-                                <Separator orientation="vertical" />
-                                <Button className="h-full rounded-none" variant="ghost" onClick={() => setTransferOpen(true)}>
-                                    <IconTransfer /> Transfer
-                                </Button>
-                            </CardContent>
-                            <TransferDialog open={transferOpen} onOpenChange={setTransferOpen} />
-                        </Card>
+                        <EquityCard />
+                        <AllTimePnlCard data={data.closedPnL} date={joinDate} />
+                        <AvgTradeDurationCard dateRange={dateRange} />
 
-                        <Card className="col-span-1 justify-between gap-2">
-                            <CardHeader className="gap-2">
-                                <CardDescription className="font-medium">Avg. trade duration</CardDescription>
-                                <CardTitle className="font-medium lg:text-2xl 2xl:text-3xl">
-                                    {dashboardData?.averageTradeDuration.hour}<span className="ms-0 text-base text-muted-foreground">h </span>
-                                    {dashboardData?.averageTradeDuration.minute}<span className="text-base text-muted-foreground">m</span>
-                                </CardTitle>
-                            </CardHeader>
-                        </Card>
-
-                        <MarginCard />
                         <div className="col-span-full grid grid-cols-2 gap-4">
                             <ChartBarNegative
                                 data={dashboardData?.dailyPnl || []}
@@ -281,24 +204,7 @@ export default function DashboardContent({ children }: DashboardContentProps) {
                             />
                         </div>
                     </div>
-                    <Card className="gap-0 py-4 justify-between">
-                        <CardHeader>
-                            <CardTitle>P&L list</CardTitle>
-                        </CardHeader>
-                        <Separator className="mt-3" />
-                        <CardContent className="px-4 overflow-hidden flex-1">
-                            <PnlCardContent data={data.closedPnL} />
-                        </CardContent>
-                        <Separator className="mb-3" />
-                        <CardFooter className="text-sm flex items-center justify-between">
-                            <div className="font-medium">
-                                Total closed orders
-                            </div>
-                            <div className="font-medium">
-                                {dashboardData?.totalClosedOrders}
-                            </div>
-                        </CardFooter>
-                    </Card>
+                    <PnlListCard data={data.closedPnL} dateRange={dateRange} />
                 </div>
 
                 <div className="col-span-full">

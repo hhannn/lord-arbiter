@@ -68,6 +68,12 @@ export function ChartLineDefault({ className, data, initialLoading }: ChartLineD
         });
     }, [data]);
 
+    useEffect(() => {
+        console.log(
+            chartData.reduce((acc, item) => acc + item.pnl, 0)
+        );
+    }, [chartData]);
+
     const chartConfig: ChartConfig = {
         cumulativePnl: { label: "Cum. P&L" },
         pnl: { label: "Daily P&L" }

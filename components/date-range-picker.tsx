@@ -14,6 +14,7 @@ import {
     PopoverTrigger,
 } from "@/components/ui/popover"
 import { Separator } from "./ui/separator"
+import { useState } from "react"
 
 interface DatePickerProps {
     className?: string
@@ -22,25 +23,21 @@ interface DatePickerProps {
 }
 
 export function DateRangePicker({ className, onChange, value }: DatePickerProps) {
-    // const [date, setDate] = React.useState<DateRange | undefined>({
-    //     from: new Date(),
-    //     to: addDays(new Date(), -7),
-    // })
-    const [rangeName, setRangeName] = React.useState("Last 7 days")
+    const [rangeName, setRangeName] = useState("Last 7 days")
 
     function setRange(range: DateRange | undefined, label?: string) {
         if (onChange) onChange(range, label)
         setRangeName(label || "")
     }
 
-    function getToday() {
-        const now = new Date()
-        const utc7 = new Date(now.getTime() + 7 * 60 * 60 * 1000)
-        return utc7 // convert to Asia/Bangkok timezone
-    }
-
     function getRange(range: string): DateRange {
         const today = new Date();
+        const ranges: Record<string, number> = {
+            "last7Days": -6,
+            "last30Days": -29,
+            "last60Days": -59,
+            "last90Days": -89
+        }
 
         switch (range) {
             case "thisWeek":
@@ -57,29 +54,9 @@ export function DateRangePicker({ className, onChange, value }: DatePickerProps)
                     from: new Date(today.getFullYear(), today.getMonth(), 1),
                     to: today < lastDayOfMonth ? today : lastDayOfMonth,
                 };
-            case "last7Days":
-                return {
-                    from: startOfDay(addDays(today, -6)),
-                    to: today,
-                };
-            case "last30Days":
-                return {
-                    from: startOfDay(addDays(today, -29)),
-                    to: today,
-                };
-            case "last60Days":
-                return {
-                    from: startOfDay(addDays(today, -59)),
-                    to: today,
-                }
-            case "last90Days":
-                return {
-                    from: startOfDay(addDays(today, -89)),
-                    to: today,
-                };
             default:
                 return {
-                    from: today,
+                    from: startOfDay(addDays(today, ranges[range])),
                     to: today,
                 };
         }

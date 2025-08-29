@@ -57,7 +57,6 @@ export function DataTable<TData, TValue>({
         });
 
     const [isAlertVisible, setIsAlertVisible] = useState(() => {
-        // load from localStorage on init
         const stored = localStorage.getItem("isAlertVisible");
         return stored !== null ? stored === "true" : true;
     });
@@ -106,9 +105,9 @@ export function DataTable<TData, TValue>({
                     </div>
                 </div>
             </CardHeader>
-            <CardContent className="flex flex-col gap-4 px-0">
+            <CardContent className="flex flex-col px-0">
                 {isAlertVisible &&
-                    <Alert className="border-amber-500/50 text-amber-600 dark:text-amber-500 flex items-center py-1 pe-1">
+                    <Alert className="border-x-0 border-b-0 text-amber-600 dark:text-amber-500 flex items-center py-1 pe-1 rounded-none">
                         <AlertCircle />
                         <div className="w-full">
                             <AlertTitle className="-mb-0.5">Make sure that your setup will be safe in a black swan event</AlertTitle>
@@ -200,7 +199,7 @@ export function DataTable<TData, TValue>({
                         </TableBody>
                     </Table>
                 </div>
-                <div className="flex justify-end items-center gap-8 mx-6">
+                <div className="flex justify-end items-center gap-8 mx-6 mt-4">
                     <DropdownMenu>
                         <span className="text-sm font-medium">Rows per page</span>
                         <DropdownMenuTrigger className="flex items-center gap-4">

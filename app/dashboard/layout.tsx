@@ -11,11 +11,9 @@ export const metadata = {
     description: "Weeping may endure for a night, but joy comes in the morning.",
 };
 
-export default function Layout({ children }: { children: React.ReactNode }) {
-
+export default async function Layout({ children }: { children: React.ReactNode }) {
     return (
         <SidebarProvider className="flex flex-col md:pe-2 pb-2">
-            {/* dark:bg-[radial-gradient(#fcfcfc12_1px,transparent_1px)] dark:[background-size:32px_32px] */}
             <div className="flex min-h-screen w-full font-inter">
                 <AppSidebar />
                 <div className="w-full md:my-2 md:ms-0 md:rounded-3xl overflow-hidden">

@@ -45,13 +45,6 @@ interface CustomTooltipContent {
 export const description = "A bar chart with negative values";
 
 export function ChartBarNegative({ className, data, initialLoading }: ChartBarNegativeProps) {
-
-    // if (!monthly) {
-    //     data = data.slice(-7)
-    // } else {
-    //     data = data.slice(-30)
-    // }
-
     const CustomTooltipContent = ({ active, payload, label }: CustomTooltipContent) => {
         if (active && payload && payload.length) {
             const dataPoint = payload[0].payload;
@@ -64,15 +57,21 @@ export function ChartBarNegative({ className, data, initialLoading }: ChartBarNe
 
             return (
                 <div className="flex flex-col gap-2 bg-background border rounded-lg p-3 shadow-lg">
-                    {payload.map((entry: any, index: number) => (
-                        <>
-                            <p className="text-xs font-medium text-muted-foreground">{date}</p>
-                            <div className="flex gap-4 items-center">
-                                <p className="text-muted-foreground">P&L</p>
-                                <p className="text-sm font-mono text-end">{`${entry.value.toFixed(2)} USDT`}</p>
-                            </div>
-                        </>
-                    ))}
+                    <p className="text-xs font-medium text-muted-foreground">{date}</p>
+                    <div className="flex gap-4 items-center justify-between">
+                        <div className="flex items-center gap-2">
+                            <div className="size-2 bg-chart-1 rounded-xs"></div>
+                            <p className="text-muted-foreground">P&L</p>
+                        </div>
+                        <p className="text-sm font-mono text-end">{`${payload[1].value.toFixed(2)} USDT`}</p>
+                    </div>
+                    <div className="flex gap-4 items-center justify-between">
+                        <div className="flex items-center gap-2">
+                            <div className="size-2 border border-chart-1 rounded-xs"></div>
+                            <p className="text-muted-foreground">ROE</p>
+                        </div>
+                        <p className="text-sm font-mono text-end">{`${payload[0].value.toFixed(2)}%`}</p>
+                    </div>
                 </div>
             );
         }
@@ -81,6 +80,7 @@ export function ChartBarNegative({ className, data, initialLoading }: ChartBarNe
 
     const chartConfig: ChartConfig = {
         pnl: { label: "PnL" },
+        roe: { label: "ROE" },
         // date: { label: "test" }
     };
 
@@ -166,14 +166,31 @@ export function ChartBarNegative({ className, data, initialLoading }: ChartBarNe
                             tickFormatter={(value) => formatDate(String(value))}
                         />
                         <Bar
-                            dataKey="pnl"
-                            radius={[4, 4, 4, 4]}
+                            dataKey="roe"
+                            radius={[0, 0, 4, 4]}
                             barSize={4}
+                            stackId="a"
                         >
                             {data.map((item) => (
                                 <Cell
                                     key={item.date}
+
                                     fill={item.pnl > 0 ? "var(--chart-1)" : "var(--chart-5)"}
+                                    stroke={item.pnl > 0 ? "var(--chart-1)" : "var(--chart-5)"}
+                                />
+                            ))}
+                        </Bar>
+                        <Bar
+                            dataKey="pnl"
+                            radius={[4, 4, 0, 0]}
+                            barSize={4}
+                            stackId="a"
+                        >
+                            {data.map((item) => (
+                                <Cell
+                                    key={item.date}
+                                    fill="var(--none)"
+                                    stroke={item.pnl > 0 ? "var(--chart-1)" : "var(--chart-5)"}
                                 />
                             ))}
                         </Bar>

@@ -34,8 +34,8 @@ export default function Performance() {
     return (
         <div className="relative flex flex-col gap-4 mx-auto pb-6">
             <Alert className="relative flex self-center items-center justify-between overflow-hidden w-[calc(100%+48px)] rounded-none border-x-0 border-t-0 px-6">
-                <Image className="absolute right-0 top-0" width={0} height={0}
-                    src="https://skowt.cc/_next/image?url=https%3A%2F%2Fpack.skowt.cc%2Fasset%2F01983920-6f6a-771a-b42d-da6da3a32218.png&w=1920&q=75"
+                <Image className="absolute right-0 top-0 inset-0 w-full h-auto object-cover" fill
+                    src="https://pack.skowt.cc/asset/01983920-6c16-7034-8710-b8731fb3beba.png"
                     alt="Banner"
                 />
                 <div className="relative flex flex-col gap-1">

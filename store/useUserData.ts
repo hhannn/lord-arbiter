@@ -10,10 +10,11 @@ interface UserDataStore {
     userId: number | null;
     username: string | null;
     uid: string | null;
+    joinDate: string | null;
     fetchData: () => void;
     fetchWithdrawableBalance: () => void;
     transfer: (payload: TransferPayload) => void;
-    setUserId: (id: number, username: string, uid: string) => void;
+    setUserId: (id: number, username: string, uid: string, joinDate: string) => void;
     logout: () => void;
     startPolling: () => void;
     stopPolling: () => void;
@@ -31,6 +32,7 @@ export const useUserData = create<UserDataStore>()(
                 userId: null,
                 username: null,
                 uid: null,
+                joinDate: null,
 
                 fetchData: async () => {
                     set({ loading: true });
@@ -44,7 +46,6 @@ export const useUserData = create<UserDataStore>()(
 
                         const json = await res.json();
                         set({ data: { ...json }, loading: false });
-                        console.log(json)
                     } catch (err) {
                         console.error("❌ Error fetching user data", err);
                         set({ loading: false });
@@ -82,11 +83,12 @@ export const useUserData = create<UserDataStore>()(
                     }
                 },
 
-                setUserId: (id, username, uid) => {
+                setUserId: (userId, username, uid, joinDate) => {
                     set({
-                        userId: id,
+                        userId: userId,
                         username,
                         uid,
+                        joinDate,
                     });
                 },
 
@@ -141,7 +143,9 @@ export const useUserData = create<UserDataStore>()(
                             body: JSON.stringify(payload),
                         });
 
-                        toast.success(`Transferred 1 USDT from ${payload.fromAccount} to ${payload.toAccount}.`);
+                        toast.success(
+                            `Transferred 1 USDT from ${payload.fromAccount} to ${payload.toAccount}.`
+                        );
                     } catch (e) {
                         toast.error("Failed to transfer", {
                             description: "Unexpected error occurred",
@@ -158,6 +162,7 @@ export const useUserData = create<UserDataStore>()(
                 userId: state.userId,
                 username: state.username,
                 uid: state.uid,
+                joinDate: state.joinDate,
                 storage:
                     typeof window !== "undefined"
                         ? createJSONStorage(() => localStorage)

@@ -35,25 +35,21 @@ export default function Home() {
     const [apiKey, setApiKey] = useState("");
     const [apiSecret, setApiSecret] = useState("");
     const router = useRouter();
-    const { consent, checked, acceptConsent } = useCookieConsent();
-
-    const API_BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
 
     useEffect(() => {
         const checkSession = async () => {
             try {
                 const res = await fetch(`/api/user/data`, {
                     method: "GET",
-                    credentials: "include", // so cookies are sent
+                    credentials: "include",
                 });
 
                 if (res.ok) {
                     toast.success("Logging in...");
                     const json = await res.json();
-                    // Optional: store data if you want
                     console.log(json)
                     useUserData.getState().fetchData();
-                    router.replace("/dashboard"); // 👈 redirect
+                    router.replace("/dashboard");
                 }
             } catch (err) {
                 console.log("No active session");
@@ -113,8 +109,8 @@ export default function Home() {
             }
 
             if (res.ok) {
-                await useUserData.getState().fetchData(); // ✅ fetch info from /api/user/data
-                useUserData.getState().setUserId(json.user_id, json.username, json.uid);
+                await useUserData.getState().fetchData();
+                useUserData.getState().setUserId(json.user_id, json.username, json.uid, json.created_at);
 
                 router.push("/dashboard");
             } else {

@@ -34,9 +34,9 @@ export const columns: ColumnDef<ClosedPnl>[] = [
         accessorKey: "asset",
         header: "Asset",
         cell: ({ row }) => {
-            let val = String(row.getValue("asset"));
-            val = val === "HYPEUSDT" ? "HYPEH" : val.replace("USDT", "");
-            const iconUrl = `https://s3-symbol-logo.tradingview.com/crypto/XTVC${val}.svg`
+            const val = String(row.getValue("asset")).replace("USDT", "");
+            const formattedVal = val === "HYPE" ? "HYPEH" : val;
+            const iconUrl = `https://s3-symbol-logo.tradingview.com/crypto/XTVC${formattedVal}.svg`
             const side = String(row.getValue("side"));
 
             return (

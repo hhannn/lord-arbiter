@@ -11,7 +11,14 @@ const nextConfig: NextConfig = {
         ];
     },
     images: {
-        domains: ["skowt.cc"],
+        remotePatterns: [
+            {
+                protocol: "https",
+                hostname: "pack.skowt.cc",
+                port: "",
+                pathname: "/asset/**",
+            },
+        ],
     },
     eslint: {
         // Warning: This allows production builds to successfully complete even if
