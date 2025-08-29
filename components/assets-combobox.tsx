@@ -29,19 +29,10 @@ interface AssetsComboboxProps {
     onBlur?: () => void;
     error?: string;
     initialValue?: string;
+    className?: string;
 }
 
-interface InstrumentInfo {
-    category: string;
-    symbol: string;
-    minQty: number;
-    qtyStep: number;
-    minValue: number;
-    minLeverage: number;
-    maxLeverage: number;
-}
-
-export function AssetsCombobox({ value, onChange, error, initialValue }: AssetsComboboxProps) {
+export function AssetsCombobox({ value, onChange, error, initialValue, className }: AssetsComboboxProps) {
     const [symbols, setSymbols] = useState<string[]>([]);
     const [loading, setLoading] = useState(true);
     const [open, setOpen] = useState(false);
@@ -71,7 +62,7 @@ export function AssetsCombobox({ value, onChange, error, initialValue }: AssetsC
 
     return (
         <Popover open={open} onOpenChange={setOpen}>
-            <PopoverTrigger className="w-full">
+            <PopoverTrigger className={cn("w-full", className)}>
                 <Button
                     type="button"
                     variant="outline"

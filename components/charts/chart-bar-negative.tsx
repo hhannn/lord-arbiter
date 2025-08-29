@@ -55,19 +55,24 @@ export function ChartBarNegative({ className, data, initialLoading }: ChartBarNe
                 timeZone: "Asia/Bangkok"
             });
 
+            const indicator = {
+                pnl: payload[1].value > 0 ? "bg-chart-1" : "bg-chart-5",
+                roe: payload[0].value > 0 ? "border-chart-1" : "border-chart-5",
+            }
+
             return (
                 <div className="flex flex-col gap-2 bg-background border rounded-lg p-3 shadow-lg">
                     <p className="text-xs font-medium text-muted-foreground">{date}</p>
                     <div className="flex gap-4 items-center justify-between">
                         <div className="flex items-center gap-2">
-                            <div className="size-2 bg-chart-1 rounded-xs"></div>
+                            <div className={cn("size-2 rounded-xs", indicator.pnl)} />
                             <p className="text-muted-foreground">P&L</p>
                         </div>
                         <p className="text-sm font-mono text-end">{`${payload[1].value.toFixed(2)} USDT`}</p>
                     </div>
                     <div className="flex gap-4 items-center justify-between">
                         <div className="flex items-center gap-2">
-                            <div className="size-2 border border-chart-1 rounded-xs"></div>
+                            <div className={cn("size-2 border rounded-xs", indicator.roe)} />
                             <p className="text-muted-foreground">ROE</p>
                         </div>
                         <p className="text-sm font-mono text-end">{`${payload[0].value.toFixed(2)}%`}</p>
@@ -174,8 +179,7 @@ export function ChartBarNegative({ className, data, initialLoading }: ChartBarNe
                             {data.map((item) => (
                                 <Cell
                                     key={item.date}
-
-                                    fill={item.pnl > 0 ? "var(--chart-1)" : "var(--chart-5)"}
+                                    fill="var(--background)"
                                     stroke={item.pnl > 0 ? "var(--chart-1)" : "var(--chart-5)"}
                                 />
                             ))}
@@ -189,7 +193,7 @@ export function ChartBarNegative({ className, data, initialLoading }: ChartBarNe
                             {data.map((item) => (
                                 <Cell
                                     key={item.date}
-                                    fill="var(--none)"
+                                    fill={item.pnl > 0 ? "var(--chart-1)" : "var(--chart-5)"}
                                     stroke={item.pnl > 0 ? "var(--chart-1)" : "var(--chart-5)"}
                                 />
                             ))}

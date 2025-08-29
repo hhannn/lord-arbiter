@@ -26,7 +26,7 @@ export function Margin({ className }: MarginProps) {
     }, [data]);
 
     return (
-        <div className={cn("w-full text-xs flex gap-2 p-2 border rounded-md", className)}>
+        <div className={cn("w-full text-xs flex gap-2 p-4 border rounded-lg bg-background/40", className)}>
             <div className="w-full">
                 <div className="flex items-bottom justify-between gap-2">
                     <span>IM</span>

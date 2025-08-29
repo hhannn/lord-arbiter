@@ -33,6 +33,8 @@ interface DashboardData {
     dailyPnl: {
         date: string;
         pnl: number;
+        roe: number;
+        cashBalance: number;
     }[];
     transactionLog: {
         symbol: string;

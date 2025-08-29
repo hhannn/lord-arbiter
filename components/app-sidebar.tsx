@@ -138,7 +138,7 @@ export function AppSidebar({ collapsible = "icon" }: AppSidebarProps) {
                     </div>
                     <DropdownMenu>
                         <DropdownMenuTrigger>
-                            <div className="w-full flex items-center justify-between gap-4 p-2 cursor-pointer rounded-md hover:bg-accent/20 hover:backdrop-blur-[2px]">
+                            <div className="w-full flex items-center justify-between gap-4 p-2 cursor-pointer rounded-md hover:bg-foreground/5 hover:backdrop-blur-[2px]">
                                 <div className={`w-full flex items-center gap-4`}>
                                     <Avatar className={`aspect-square object-contain flex-shrink-0 rounded-sm ${isCollapsed ? "size-4" : "size-8"}`}>
                                         <AvatarImage
@@ -160,7 +160,7 @@ export function AppSidebar({ collapsible = "icon" }: AppSidebarProps) {
                                 </div>
                                 <ChevronUp className="w-auto size-4" />
                             </div>
-                            <div className="px-2">
+                            <div className="mt-2">
                                 <Margin/>
                             </div>
                         </DropdownMenuTrigger>

@@ -24,13 +24,10 @@ interface ChartLineDefaultProps {
     data: {
         date: string;
         pnl: number;
+        roe: number;
+        cashBalance: number;
     }[];
     initialLoading: boolean;
-}
-
-interface DailyPnlItem {
-    date: string;
-    pnl: number;
 }
 
 export const description = "A line chart";
@@ -38,25 +35,8 @@ export const description = "A line chart";
 export function ChartLineDefault({ className, data, initialLoading }: ChartLineDefaultProps) {
 
     const chartData = useMemo(() => {
-        const dailyMap: Record<string, number> = {};
-
-        data.forEach((item: DailyPnlItem) => {
-            const pnl = item.pnl;
-            const date = item.date;
-
-            if (!dailyMap[date]) dailyMap[date] = 0;
-            dailyMap[date] += pnl;
-        });
-
-        const sorted = Object.entries(dailyMap)
-            .map(([date, pnl]) => ({
-                date,
-                pnl: Number(pnl.toFixed(2)),
-            }))
-            .sort(
-                (a, b) =>
-                    new Date(a.date).getTime() - new Date(b.date).getTime()
-            );
+        const sorted = data
+            .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
 
         let cumulative = 0;
         return sorted.map((item) => {
@@ -64,14 +44,13 @@ export function ChartLineDefault({ className, data, initialLoading }: ChartLineD
             return {
                 ...item,
                 cumulativePnl: Number(cumulative.toFixed(2)),
+                cumulativeRoe: Number((cumulative / (item.cashBalance - cumulative) * 100).toFixed(2)),
             };
         });
     }, [data]);
 
     useEffect(() => {
-        console.log(
-            chartData.reduce((acc, item) => acc + item.pnl, 0)
-        );
+        console.log(chartData);
     }, [chartData]);
 
     const chartConfig: ChartConfig = {
@@ -92,14 +71,14 @@ export function ChartLineDefault({ className, data, initialLoading }: ChartLineD
             return (
                 <div className="flex flex-col gap-2 bg-background border rounded-lg p-3 shadow-lg">
                     <p className="text-xs font-medium text-muted-foreground">{date}</p>
-                    {payload.map((entry: any, index: number) => (
-                        <>
-                            <div className="flex gap-4 items-center">
-                                <p className="text-muted-foreground">Cum. P&L</p>
-                                <p className="text-sm font-mono text-end">{`${entry.value.toFixed(2)} USDT`}</p>
-                            </div>
-                        </>
-                    ))}
+                    <div className="flex gap-4 items-center">
+                        <p className="text-muted-foreground">Cum. P&L</p>
+                        <p className="text-sm font-mono text-end">{`${payload[1].value.toFixed(2)} USDT`}</p>
+                    </div>
+                    <div className="flex gap-4 items-center">
+                        <p className="text-muted-foreground">Cum. ROE</p>
+                        <p className="text-sm font-mono text-end">{`${payload[0].value.toFixed(2)}%`}</p>
+                    </div>
                 </div>
             );
         }
@@ -114,14 +93,6 @@ export function ChartLineDefault({ className, data, initialLoading }: ChartLineD
                 <Skeleton className="h-full w-full" />
             </div>
         );
-    }
-
-    function formatDate(dateString: string): string {
-        const date = new Date(dateString);
-        return new Intl.DateTimeFormat('en-US', {
-            month: 'short',
-            day: '2-digit'
-        }).format(date);
     }
 
     if (data.length === 0) {
@@ -179,7 +150,28 @@ export function ChartLineDefault({ className, data, initialLoading }: ChartLineD
                                     stopOpacity={0.1}
                                 />
                             </linearGradient>
+                            <linearGradient id="fill2" x1="0" y1="0" x2="0" y2="1">
+                                <stop
+                                    offset="5%"
+                                    stopColor="var(--color-chart-3)"
+                                    stopOpacity={0.8}
+                                />
+                                <stop
+                                    offset="95%"
+                                    stopColor="var(--color-chart-3)"
+                                    stopOpacity={0.1}
+                                />
+                            </linearGradient>
                         </defs>
+                        <Area
+                            dataKey="cumulativeRoe"
+                            type="monotone"
+                            fill="url(#fill2)"
+                            fillOpacity={0.4}
+                            stroke="var(--chart-3)"
+                            strokeWidth={2}
+                            stackId="a"
+                        />
                         <Area
                             dataKey="cumulativePnl"
                             type="monotone"

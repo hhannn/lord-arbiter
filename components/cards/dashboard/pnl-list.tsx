@@ -72,7 +72,7 @@ export function PnlListCard({ data, dateRange }: PnlCardContentProps) {
             </CardHeader>
             <Separator className="mt-3" />
             <CardContent className="px-4 overflow-hidden flex-1">
-                <ScrollArea ref={rootRef} className="h-[200px] xl:h-[360px] 2xl:h-[400px]">
+                <ScrollArea ref={rootRef} className="h-[200px] xl:h-[360px] 2xl:h-[410px]">
                     <ul className="space-y-2 my-4">
                         {data?.map((item: PnlItem) => {
                             // console.log(item)
@@ -88,7 +88,7 @@ export function PnlListCard({ data, dateRange }: PnlCardContentProps) {
                             }
 
                             // const formattedDate = createdDate.toDateString().slice(3) + ", " + createdDate.toTimeString().slice(0, 8)
-                            const formattedDate = createdDate.toLocaleString("en-GB", {
+                            const formattedDate = updatedDate.toLocaleString("en-GB", {
                                 timeZone: "Asia/Jakarta", // or "Asia/Bangkok"
                                 year: "numeric",
                                 month: "short",
